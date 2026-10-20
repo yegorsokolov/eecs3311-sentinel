@@ -11,6 +11,17 @@
 
 ## Next representative interaction
 
+## 2026-10-20 - Step 1 build and configuration
+
+- Task/instruction: Re-review Stage 1 as the source of truth; implement build/configuration with MVP tests and precise manual verification instructions. Defer videos until the end.
+- AI contribution: Implemented immutable configuration loading and validation, startup help/configuration diagnostics, official Maven Wrapper setup, 17 MVP test cases and documentation.
+- Human contribution: Chose incremental implementation/review and final video timing; instructed adherence to Stage 1. Review of this step is pending.
+- Outcome: Configuration and bootstrap support implemented; no investigation feature declared complete. Maven verify passed in a temporary copy; in-place Java output remains blocked by the environment. Exact checks and limitation recorded in verification-log.md.
+- Development tool/model: Codex desktop; see ai-tools-and-costs.md. Token/money costs unavailable, not assumed zero.
+- Commit/push: Not authorized for this step and not performed.
+
+## Next representative interaction template
+
 - Date / task:
 - Tool / model:
 - Input/instruction:

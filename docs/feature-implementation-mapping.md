@@ -19,6 +19,8 @@ All entries refer to original Stage 1 feature IDs. Every feature is **not implem
 
 ## Source-file index
 
+Step 1 supporting infrastructure is implemented in `src/main/java/sentinel/config/AppConfig.java`, `ConfigurationException.java`, and `sentinel/Main.java`. It loads validated defaults/local overrides and provides --check-config, without invoking the model or changing case data. This is startup support, not a new meaningful feature or completion of F01-F12. Covered by AppConfigTest and MainTest; manual checks are in manual-verification.md.
+
 - `src/main/java/sentinel/Main.java`
 - `src/main/java/sentinel/analysis/AnalysisService.java`
 - `src/main/java/sentinel/analysis/RuleSeverityPolicy.java`

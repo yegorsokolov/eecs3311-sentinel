@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Stage 2 skeleton only. F01-F12 are not implemented. Contracts and dependency boundaries follow the accepted Stage 1 report and UML diagrams. Business methods explicitly throw `UnsupportedOperationException`. The entry point prints a skeleton notice; no working GUI, CLI investigation commands, model integration, import or persistence is claimed.
+Step 1 implements build setup, configuration loading and startup diagnostics. F01-F12 remain pending. Domain and service contracts follow the accepted Stage 1 report and UML diagrams; their business methods still throw `UnsupportedOperationException`. GUI, investigation CLI commands, model integration, import and persistence are not implemented yet.
 
 ## Design
 
@@ -13,19 +13,18 @@ Java with a Swing GUI and CLI sharing `AgentController`; bounded orchestration t
 ## Prerequisites and build
 
 - JDK 17 or newer; source compatibility targets Java 17.
-- Maven 3.9 or newer on PATH. No Maven wrapper is bundled yet.
+- The included official Maven Wrapper downloads Maven 3.9.9 on first use; no global Maven install is needed. First use requires internet access for Maven and dependencies.
 - Ollama and its model will be needed when integration is implemented. The skeleton makes no model calls.
 
 From the project root:
 
 ```powershell
-mvn compile
-mvn test
-mvn package
-java -jar target/sentinel-0.1.0-SNAPSHOT.jar
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
+.\mvnw.cmd --batch-mode verify
+& "$env:JAVA_HOME\bin\java.exe" -jar target/sentinel-0.1.0-SNAPSHOT.jar --check-config
 ```
 
-Maven resolves the pinned plugins and JUnit dependency. There are currently zero automated tests. Main source uses only JDK APIs; JSON and CLI dependencies will be selected when those components are implemented.
+Adjust JAVA_HOME to your JDK folder if different. Maven resolves pinned plugins and JUnit, compiles code, runs the MVP tests and packages the JAR. Test reports appear under `target/surefire-reports/`. On macOS/Linux, use `sh mvnw --batch-mode verify`. Main source currently uses only JDK APIs.
 
 ## Local configuration
 
@@ -35,16 +34,24 @@ The local `.env` is deliberately completely empty and ignored by Git. `.env.exam
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Configuration loading is pending. Planned defaults in `src/main/resources/application.properties` use `http://localhost:11434`, model `qwen2.5:7b`, and storage under `runtime/`. Local Ollama needs no API key. If a future provider requires a key, enter it only in ignored local configuration and document the variable in the safe example. Never place secrets in source, snapshots, logs, videos or reports.
+Configuration precedence is bundled `application.properties` < local `.env` < process environment. Blank overrides retain lower-priority values. Defaults use `http://localhost:11434`, model `qwen2.5:7b`, and storage under `runtime/`. Relative paths resolve against the working directory; configuration loading does not create directories or contact Ollama.
+
+Supported variables: `SENTINEL_OLLAMA_URL`, `SENTINEL_OLLAMA_MODEL`, `SENTINEL_DATA_DIR`, `SENTINEL_CASE_DIR`, and `SENTINEL_EXPORT_DIR`. The simple UTF-8 .env format accepts blank lines, full-line comments, KEY=value, and matching single/double quotes. It performs no variable expansion, escape processing or inline-comment parsing; unknown variable names are ignored. Do not use shell `export` prefixes. Invalid entries produce a line-number error without echoing their contents.
+
+Stage 1 budgets remain 8 tool attempts, 2 plan revisions, 6 model calls, 10/60-second tool/model timeouts and one transient retry. Configuration exposes these bundled defaults; AgentEngine will enforce them in a later step.
+
+Local Ollama needs no API key. If a future provider requires one, enter it only in ignored local configuration. Never place secrets in source, snapshots, logs, videos or reports.
 
 ## GUI and CLI launch contracts
 
-These commands currently print the skeleton notice; the interfaces are pending:
+Startup diagnostic commands:
 
 ```powershell
-java -jar target/sentinel-0.1.0-SNAPSHOT.jar --gui
-java -jar target/sentinel-0.1.0-SNAPSHOT.jar --cli
+java -jar target/sentinel-0.1.0-SNAPSHOT.jar --help
+java -jar target/sentinel-0.1.0-SNAPSHOT.jar --check-config
 ```
+
+They return 0 on success; invalid configuration/unsupported arguments return 2. The future `--gui` and `--cli` modes currently return 2 rather than claiming successful startup.
 
 Planned CLI operations from Stage 1:
 
@@ -69,4 +76,4 @@ sentinel export --case C --out runtime/exports/report.md
 
 See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/design-changes.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md`, `docs/demonstration-index.md` and `docs/submission-checklist.md`. Test planning is in `src/test/README.md`.
 
-The Stage 2 report is intentionally excluded. Commits and pushes require the user's explicit permission.
+The Stage 2 report is intentionally excluded. Commits and pushes require the user's explicit permission. Record feature videos after implementation is complete; perform the checks in `docs/manual-verification.md` after each development step.

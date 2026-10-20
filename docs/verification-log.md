@@ -13,3 +13,12 @@ No business-feature tests or runtime-model integration have been completed.
 | 2026-10-20 | `git check-ignore --no-index` for `.env`, `.env.local`, generated case JSON and class output | All correctly ignored | Used bundled Git because the PATH Git process stalled | No commits or pushes performed |
 
 Record actual commands and outcomes. Compiling a scaffold does not establish feature completion.
+
+## Step 1 - build and configuration (2026-10-20)
+
+- Reread Stage 1 sections on local model integration, scope, interfaces, bounded autonomy and design decisions. Preserved Ollama/Qwen2.5, JSON storage and the 8/2/6/10/60/1 limits.
+- Official Maven Wrapper 3.3.2 with Maven 3.9.9 reached Maven successfully. In-place verification failed because Java could not create target/classes in the OneDrive project directory.
+- Copied pom.xml and src unchanged to a temporary directory and ran Maven 3.9.9 verify with JDK 17.0.9: BUILD SUCCESS. 17 tests, zero failures/errors/skips (15 configuration cases and 2 bootstrap cases); JAR packaged successfully.
+- Ran that JAR from the original project directory: --check-config printed the intended Stage 1 defaults and resolved paths. Invalid process URL returned a concise error and exit 2.
+- Confirmed .env remains zero bytes and git diff --check passes. The OneDrive output restriction remains an environment limitation, not a passing in-place build claim.
+- Manual review and local verification by the user are pending; follow manual-verification.md. Videos are deferred until final feature integration. No commit/push performed for this step.
