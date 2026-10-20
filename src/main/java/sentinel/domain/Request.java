@@ -1,12 +1,12 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
-
-/** Stage 1 contract scaffold; business behavior is pending. */
+/**
+ * An analyst goal with an optional complete scope.
+ * A null scope represents a request awaiting clarification (Stage 1 F01/UC01);
+ * it must not be used to execute tools. The planning workflow enforces that guard.
+ */
 public record Request(String goal, CaseScope scope) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public Request {
+        DomainValidation.requiredText(goal, "goal");
+    }
 }

@@ -1,12 +1,20 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
 import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public record Event(String eventId, Instant timestamp, String eventType, String accountId, String sourceIp, String hostId, String outcome, String sourcePosition, String datasetVersion) {
-    // TODO: Validate invariants and defensively copy collection values.
+/**
+ * A normalized event with recoverable source provenance.
+ * Optional account/network/host/outcome details remain null when unavailable.
+ * Identifier and source text are preserved; importer-specific normalization is separate.
+ */
+public record Event(String eventId, Instant timestamp, String eventType, String accountId,
+                    String sourceIp, String hostId, String outcome, String sourcePosition,
+                    String datasetVersion) {
+    public Event {
+        DomainValidation.requiredText(eventId, "eventId");
+        DomainValidation.required(timestamp, "timestamp");
+        DomainValidation.requiredText(eventType, "eventType");
+        DomainValidation.requiredText(sourcePosition, "sourcePosition");
+        DomainValidation.requiredText(datasetVersion, "datasetVersion");
+    }
 }

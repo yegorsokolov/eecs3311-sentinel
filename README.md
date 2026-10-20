@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Step 1 implements build setup, configuration loading and startup diagnostics. F01-F12 remain pending. Domain and service contracts follow the accepted Stage 1 report and UML diagrams; their business methods still throw `UnsupportedOperationException`. GUI, investigation CLI commands, model integration, import and persistence are not implemented yet.
+Steps 1-2 implement build setup, configuration/startup diagnostics, and core request, scope, event and import-batch contracts. F01-F12 remain pending. Other domain and service scaffolds follow the accepted Stage 1 report and UML diagrams; their business methods still throw `UnsupportedOperationException`. GUI, investigation CLI commands, model integration, import and persistence are not implemented yet.
 
 ## Design
 

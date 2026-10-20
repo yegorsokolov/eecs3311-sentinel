@@ -19,6 +19,8 @@ All entries refer to original Stage 1 feature IDs. Every feature is **not implem
 
 ## Source-file index
 
+Step 2 implements foundational contracts in `domain/CaseScope.java`, `Request.java`, `Event.java`, and `ImportBatch.java`, supported by package-private `DomainValidation.java` (all beneath `src/main/java/sentinel/`). They support F01/F02 and later retrieval/analysis, but do not complete those features. Constructors reject invalid mandatory fields; Request can await scope clarification; ImportBatch copies its list. CoreDomainTest covers these boundaries. Other domain records remain scaffolds.
+
 Step 1 supporting infrastructure is implemented in `src/main/java/sentinel/config/AppConfig.java`, `ConfigurationException.java`, and `sentinel/Main.java`. It loads validated defaults/local overrides and provides --check-config, without invoking the model or changing case data. This is startup support, not a new meaningful feature or completion of F01-F12. Covered by AppConfigTest and MainTest; manual checks are in manual-verification.md.
 
 - `src/main/java/sentinel/Main.java`

@@ -22,6 +22,18 @@
 
 ## Next representative interaction template
 
+## 2026-10-20 - Step 2 core domain contracts
+
+- Task/instruction: Implement the next planned step in a small reviewable chunk, using Stage 1 as source of truth.
+- AI contribution: Re-read core data contracts; implemented CaseScope, Request, Event and ImportBatch invariants with a package-private validation helper; added 23 domain test cases and manual review instructions.
+- Human contribution: Authorized the next step and established the review-before-commit workflow. Review of this code remains pending.
+- Design interpretation: A goal-only Request can await clarification, while CaseScope represents complete validated scope. ImportBatch is immutable but retains duplicates for the later importer to count. Other record contracts are deferred to their owning features.
+- Outcome: In-place Maven verification passed all 40 tests and packaged the JAR. No case lifecycle, tool execution or import behavior is claimed complete.
+- Tool/model and costs: See ai-tools-and-costs.md; unavailable usage is not treated as zero.
+- Commit/push: Not performed for Step 2.
+
+## Next representative interaction template
+
 - Date / task:
 - Tool / model:
 - Input/instruction:

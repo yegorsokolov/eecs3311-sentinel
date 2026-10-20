@@ -22,3 +22,17 @@ Record actual commands and outcomes. Compiling a scaffold does not establish fea
 - Ran that JAR from the original project directory: --check-config printed the intended Stage 1 defaults and resolved paths. Invalid process URL returned a concise error and exit 2.
 - Confirmed .env remains zero bytes and git diff --check passes. The OneDrive output restriction remains an environment limitation, not a passing in-place build claim.
 - Manual review and local verification by the user are pending; follow manual-verification.md. Videos are deferred until final feature integration. No commit/push performed for this step.
+
+### Step 1 environment retry
+
+The later requested in-place retry succeeded: Maven verify passed all 17 tests and produced the project-local JAR. No folder-protection changes were made. The previous write limitation is historical, not a current blocker.
+
+## Step 2 - core domain contracts (2026-10-20)
+
+- Re-read Stage 1 section 10 and F01 clarification behavior. Implemented constructor checks for CaseScope, Request and Event, plus defensive ImportBatch copying.
+- A null Request.scope represents a request awaiting clarification; a constructed CaseScope is complete and valid. Draft lifecycle and planning guards remain pending.
+- Event optional account/IP/host/outcome remain nullable. Source positions and dataset versions are required; identifiers are preserved rather than silently normalized.
+- In-place command: Maven Wrapper --batch-mode --no-transfer-progress verify with JDK 17.
+- Result: BUILD SUCCESS, 40 tests, zero failures/errors/skips; 23 new domain cases and 17 existing cases. JAR packaged in the original OneDrive project's target directory.
+- Covered valid/boundary/reversed scopes, missing fields, unknown optional event details, provenance, immutable collection copying, null entries and duplicate preservation for later import handling.
+- Manual verification pending; exact commands and JShell flow are in manual-verification.md. No commit or push performed.

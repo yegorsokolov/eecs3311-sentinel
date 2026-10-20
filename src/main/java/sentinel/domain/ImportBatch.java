@@ -1,12 +1,17 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/**
+ * Immutable candidate events for later atomic ingestion.
+ * Duplicate detection and dataset-version assignment belong to the importer/store.
+ */
 public record ImportBatch(List<Event> events) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public ImportBatch {
+        DomainValidation.required(events, "events");
+        if (events.stream().anyMatch(event -> event == null)) {
+            throw new IllegalArgumentException("events must not contain null entries.");
+        }
+        events = List.copyOf(events);
+    }
 }

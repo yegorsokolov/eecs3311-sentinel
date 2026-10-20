@@ -1,12 +1,21 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
 import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public record CaseScope(String datasetId, String datasetVersion, String target, Instant start, Instant end) {
-    // TODO: Validate invariants and defensively copy collection values.
+/**
+ * A complete investigation scope. Instants represent UTC timeline positions.
+ * Partial user input belongs in the clarification workflow, not in this value.
+ */
+public record CaseScope(String datasetId, String datasetVersion, String target,
+                        Instant start, Instant end) {
+    public CaseScope {
+        DomainValidation.requiredText(datasetId, "datasetId");
+        DomainValidation.requiredText(datasetVersion, "datasetVersion");
+        DomainValidation.requiredText(target, "target");
+        DomainValidation.required(start, "start");
+        DomainValidation.required(end, "end");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("end must not precede start.");
+        }
+    }
 }
