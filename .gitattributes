@@ -1,0 +1,7 @@
+* text=auto
+*.java text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.png binary
+*.docx binary
+*.pdf binary

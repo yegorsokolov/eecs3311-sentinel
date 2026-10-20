@@ -1,0 +1,26 @@
+# Local configuration
+.env
+.env.*
+!.env.example
+config.local.json
+# Build output
+/target/
+/build/
+/out/
+*.class
+# IDE and OS metadata
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+# Preserve runtime directory markers only
+/runtime/**
+!/runtime/**/
+!/runtime/**/.gitkeep
+/demos/*.mp4
+/demos/*.mov
+/demos/*.mkv
