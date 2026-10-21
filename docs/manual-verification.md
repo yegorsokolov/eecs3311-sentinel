@@ -118,3 +118,62 @@ Expected, in order:
 - Attempting to clear the batch list throws UnsupportedOperationException.
 
 Record review outcomes before requesting a commit. Case lifecycle, clarification interactions, duplicate handling and import execution are later chunks. Other record invariants will be implemented with their owning features, rather than guessing their contracts now.
+
+## Step 3 - case lifecycle and snapshots
+
+Run from the project root in PowerShell:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
+.\mvnw.cmd --batch-mode --no-transfer-progress "-Dtest=InvestigationTest" test
+.\mvnw.cmd --batch-mode --no-transfer-progress verify
+```
+
+Expected: 25 lifecycle tests, then 65 total tests; both commands finish with BUILD SUCCESS and zero failures/errors. Tests cover lifecycle guards, atomic rejection, immutable nested snapshots, restoration, reference integrity and preserved failure data. No Ollama service is required.
+
+Start an interactive review:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/classes
+```
+
+Enter the following at the JShell prompt:
+
+```java
+import sentinel.domain.*;
+import java.time.Instant;
+import java.util.*;
+var start = Instant.parse("2026-10-21T12:00:00Z");
+var scope = new CaseScope("demo", "v1", "alice", start, start.plusSeconds(3600));
+var investigation = new Investigation(new Request("Investigate alice", scope));
+investigation.snapshot().status();
+var call = new ToolCall(UUID.randomUUID(), "logSearch", Map.of("accountId", "alice"));
+var plan = new Plan(UUID.randomUUID(), 0, List.of(call));
+investigation.setPlan(plan);
+investigation.snapshot().status();
+investigation.record(AuditEntry.transition(Instant.now(), CaseStatus.RUNNING));
+var saved = investigation.snapshot();
+var reopened = Investigation.restore(saved);
+saved.status();
+reopened.snapshot().status();
+reopened.record(AuditEntry.transition(Instant.now(), CaseStatus.RUNNING));
+reopened.setPlan(plan);
+reopened.snapshot().status();
+saved.history().clear();
+reopened.record(AuditEntry.transition(Instant.now(), CaseStatus.RUNNING));
+reopened.record(AuditEntry.transition(Instant.now(), CaseStatus.PARTIAL));
+reopened.snapshot().status();
+saved.status();
+/exit
+```
+
+Expected flow:
+
+1. A new case is DRAFT. Accepting the sample plan makes it READY without running anything.
+2. Explicit Run records RUNNING. Restoring that snapshot produces PAUSED; the saved snapshot stays RUNNING.
+3. Attempting to run the paused case directly throws IllegalStateException.
+4. Explicit plan acceptance returns it to READY. This is the aggregate boundary; the future planner must validate tools and scope before calling setPlan.
+5. Clearing snapshot history throws UnsupportedOperationException.
+6. A revalidated case can run and finish PARTIAL. The original snapshot still says RUNNING.
+
+This is an in-memory demonstration, not JSON save/open or real tool execution. Completion requires an accepted COMPLETE assessment; failed runs retain their evidence/history. New evidence ingestion and actual analysis come in later chunks.

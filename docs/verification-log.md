@@ -1,5 +1,17 @@
 # Development and verification log
 
+## Step 3 - case lifecycle and snapshots (2026-10-21)
+
+- Source of truth: Stage 1 SM01 state diagram, F11 persistence, UC06/UC07 and snapshot contracts.
+- Implemented DRAFT construction, scope clarification/revision, plan acceptance, guarded STATE_CHANGED audit events, accepted-assessment storage, immutable snapshots and in-memory restoration.
+- Snapshot schema now includes the original analyst goal omitted from the scaffold. Model/prompt/policy metadata remains unknown until supplied; no values are fabricated.
+- Invalid transitions/references leave the aggregate unchanged. READY requires explicit plan acceptance; restoring RUNNING yields PAUSED and does not execute. COMPLETED requires accepted complete analysis. Failed/partial runs preserve available data.
+- Nested snapshot lists/maps are defensively copied. Plan scheduling, tool keys, evidence ingestion, semantic analysis validation and disk persistence are still pending.
+- Final in-place command: Maven Wrapper --batch-mode --no-transfer-progress verify with JDK 17.
+- Result: BUILD SUCCESS; 65 tests, zero failures/errors/skips. InvestigationTest contributes 25 cases; the 40 previous cases also pass. JAR is available under target/.
+- Tests cover lifecycle guards, reference/schema rejection, snapshot independence, nested collection immutability, completed-scope revision, paused restoration and preserved failure evidence/history/version metadata.
+- git diff --check passed; .env remains zero bytes. Human review is pending. Nothing committed or pushed.
+
 ## Initial scaffold - 2026-10-20
 
 No business-feature tests or runtime-model integration have been completed.

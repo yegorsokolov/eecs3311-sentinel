@@ -1,12 +1,20 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
 import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
+import java.util.UUID;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Durable case action; STATE_CHANGED outcomes use CaseStatus names. */
 public record AuditEntry(Instant timestamp, String action, String outcome, List<UUID> evidenceIds) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public AuditEntry {
+        DomainValidation.required(timestamp, "timestamp");
+        DomainValidation.requiredText(action, "action");
+        DomainValidation.requiredText(outcome, "outcome");
+        evidenceIds = List.copyOf(DomainValidation.required(evidenceIds, "evidenceIds"));
+    }
+
+    public static AuditEntry transition(Instant time, CaseStatus target) {
+        return new AuditEntry(time, "STATE_CHANGED",
+                DomainValidation.required(target, "target").name(), List.of());
+    }
 }

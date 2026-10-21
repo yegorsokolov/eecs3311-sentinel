@@ -1,12 +1,14 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.UUID;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Immutable source-linked evidence; payload interpretation belongs to the tools. */
 public record Evidence(UUID id, String sourceEventId, String datasetVersion, String provenance, String payload) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public Evidence {
+        DomainValidation.required(id, "id");
+        DomainValidation.requiredText(sourceEventId, "sourceEventId");
+        DomainValidation.requiredText(datasetVersion, "datasetVersion");
+        DomainValidation.requiredText(provenance, "provenance");
+        DomainValidation.requiredText(payload, "payload");
+    }
 }

@@ -1,12 +1,15 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
 import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** A recorded question with exactly one accepted answer or explicit failure. */
 public record ConversationEntry(Instant timestamp, String question, Answer answer, String failure) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public ConversationEntry {
+        DomainValidation.required(timestamp, "timestamp");
+        DomainValidation.requiredText(question, "question");
+        if ((answer == null) == (failure == null)) {
+            throw new IllegalArgumentException("Conversation entry requires exactly one answer or failure.");
+        }
+        if (failure != null) DomainValidation.requiredText(failure, "failure");
+    }
 }

@@ -1,5 +1,14 @@
 # AI-human collaboration log
 
+## 2026-10-21 - Step 3 case lifecycle and snapshots
+
+- Task/instruction: Implement the next incremental development step using the accepted Stage 1 design.
+- AI contribution: Reviewed SM01, F11 and UC06/UC07; implemented guarded aggregate transitions, immutable snapshots, in-memory restoration and lifecycle tests; documented manual JShell checks.
+- Human contribution: Authorized the next step; established the Stage 1 source-of-truth and review-before-commit requirements. Human code review remains pending.
+- Design detail: Added the analyst goal omitted from the initial snapshot scaffold. Kept plan/tool/analysis semantic validation in their planned services and file persistence deferred. RUNNING restores as PAUSED without executing.
+- Outcome: See verification-log.md for actual results. No commit or push authorized for this step.
+- Tools/models and usage: Codex desktop; see ai-tools-and-costs.md. Unavailable token/cost data is not treated as zero.
+
 ## 2026-10-20 - Initial Stage 2 skeleton
 
 - Task: Establish project structure aligned with the accepted Stage 1 design and Stage 2 deliverables.

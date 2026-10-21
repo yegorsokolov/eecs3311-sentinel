@@ -1,14 +1,17 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.Map;
+import java.util.UUID;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Immutable tool request. Registry/argument validation belongs to PlanValidator/ToolExecutor. */
 public record ToolCall(UUID id, String toolName, Map<String, String> args) {
+    public ToolCall {
+        DomainValidation.required(id, "id");
+        DomainValidation.requiredText(toolName, "toolName");
+        args = Map.copyOf(DomainValidation.required(args, "args"));
+    }
+
     public String key() {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
+        throw new UnsupportedOperationException("Canonical tool keys are implemented with tool execution.");
     }
 }

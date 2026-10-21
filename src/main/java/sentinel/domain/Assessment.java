@@ -1,12 +1,15 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
+import java.util.UUID;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Immutable snapshot value. Feature-specific semantic validation belongs to analysis. */
 public record Assessment(List<Event> timeline, List<Hypothesis> hypotheses, Severity severity, List<String> recommendations, Completeness completeness) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public Assessment {
+        timeline = List.copyOf(DomainValidation.required(timeline, "timeline"));
+        hypotheses = List.copyOf(DomainValidation.required(hypotheses, "hypotheses"));
+        DomainValidation.required(severity, "severity");
+        recommendations = List.copyOf(DomainValidation.required(recommendations, "recommendations"));
+        DomainValidation.required(completeness, "completeness");
+    }
 }
