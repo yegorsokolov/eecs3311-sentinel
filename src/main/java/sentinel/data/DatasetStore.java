@@ -13,7 +13,7 @@ import sentinel.domain.ToolResult;
 /**
  * One in-memory dataset with immutable retained versions.
  * A single state replacement publishes a fully checked batch atomically.
- * JSON disk persistence and query tools will be implemented separately.
+ * JSON disk persistence and additional query tools will be implemented separately.
  */
 public final class DatasetStore {
     private record State(int revision, Map<String, Event> byId, Map<String, List<Event>> versions) { }
@@ -89,7 +89,45 @@ public final class DatasetStore {
     }
 
     public ToolResult search(ToolCall call) {
-        throw new UnsupportedOperationException("Log search is implemented in the next retrieval step.");
+        long started = System.nanoTime();
+        LogSearchQuery query = LogSearchQuery.parse(call);
+        if (!datasetId.equals(query.datasetId())) {
+            throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.UNKNOWN_DATASET,
+                    "Unknown dataset.");
+        }
+        List<Event> view = state.versions().get(query.version());
+        if (view == null) {
+            throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.UNKNOWN_VERSION,
+                    "Unknown dataset version.");
+        }
+        // A captured immutable version remains stable even during a concurrent import.
+        List<Event> matches = view.stream()
+                .filter(e -> !e.timestamp().isBefore(query.start()) && !e.timestamp().isAfter(query.end()))
+                .filter(e -> matches(e, query.filters()))
+                .sorted(java.util.Comparator.comparing(Event::timestamp).thenComparing(Event::eventId))
+                .limit((long) query.limit() + 1).toList();
+        boolean truncated = matches.size() > query.limit();
+        List<sentinel.domain.Evidence> evidence = matches.stream().limit(query.limit())
+                .map(e -> EventEvidence.from(datasetId, query.version(), e)).toList();
+        String status = truncated ? "PARTIAL" : evidence.isEmpty() ? "EMPTY" : "SUCCESS";
+        return new ToolResult(status, evidence, query.version(),
+                Math.max(0, (System.nanoTime() - started) / 1_000_000), truncated);
+    }
+
+    private static boolean matches(Event event, Map<String, String> filters) {
+        for (var filter : filters.entrySet()) {
+            String value = switch (filter.getKey()) {
+                case "eventId" -> event.eventId();
+                case "eventType" -> event.eventType();
+                case "accountId" -> event.accountId();
+                case "sourceIp" -> event.sourceIp();
+                case "hostId" -> event.hostId();
+                case "outcome" -> event.outcome();
+                default -> throw new IllegalStateException("Unvalidated search filter.");
+            };
+            if (!filter.getValue().equals(value)) return false;
+        }
+        return true;
     }
 
     public ToolResult lookup(ToolCall call) {

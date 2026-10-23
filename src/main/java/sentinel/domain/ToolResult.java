@@ -1,12 +1,14 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public record ToolResult(String status, List<Evidence> evidence, String sourceVersion, long durationMillis, boolean truncated) {
-    // TODO: Validate invariants and defensively copy collection values.
+/** Immutable retrieval outcome; empty matches are distinct from failed execution. */
+public record ToolResult(String status, List<Evidence> evidence, String sourceVersion,
+                         long durationMillis, boolean truncated) {
+    public ToolResult {
+        DomainValidation.requiredText(status, "status");
+        evidence = List.copyOf(DomainValidation.required(evidence, "evidence"));
+        DomainValidation.requiredText(sourceVersion, "sourceVersion");
+        if (durationMillis < 0) throw new IllegalArgumentException("durationMillis must not be negative.");
+    }
 }

@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-4 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
+Steps 1-5 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
 
 ## Design
 
@@ -88,12 +88,18 @@ Input is a UTF-8 JSON array (up to 10 MiB and 100,000 entries). Each event requi
 
 Timestamps normalize to UTC. Unknown fields, duplicate JSON keys, invalid types and malformed records reject the batch. Identical event IDs/content count as duplicates; conflicting content under one ID rejects the entire batch. Source provenance is generated internally. Versions advance only when new events are accepted, and previous versions remain immutable in memory.
 
+### Filtered log search (component demo)
+
+After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/search-demo.jsh` in PowerShell. Expected: SUCCESS with two events, PARTIAL with one capped event, EMPTY for an unknown account, and INVALID_ARGUMENT for limit zero. The dataset remains v1 with two events.
+
+Search requires `datasetId`, `datasetVersion`, `start`, `end`, and `limit` (1-1000). Times require a UTC offset and both endpoints are inclusive. Optional exact-match filters are `eventId`, `eventType`, `accountId`, `sourceIp`, `hostId`, and `outcome`; filters combine with AND. Results sort by timestamp then event ID. Narrow the interval or filters when a result is PARTIAL. Evidence preserves source location and event content, with a stable ID per dataset/read-version/event. The original introduction version remains in the payload. Active-case scope enforcement and GUI/CLI integration remain pending.
+
 ## Verification
 
-The latest recorded build passed 96 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), and import (31). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
+The latest recorded build passed 116 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), and log search (20). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
 
 ## Submission records
 
 See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md` and `docs/demonstration-index.md`.
 
-The Stage 2 report and final GUI/CLI demonstration recordings are pending. Personal review instructions and planning notes are kept locally and excluded from version control.
+The Stage 2 report and final GUI/CLI demonstration recordings are pending. Submission records are grouped under `docs/`. Private planning, review, reference and historical notes are grouped under `local-notes/`, which is excluded from version control. Source code, runtime resources, sample data and executable demos remain in their standard project directories.

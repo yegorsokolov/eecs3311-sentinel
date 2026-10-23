@@ -4,9 +4,9 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 
 | ID | Feature | Type | Planned classes | Methods | Patterns | Status | Demo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Scaffold only | Pending |
+| F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Partial: request/scope and lifecycle foundation; planning pending | Pending |
 | F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC (wiring pending) | Partial: importer/store implemented; active-case/UI wiring pending | Component demo: demos/import-demo.jsh; video pending |
-| F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Scaffold only | Pending |
+| F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; executor/case/UI wiring pending | Component demo: demos/search-demo.jsh; video pending |
 | F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Scaffold only | Pending |
 | F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Scaffold only | Pending |
 | F06 | Timeline correlation | Deterministic | AnalysisService, TimelineBuilder | analyze, build | MVC | Scaffold only | Pending |
@@ -14,10 +14,13 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 | F08 | Severity assessment | Hybrid | RuleSeverityPolicy, AnalysisService | assess, analyze | MVC, Strategy | Scaffold only | Pending |
 | F09 | Recommendations | Hybrid | AnalysisService, Assessment | analyze | MVC, Adapter | Scaffold only | Pending |
 | F10 | Follow-up investigation | Hybrid | AgentEngine, AnalysisService, PlanningStrategy, ToolExecutor | ask, answer | MVC, Strategy, Command, Adapter | Scaffold only | Pending |
-| F11 | Case persistence | Deterministic | Investigation, CaseRepository, JsonCaseRepository, EventBus | snapshot, save, load, publish | MVC, Observer | Scaffold only | Pending |
+| F11 | Case persistence | Deterministic | Investigation, CaseRepository, JsonCaseRepository, EventBus | snapshot, save, load, publish | MVC, Observer | Partial: immutable snapshots/in-memory restoration; file persistence pending | Pending |
 | F12 | Report export | Deterministic | AgentController, ReportService | export | MVC | Scaffold only | Pending |
 
 ## Source-file index
+
+Step 5 implements the F03 retrieval component: LogSearchCommand delegates through LocalQueryCommand to DatasetStore.search. LogSearchQuery validates arguments; EventEvidence serializes source-linked events; ToolException distinguishes invalid arguments, missing datasets and missing versions. ToolResult defensively copies evidence. Tests cover inclusive intervals, exact filters, stable ordering/IDs, truncation, version pinning and errors. The 1000-result maximum and inclusive interval are implementation choices. ToolExecutor scope enforcement, evidence attachment and user-facing integration remain pending.
+
 
 Step 4 implements F02/UC02/SD02 components: LogImporter.importFile performs bounded UTF-8 decoding, JSON schema/type checks and UTC normalization, then calls DatasetStore.ingest once. The store checks IDs against the staged/current events and atomically publishes an immutable version only when new events are accepted. Summary reports version, new/duplicate counts and safe errors. Controller invocation, case audit updates, stale assessments and durable datasets remain pending. LogImporterTest provides 31 checks; the packaged-JAR demo verifies the sample flow.
 
