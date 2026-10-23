@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-3 implement build/configuration diagnostics, core data contracts, and the in-memory case lifecycle with immutable snapshots and restoration. F01-F12 are not yet complete. Other domain and service scaffolds follow the accepted Stage 1 report and UML diagrams. GUI, investigation CLI commands, model integration, import, tool execution and JSON file persistence remain pending.
+Steps 1-4 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
 
 ## Design
 
@@ -24,7 +24,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
 & "$env:JAVA_HOME\bin\java.exe" -jar target/sentinel-0.1.0-SNAPSHOT.jar --check-config
 ```
 
-Adjust JAVA_HOME to your JDK folder if different. Maven resolves pinned plugins and JUnit, compiles code, runs the MVP tests and packages the JAR. Test reports appear under `target/surefire-reports/`. On macOS/Linux, use `sh mvnw --batch-mode verify`. Main source currently uses only JDK APIs.
+Adjust JAVA_HOME to your JDK folder if different. Maven resolves pinned plugins, Jackson Core and JUnit, compiles code, runs the MVP tests and packages a JAR containing the runtime JSON dependency. Test reports appear under `target/surefire-reports/`. On macOS/Linux, use `sh mvnw --batch-mode verify`.
 
 ## Local configuration
 
@@ -70,10 +70,18 @@ sentinel export --case C --out runtime/exports/report.md
 
 ## Data and storage
 
-`data/` holds empty JSON placeholders and scenario notes, not a working demo. `runtime/cases`, `runtime/datasets`, `runtime/exports` and `runtime/logs` hold generated local files; only directory markers are retained in Git. JSON persistence needs no SQL service.
+`data/samples/import-*.json` contains synthetic fixtures for the implemented import layer. Other scenario/feed/inventory files remain placeholders. Dataset versions are currently held in memory, with immutable earlier views. Runtime disk persistence is not implemented; `runtime/cases`, `runtime/datasets`, `runtime/exports` and `runtime/logs` reserve the local storage locations. JSON persistence needs no SQL service.
+
+After packaging, run the import-layer walkthrough:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/import-demo.jsh
+```
+
+This reads the synthetic files without changing them or writing case data. See `docs/event-import-contract.md` for fields, bounds, duplicate handling and version semantics. See `docs/manual-verification.md` for expected output and tests.
 
 ## Development records
 
-See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/design-changes.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md`, `docs/demonstration-index.md` and `docs/submission-checklist.md`. Test planning is in `src/test/README.md`.
+See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/design-changes.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md` and `docs/demonstration-index.md`. Test planning is in `src/test/README.md`.
 
 The Stage 2 report is intentionally excluded. Commits and pushes require the user's explicit permission. Record feature videos after implementation is complete; perform the checks in `docs/manual-verification.md` after each development step.

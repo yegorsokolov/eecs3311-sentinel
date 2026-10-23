@@ -1,6 +1,14 @@
-# Demo data placeholders
+# Demo data and placeholders
 
-All JSON files contain empty arrays, not usable demo data.
+The following synthetic files exercise the implemented import layer:
+
+- `samples/import-valid.json`: two unique login events and one identical duplicate with an equivalent UTC timestamp.
+- `samples/import-conflict.json`: a new event followed by conflicting content for demo-1; run after the valid sample to verify whole-batch rollback.
+- `samples/import-invalid.json`: a timestamp missing its UTC offset; expected validation failure.
+
+Run `demos/import-demo.jsh` as described in the README. These are component review fixtures, not final feature recordings.
+
+The following remain empty-array placeholders:
 
 - `samples/account-takeover.json`: planned failed-login burst, later success and malicious source IP; expected rule score 7 before any critical-asset point.
 - `samples/benign-activity.json`: planned ordinary authentication activity.

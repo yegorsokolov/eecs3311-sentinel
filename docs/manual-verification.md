@@ -1,5 +1,48 @@
 # Manual verification
 
+## Step 4 - validated dataset import
+
+In PowerShell at the project root:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
+.\mvnw.cmd --batch-mode --no-transfer-progress "-Dtest=LogImporterTest" test
+.\mvnw.cmd --batch-mode --no-transfer-progress verify
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/import-demo.jsh
+```
+
+Expected: 31 import tests, then 96 total tests, all passing. Maven packages the runtime JSON parser into the JAR. A manifest-overlap warning from shading is benign; the packaged JAR was checked directly.
+
+The demo prints:
+
+1. Valid import: version v1, accepted 2, duplicates 1, no errors.
+2. First timestamp: 2026-10-22T12:00:00Z.
+3. Source URI ending in import-valid.json#/0.
+4. Reimport: version v1, accepted 0, duplicates 3.
+5. Conflict: rejected with accepted 0 and version v1.
+6. Missing timestamp offset: rejected with accepted 0 and version v1.
+7. Final version/count: v1/2.
+
+The conflict file places a new event before the conflicting event, so the final count proves that no earlier part of that batch leaked into the store. The demo reads source files unchanged and stores data only in memory. It does not need Ollama, create a case, or save anything to disk.
+
+For interactive inspection, start JShell with the same JAR classpath (omit the script argument), then enter:
+
+```java
+import sentinel.data.*;
+import java.nio.file.Path;
+var store = new DatasetStore("review");
+var importer = new LogImporter(store);
+importer.importFile(Path.of("data/samples/import-valid.json"));
+var savedView = store.events("v1");
+savedView.clear();
+importer.importFile(Path.of("data/samples/import-conflict.json"));
+store.currentVersion();
+savedView.size();
+/exit
+```
+
+Expected: clearing savedView throws UnsupportedOperationException, the conflict returns errors, currentVersion remains v1, and savedView.size() is 2. Record your review before requesting a commit.
+
 Videos are deferred until all features work. Perform the relevant checks after each implementation step.
 
 ## Step 1 - build and configuration

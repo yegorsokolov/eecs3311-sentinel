@@ -10,6 +10,10 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId>
+            <version>2.21.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version><scope>test</scope>
         </dependency>
@@ -20,6 +24,12 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>3.4.2</version>
             <configuration><archive><manifest><mainClass>sentinel.Main</mainClass></manifest></archive></configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId><artifactId>maven-shade-plugin</artifactId><version>3.6.0</version>
+            <executions><execution><phase>package</phase><goals><goal>shade</goal></goals>
+                <configuration><createDependencyReducedPom>false</createDependencyReducedPom></configuration>
+            </execution></executions>
         </plugin>
     </plugins></build>
 </project>

@@ -1,11 +1,11 @@
 # Feature-to-implementation mapping
 
-All entries refer to original Stage 1 feature IDs. Every feature is **not implemented - scaffold only**. Method signatures do not establish functionality. Add actual class responsibilities, collaboration flows, use-case references, verification evidence and demo timestamps during implementation.
+All entries refer to original Stage 1 feature IDs. No full user-facing feature is complete yet; partial component progress is recorded below. Method signatures alone do not establish functionality. Record actual collaborations, verification evidence and final video timestamps as implementation proceeds.
 
 | ID | Feature | Type | Planned classes | Methods | Patterns | Status | Demo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Scaffold only | Pending |
-| F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC | Scaffold only | Pending |
+| F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC (wiring pending) | Partial: importer/store implemented; active-case/UI wiring pending | Component demo: demos/import-demo.jsh; video pending |
 | F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Scaffold only | Pending |
 | F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Scaffold only | Pending |
 | F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Scaffold only | Pending |
@@ -18,6 +18,8 @@ All entries refer to original Stage 1 feature IDs. Every feature is **not implem
 | F12 | Report export | Deterministic | AgentController, ReportService | export | MVC | Scaffold only | Pending |
 
 ## Source-file index
+
+Step 4 implements F02/UC02/SD02 components: LogImporter.importFile performs bounded UTF-8 decoding, JSON schema/type checks and UTC normalization, then calls DatasetStore.ingest once. The store checks IDs against the staged/current events and atomically publishes an immutable version only when new events are accepted. Summary reports version, new/duplicate counts and safe errors. Controller invocation, case audit updates, stale assessments and durable datasets remain pending. LogImporterTest provides 31 checks; the packaged-JAR demo verifies the sample flow.
 
 Step 3 provides partial F01/F11 infrastructure in Investigation (construction, clarifyScope, reviseScope, setPlan, record, setAssessment, snapshot, restore), CaseSnapshot and immutable nested values. It guards lifecycle transitions, preserves goal/metadata/history and pauses restored running cases. It does not complete planning, evidence ingestion, analysis, GUI/CLI workflows or disk persistence. InvestigationTest verifies these aggregate boundaries; the application must supply semantically validated plans and assessments.
 

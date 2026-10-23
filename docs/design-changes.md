@@ -2,6 +2,12 @@
 
 No feature or pattern changes approved. Stage 1 remains the baseline.
 
+Step 4 implements the designed atomic importer/store split. Concrete limits are 10 MiB and 100,000 input entries; unknown fields and duplicate JSON keys are rejected, and provenance fields are generated internally. These are documented validation choices where Stage 1 did not specify details.
+
+DatasetStore represents one named dataset, begins at empty v0 and publishes a new immutable version only when new events are accepted. It retains prior versions in memory; events retain their first source position and introduction version. Duplicate comparison ignores provenance but includes all normalized event content. Runtime disk storage remains deferred, so imports do not survive restart yet. Active-case audit/staleness integration is also pending.
+
+Jackson Core 2.21.5 supplies the streaming JSON parser, and Maven Shade bundles this runtime dependency into the existing executable JAR. This supports the existing JSON design without introducing a new feature or design pattern. See event-import-contract.md for exact behavior.
+
 Step 3 implements the SM01 lifecycle and immutable aggregate snapshots. Construction, clarifyScope, reviseScope, and restore are concrete entry points for behaviors already described in F01/F11; STATE_CHANGED audit entries use CaseStatus names. setPlan is the trusted application boundary after semantic plan validation and does not itself validate registry membership or call arguments. FAILED remains terminal as drawn in SM01. A reopened RUNNING snapshot becomes PAUSED and requires explicit revalidation before Run.
 
 The skeleton omitted the original goal from CaseSnapshot. A goal field now preserves it, matching Stage 1's request/context requirements; there are no previously persisted JSON cases to migrate. caseVersion denotes an in-memory revision, starting at zero and incremented once per successful mutation; save/conflict semantics are deferred to the repository step. Model/prompt/policy versions remain null until known instead of being invented.

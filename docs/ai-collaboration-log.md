@@ -1,52 +1,41 @@
 # AI-human collaboration log
 
-## 2026-10-21 - Step 3 case lifecycle and snapshots
-
-- Task/instruction: Implement the next incremental development step using the accepted Stage 1 design.
-- AI contribution: Reviewed SM01, F11 and UC06/UC07; implemented guarded aggregate transitions, immutable snapshots, in-memory restoration and lifecycle tests; documented manual JShell checks.
-- Human contribution: Authorized the next step; established the Stage 1 source-of-truth and review-before-commit requirements. Human code review remains pending.
-- Design detail: Added the analyst goal omitted from the initial snapshot scaffold. Kept plan/tool/analysis semantic validation in their planned services and file persistence deferred. RUNNING restores as PAUSED without executing.
-- Outcome: See verification-log.md for actual results. No commit or push authorized for this step.
-- Tools/models and usage: Codex desktop; see ai-tools-and-costs.md. Unavailable token/cost data is not treated as zero.
+This log summarizes representative interactions rather than the full conversation. The accepted Stage 1 design guides implementation. Yegor directs scope and implementation order, reviews generated code, performs local verification, and approves changes before publication. On 2026-10-22, Yegor confirmed that he reviews and tests all delivered code and approved Step 4 for publication. Automated results below were recorded by the assistant; human review and testing are recorded from Yegor's confirmation.
 
 ## 2026-10-20 - Initial Stage 2 skeleton
 
-- Task: Establish project structure aligned with the accepted Stage 1 design and Stage 2 deliverables.
-- Input/instruction: Create code/deliverable placeholders, an empty `.env`, safe configuration, ignore rules and demo-storage placeholders; exclude the Stage 2 report. Obtain approval before local creation; no commits or pushes.
-- AI contribution: Reviewed local assignment PDFs, Stage 1 report and class diagrams; checked GitHub metadata and README; proposed and created the approved scaffold.
-- Human contribution: Confirmed the accepted design needs no changes, specified scope and Git restrictions, and explicitly approved local creation. Review of generated code is pending.
-- Outcome: Scaffold only; F01-F12 remain pending. See `verification-log.md` for actual checks.
-- Access limitation: ChatGPT project listing was visible, but uploaded contents could not be read. Local copies supplied requirements.
-
-## Next representative interaction
+- Task/instruction: Establish project structure and deliverable placeholders from the accepted design and course requirements.
+- AI contribution: Reviewed assignment documents and design diagrams; created the approved Java scaffold, configuration templates, ignore rules and demo-storage layout.
+- Human contribution: Established the design baseline, selected the scope, reviewed the scaffold and approved its incorporation and publication.
+- Outcome: A structured starting point for incremental implementation. Business features remained pending.
 
 ## 2026-10-20 - Step 1 build and configuration
 
-- Task/instruction: Re-review Stage 1 as the source of truth; implement build/configuration with MVP tests and precise manual verification instructions. Defer videos until the end.
-- AI contribution: Implemented immutable configuration loading and validation, startup help/configuration diagnostics, official Maven Wrapper setup, 17 MVP test cases and documentation.
-- Human contribution: Chose incremental implementation/review and final video timing; instructed adherence to Stage 1. Review of this step is pending.
-- Outcome: Configuration and bootstrap support implemented; no investigation feature declared complete. Maven verify passed in a temporary copy; in-place Java output remains blocked by the environment. Exact checks and limitation recorded in verification-log.md.
-- Development tool/model: Codex desktop; see ai-tools-and-costs.md. Token/money costs unavailable, not assumed zero.
-- Commit/push: Not authorized for this step and not performed.
-
-## Next representative interaction template
+- Task/instruction: Implement configuration and build support with focused tests and reproducible manual checks.
+- AI contribution: Implemented immutable configuration loading, validation, startup diagnostics, Maven Wrapper and 17 MVP tests; diagnosed local build-output restrictions.
+- Human contribution: Directed incremental development, reviewed and tested the delivered code, requested an in-place build retry, and approved publication.
+- Outcome: Configuration and bootstrap support incorporated. The later in-place Maven retry passed all 17 tests without changing folder protection. Feature videos are planned after integration.
 
 ## 2026-10-20 - Step 2 core domain contracts
 
-- Task/instruction: Implement the next planned step in a small reviewable chunk, using Stage 1 as source of truth.
-- AI contribution: Re-read core data contracts; implemented CaseScope, Request, Event and ImportBatch invariants with a package-private validation helper; added 23 domain test cases and manual review instructions.
-- Human contribution: Authorized the next step and established the review-before-commit workflow. Review of this code remains pending.
-- Design interpretation: A goal-only Request can await clarification, while CaseScope represents complete validated scope. ImportBatch is immutable but retains duplicates for the later importer to count. Other record contracts are deferred to their owning features.
-- Outcome: In-place Maven verification passed all 40 tests and packaged the JAR. No case lifecycle, tool execution or import behavior is claimed complete.
-- Tool/model and costs: See ai-tools-and-costs.md; unavailable usage is not treated as zero.
-- Commit/push: Not performed for Step 2.
+- Task/instruction: Implement core data contracts while preserving Stage 1 semantics.
+- AI contribution: Implemented CaseScope, Request, Event and ImportBatch invariants, defensive copying, 23 domain tests and manual verification instructions.
+- Human contribution: Reviewed and tested the delivered code before approving publication; maintained the requirement to implement small, reviewable increments.
+- Outcome: In-place verification passed all 40 tests. Goal-only requests can await clarification; immutable import batches retain duplicates for later import processing.
 
-## Next representative interaction template
+## 2026-10-21 - Step 3 case lifecycle and snapshots
 
-- Date / task:
-- Tool / model:
-- Input/instruction:
-- AI contribution:
-- Human review, correction, rejection or improvement:
-- Incorporated outcome:
-- Verification / related files:
+- Task/instruction: Implement the Stage 1 lifecycle and snapshot foundation.
+- AI contribution: Implemented guarded transitions, immutable snapshots, in-memory restoration and 25 lifecycle tests. Added the original analyst goal to snapshots and documented the rationale.
+- Human contribution: Reviewed and tested the delivered code within the accepted design and approved publication.
+- Outcome: In-place verification passed all 65 tests. Restoring a running case yields a paused case without executing it. File persistence remains deferred.
+
+## 2026-10-22 - Step 4 validated dataset import
+
+- Task/instruction: Implement validated import and atomic dataset updates, with synthetic examples and reproducible checks.
+- AI contribution: Implemented bounded JSON validation, UTC normalization, versioned ingestion, duplicate/conflict handling, 31 import tests, synthetic samples and a packaged-JAR demo.
+- Human contribution: Reviewed and tested the implementation, confirmed review completion, and approved publication. Requested clearer collaboration records and cost accounting, and separation of personal planning aids from submission materials.
+- Outcome: In-place Maven verification passed all 96 tests. The demo accepted two events and one duplicate; reimport counted three duplicates; conflicting and invalid batches preserved version v1 with two events.
+- Remaining scope: Controller integration, case audit/staleness updates and durable storage are pending.
+
+Tool/model and cost details are recorded in [AI tools, models and costs](ai-tools-and-costs.md). Commands and evidence are recorded in [manual verification](manual-verification.md) and [verification log](verification-log.md).

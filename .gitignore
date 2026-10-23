@@ -24,3 +24,5 @@ Thumbs.db
 /demos/*.mp4
 /demos/*.mov
 /demos/*.mkv
+# Personal planning aids (retain local copies)
+/docs/submission-checklist.md

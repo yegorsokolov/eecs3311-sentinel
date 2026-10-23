@@ -1,5 +1,7 @@
 # Test scaffold
 
+Step 4 adds LogImporterTest: 31 cases for UTC normalization, atomic imports, duplicates/conflicts, schema/type/encoding failures, limits, source provenance and versioned views. Current total: 96 passing cases. Run `.\mvnw.cmd "-Dtest=LogImporterTest" test` or the full `.\mvnw.cmd verify`. Earlier totals below are historical.
+
 JUnit Jupiter tests cover configuration defaults, local-file/process overrides, validation failures, path resolution and bootstrap argument handling. Run `.\mvnw.cmd test` or `.\mvnw.cmd verify`; inspect `target/surefire-reports/` for results. These MVP checks do not yet test investigation features.
 
 Step 2 adds CoreDomainTest: required scope/event data, interval boundaries, unscoped requests awaiting clarification, preserved optional unknowns and immutable import batches. Current total: 40 passing cases, including 23 core-domain cases. Run only those with `.\mvnw.cmd "-Dtest=CoreDomainTest" test`.

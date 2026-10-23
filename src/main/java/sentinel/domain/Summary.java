@@ -1,12 +1,19 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Import result. Rejected batches always report zero committed records and duplicates. */
 public record Summary(String datasetVersion, int accepted, int duplicates, List<String> errors) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public Summary {
+        DomainValidation.requiredText(datasetVersion, "datasetVersion");
+        if (accepted < 0 || duplicates < 0) throw new IllegalArgumentException("Counts must not be negative.");
+        errors = List.copyOf(DomainValidation.required(errors, "errors"));
+        if (!errors.isEmpty() && (accepted != 0 || duplicates != 0)) {
+            throw new IllegalArgumentException("Rejected imports cannot report committed counts.");
+        }
+    }
+
+    public boolean successful() {
+        return errors.isEmpty();
+    }
 }

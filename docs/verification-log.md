@@ -1,5 +1,20 @@
 # Development and verification log
 
+## Human review update - 2026-10-22
+
+Yegor confirmed that he reviews and tests all delivered code, completed Step 4 review, and authorized publication. Earlier pending-review and not-committed notes below describe the status when those checks were first recorded; this update supersedes their review status. Automated results remain recorded separately from human confirmation.
+
+## Step 4 - validated dataset import (2026-10-22)
+
+- Re-read Stage 1 F02 and UC02. Implemented LogImporter.importFile, DatasetStore.ingest and immutable Summary results.
+- Added bounded strict UTF-8/JSON parsing, explicit-offset timestamp normalization, derived source provenance, whole-batch validation, duplicate counts, conflict rollback and immutable retained dataset versions.
+- In-place Maven Wrapper verify: BUILD SUCCESS; 96 tests, zero failures/errors/skips. LogImporterTest adds 31 cases to the previous 65.
+- Verified packaged JAR through demos/import-demo.jsh: accepted=2/duplicates=1, reimport accepted=0/duplicates=3, conflict and invalid timestamp rejected, final version/count v1/2.
+- Packaged --check-config still reports the Stage 1 defaults successfully.
+- The Maven shade manifest-overlap warning is benign; the JAR contains its JSON dependency and runs the actual importer in the demo.
+- Active-case/controller/UI wiring, audit integration, assessment staleness after import and durable dataset storage remain pending. F02 is not claimed complete.
+- Human review pending; no commit or push performed for this step.
+
 ## Step 3 - case lifecycle and snapshots (2026-10-21)
 
 - Source of truth: Stage 1 SM01 state diagram, F11 persistence, UC06/UC07 and snapshot contracts.
