@@ -26,3 +26,11 @@ Thumbs.db
 /demos/*.mkv
 # Personal planning aids (retain local copies)
 /docs/submission-checklist.md
+/docs/manual-verification.md
+/demos/README.md
+/docs/uml/README.md
+/src/main/resources/schemas/README.md
+/local-notes/
+/docs/design-changes.md
+/docs/event-import-contract.md
+/src/test/README.md

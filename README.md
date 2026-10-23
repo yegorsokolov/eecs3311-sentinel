@@ -10,6 +10,8 @@ Steps 1-4 implement build/configuration diagnostics, core contracts, the in-memo
 
 Java with a Swing GUI and CLI sharing `AgentController`; bounded orchestration through `AgentEngine`; local Qwen2.5 7B Instruct through Ollama; JSON snapshots and local datasets. Planned patterns: MVC, Strategy, Command, Observer and Adapter. The existing report and `UML Diagrams/` remain the design baseline.
 
+No Stage 1 features, architecture choices or design patterns have been replaced. Implementation refinements include build/configuration support and restoring the original analyst goal omitted from the initial snapshot scaffold. These support the accepted design.
+
 ## Prerequisites and build
 
 - JDK 17 or newer; source compatibility targets Java 17.
@@ -78,10 +80,20 @@ After packaging, run the import-layer walkthrough:
 & "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/import-demo.jsh
 ```
 
-This reads the synthetic files without changing them or writing case data. See `docs/event-import-contract.md` for fields, bounds, duplicate handling and version semantics. See `docs/manual-verification.md` for expected output and tests.
+This reads the synthetic files without changing them or writing case data. Expected results: the first import accepts two events and counts one duplicate; reimport counts three duplicates; conflicting and invalid batches are rejected, leaving version `v1` with two events. Run `.\mvnw.cmd verify` for the automated checks.
 
-## Development records
+### Import format
 
-See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/design-changes.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md` and `docs/demonstration-index.md`. Test planning is in `src/test/README.md`.
+Input is a UTF-8 JSON array (up to 10 MiB and 100,000 entries). Each event requires nonblank string fields `eventId`, `timestamp` (ISO-8601 with `Z` or a UTC offset), and `eventType`. Optional string fields are `accountId`, `sourceIp`, `hostId`, and `outcome`; missing, null or blank optional values mean unknown. See `data/samples/import-valid.json` for an example.
 
-The Stage 2 report is intentionally excluded. Commits and pushes require the user's explicit permission. Record feature videos after implementation is complete; perform the checks in `docs/manual-verification.md` after each development step.
+Timestamps normalize to UTC. Unknown fields, duplicate JSON keys, invalid types and malformed records reject the batch. Identical event IDs/content count as duplicates; conflicting content under one ID rejects the entire batch. Source provenance is generated internally. Versions advance only when new events are accepted, and previous versions remain immutable in memory.
+
+## Verification
+
+The latest recorded build passed 96 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), and import (31). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
+
+## Submission records
+
+See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md` and `docs/demonstration-index.md`.
+
+The Stage 2 report and final GUI/CLI demonstration recordings are pending. Personal review instructions and planning notes are kept locally and excluded from version control.
