@@ -16,7 +16,7 @@ public abstract class LocalQueryCommand implements ToolCommand {
         long started = System.nanoTime();
         ToolResult result = select(call);
         return new ToolResult(result.status(), result.evidence(), result.sourceVersion(),
-                Math.max(0, (System.nanoTime() - started) / 1_000_000), result.truncated(), result.activitySummary());
+                Math.max(0, (System.nanoTime() - started) / 1_000_000), result.truncated(), result.activitySummary(), result.indicatorMatch());
     }
 
     protected abstract ToolResult select(ToolCall call);

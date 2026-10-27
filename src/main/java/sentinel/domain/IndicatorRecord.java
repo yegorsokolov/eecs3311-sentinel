@@ -1,12 +1,18 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
 import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.Set;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Validated, normalized source-dated local indicator context. */
 public record IndicatorRecord(String indicator, String verdict, String source, Instant observedAt, String feedVersion) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public IndicatorRecord {
+        indicator = Indicator.normalize(indicator);
+        DomainValidation.requiredText(verdict, "verdict");
+        if (!Set.of("MALICIOUS", "SUSPICIOUS", "BENIGN", "UNKNOWN").contains(verdict)) {
+            throw new IllegalArgumentException("Unsupported indicator verdict.");
+        }
+        DomainValidation.requiredText(source, "source");
+        DomainValidation.required(observedAt, "observedAt");
+        DomainValidation.requiredText(feedVersion, "feedVersion");
+    }
 }

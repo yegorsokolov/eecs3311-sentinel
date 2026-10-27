@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-6 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search and account-activity commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
+Steps 1-7 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
 
 ## Design
 
@@ -102,9 +102,37 @@ The `userActivity` arguments are `datasetId`, `datasetVersion`, `accountId`, `st
 
 `ToolResult.activitySummary()` supplies typed data for activity results (null for other tools). Counts cover **all matches** in the pinned version and requested interval, even when evidence is capped: total/returned events, exact lowercase success/failure outcomes, unknown outcomes, distinct known hosts and events with unknown hosts. Unrecognized outcome values remain unknown. Coverage includes the requested interval and first/last matching timestamps (null for empty results). These describe available stored events; they do not guarantee complete source logging or imply safety. GUI/CLI, case scope enforcement and evidence attachment remain pending.
 
+### Local indicator lookup (component demo)
+
+After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/indicator-demo.jsh`. It uses a fixed October 27 review clock: expect SUCCESS/MALICIOUS for 192.0.2.10, STALE/SUSPICIOUS for OLD.EXAMPLE., UNKNOWN with no evidence for missing.example, INVALID_ARGUMENT for a URL, and FEED_UNAVAILABLE with no loaded feed. Event data remains v0/empty.
+
+Load a local UTF-8 JSON feed with `DatasetStore.loadIndicatorFeed(path)`, then call `IndicatorLookupCommand` with tool name `indicatorLookup` and exactly two required arguments: `indicator` and `feedVersion`. Loading is explicit; startup does not automatically load a feed. The sample is `data/indicators/threat-feed.json`:
+
+```json
+{
+  "feedVersion": "demo-feed-v1",
+  "records": [
+    {
+      "indicator": "192.0.2.10",
+      "verdict": "MALICIOUS",
+      "source": "Synthetic teaching feed",
+      "observedAt": "2026-10-26T12:00:00Z"
+    }
+  ]
+}
+```
+
+All shown fields are required nonblank strings; records may be empty. Verdicts are exactly MALICIOUS, SUSPICIOUS, BENIGN or UNKNOWN. Observation dates require a UTC offset, normalize to UTC and cannot be in the future at load time. Limits are 10 MiB/100,000 records. Unknown/duplicate JSON fields, duplicate normalized indicators, invalid types/encoding/dates and trailing content reject the whole load. Failed loads preserve earlier loaded versions. Identical content under an existing version is idempotent; different content under that version is rejected. Versions remain in memory only.
+
+Indicators accept IPv4, IPv6 literals and ASCII domains with at least two labels. Surrounding whitespace is stripped; domains lowercase and lose one trailing dot; IPv6 spellings normalize to the same numeric form. URLs, ports, wildcards, IPv6 zone IDs, ambiguous IPv4 leading zeros and Unicode domains are rejected. Lookup makes no network requests.
+
+`ToolResult.indicatorMatch()` supplies normalized indicator, match flag, verdict, source, observation date, feed version and stale flag (null for other tools). No match returns status UNKNOWN, no evidence and no invented source/date; UNKNOWN is never treated as safe. Matched records return SUCCESS, or STALE when observation age is **greater than 30 days** by default. A stale record retains its original verdict and date. A matched record whose feed verdict is UNKNOWN still has a true match flag and source evidence. The clock and positive age threshold can be injected through the DatasetStore constructor; no new environment overrides are introduced.
+
+Matched evidence has a stable ID per indicator/feed version, a JSON payload and file/record provenance. Result sourceVersion and evidence datasetVersion identify the **feed version** for this tool. A missing/unreadable file or lookup with no loaded feeds raises FEED_UNAVAILABLE; an unloaded version when other feeds exist raises UNKNOWN_FEED_VERSION; invalid feed content raises INVALID_FEED. GUI/CLI, case-scope validation and attachment remain pending.
+
 ## Verification
 
-The latest recorded build passed 140 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), log search (20), and account activity (24). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
+The latest recorded build passed 181 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), log search (20), account activity (24), and indicator lookup (41). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
 
 ## Submission records
 

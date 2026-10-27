@@ -4,10 +4,15 @@ import java.util.List;
 
 /** Immutable retrieval outcome; empty matches are distinct from failed execution. */
 public record ToolResult(String status, List<Evidence> evidence, String sourceVersion,
-                         long durationMillis, boolean truncated, ActivitySummary activitySummary) {
+                         long durationMillis, boolean truncated, ActivitySummary activitySummary, IndicatorMatch indicatorMatch) {
     public ToolResult(String status, List<Evidence> evidence, String sourceVersion,
                       long durationMillis, boolean truncated) {
         this(status, evidence, sourceVersion, durationMillis, truncated, null);
+    }
+
+    public ToolResult(String status, List<Evidence> evidence, String sourceVersion,
+                      long durationMillis, boolean truncated, ActivitySummary activitySummary) {
+        this(status, evidence, sourceVersion, durationMillis, truncated, activitySummary, null);
     }
 
     public ToolResult {

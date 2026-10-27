@@ -4,7 +4,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 1. Establishing a design-led development process — October 20
 
-**Task and instruction:** Create a local Java project and deliverable scaffold consistent with the accepted Stage 1 design and Stage 2 requirements. Preserve the existing architecture and defer the final report until implementation is ready.
+**Task and instruction:** Create a local Java project and deliverable scaffold consistent with the accepted Stage 1 design and Stage 2 requirements. Preserve the existing architecture and defer the final report until implementation is ready. Architectural context: retain the shared AgentController, domain Investigation aggregate, bounded AgentEngine, Command-based tools and LLMGateway/Ollama adapter boundaries from Stage 1.
 
 **AI contribution:** Reviewed the assignment documents, Stage 1 report and diagrams; mapped the planned classes to packages; created build/configuration placeholders, demo-data locations and submission-record templates.
 
@@ -14,7 +14,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 2. Build and configuration — October 20
 
-**Task and instruction:** Implement the first small development increment and provide commands and expected outcomes for local verification.
+**Task and instruction:** Implement the first small development increment and provide commands and expected outcomes for local verification. Architectural context: keep configuration loading in AppConfig and startup diagnostics in Main, separate from case mutations, tool execution and model calls.
 
 **AI contribution:** Added immutable configuration loading and validation, startup diagnostics, Maven Wrapper and 17 automated tests. Investigated a build-output restriction affecting the local project directory.
 
@@ -24,7 +24,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 3. Core domain contracts — October 20
 
-**Task and instruction:** Implement the next focused increment using the Stage 1 data contracts.
+**Task and instruction:** Implement the next focused increment using the Stage 1 data contracts. Architectural context: validate CaseScope, Request and Event at the domain boundary, defensively copy ImportBatch collections, and leave duplicate/conflict decisions to the importer/store layer.
 
 **AI contribution:** Added validation for CaseScope, Request and Event, defensive copying for ImportBatch, and 23 domain tests. Preserved incomplete requests for later clarification and retained duplicates for the import layer to process.
 
@@ -34,7 +34,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 4. Case lifecycle and immutable snapshots — October 21
 
-**Task and instruction:** Implement the next lifecycle increment while preserving the accepted state model.
+**Task and instruction:** Implement the next lifecycle increment while preserving the accepted state model. Architectural context: Investigation owns guarded state changes and produces immutable CaseSnapshot values; restoration preserves the analyst goal and pauses running cases, while file persistence remains a repository responsibility.
 
 **AI contribution:** Added guarded state transitions, immutable snapshots, in-memory restoration and 25 lifecycle tests. Corrected the scaffold's omission of the original analyst goal from snapshots. Restoration of a running snapshot produces a paused case without executing it.
 
@@ -44,7 +44,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 5. Validated dataset import — October 22
 
-**Task and instruction:** Implement the next step with MVP tests and a reproducible local review flow.
+**Task and instruction:** Implement the next step with MVP tests and a reproducible local review flow. Architectural context: LogImporter validates and normalizes the complete JSON batch before DatasetStore atomically publishes an immutable version; active-case audit and assessment updates remain an application integration step.
 
 **AI contribution:** Implemented bounded JSON validation, UTC normalization, atomic ingestion, immutable dataset versions and duplicate/conflict handling. Added 31 tests, synthetic input files and a packaged-JAR demonstration.
 
@@ -54,7 +54,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 6. Reviewing submission evidence and repository organization — October 22
 
-**Task and instruction:** Make the documentation concise, accurate and relevant to the submission, while keeping personal working notes separate.
+**Task and instruction:** Make the documentation concise, accurate and relevant to the submission, while keeping personal working notes separate. Architectural context: trace F01-F12 to their Stage 1 classes and pattern roles, distinguishing implemented domain/data components from pending controller, orchestration and presentation collaborations.
 
 **AI contribution:** Checked required report content, updated the weekly commit summary with published commit links, consolidated operational guidance into the README, and separated internal notes from submission records.
 
@@ -64,7 +64,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 7. Planning substantive increments and implementing log search — October 22
 
-**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Plan the remaining work around feature dependencies and the course schedule.
+**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Plan the remaining work around feature dependencies and the course schedule. Architectural context: LogSearchCommand delegates through LocalQueryCommand to DatasetStore.search, using strict query parsing and stable source-linked Evidence; registry dispatch and case-scope enforcement belong to the later ToolExecutor increment.
 
 **AI contribution:** Prepared an internal milestone plan, implemented versioned filtered log search with typed errors and immutable evidence, added 20 tests and a component demo, and clarified all five supported environment variables and defaults.
 
@@ -76,10 +76,20 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## 8. Account activity retrieval — October 26
 
-**Task and instruction:** Implement the next project step from the existing milestone plan.
+**Task and instruction:** Implement account activity retrieval as the next milestone. Architectural context: UserActivityCommand reuses the LocalQueryCommand workflow and delegates to DatasetStore.activity; ActivitySummary carries full-interval counts and returned-event coverage alongside versioned Evidence, without changing event data.
 
 **AI contribution:** Implemented ordered, version-pinned account activity through UserActivityCommand and DatasetStore, typed summary data with outcome/host counts and explicit coverage, 24 tests, and a packaged-JAR demo. Updated the affected project records.
 
 **My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 27.
 
 **Outcome:** Maven verification passed all 140 tests; the demo confirmed full, capped, empty and invalid-input behavior without dataset mutation. Executor scope enforcement, evidence attachment and GUI/CLI integration remain pending.
+
+## 9. Local indicator feed lookup — October 27
+
+**Task and instruction:** Implement local indicator feed lookup as the next milestone. Architectural context: IndicatorLookupCommand validates its request before DatasetStore.lookup; IndicatorFeedLoader parses the complete bounded feed before atomic version publication. IndicatorRecord, IndicatorMatch and source-linked Evidence retain verdicts, dates and provenance, with an injectable clock/freshness policy for deterministic testing.
+
+**AI contribution:** Implemented strict bounded JSON feed loading, immutable feed versions, IP/domain normalization, source-dated lookup evidence and typed match metadata. Added explicit unknown/stale/unavailable semantics, 41 automated checks, a synthetic feed and a packaged-JAR demo; synchronized the affected project records.
+
+**My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 27.
+
+**Outcome:** Maven verification passed all 181 tests. The demo confirmed fresh, stale, unknown, invalid-input and unavailable-feed behavior without changing event data. Executor/case/UI integration and durable storage remain pending.

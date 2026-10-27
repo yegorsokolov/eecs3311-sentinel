@@ -1,1 +1,23 @@
-[]
+{
+  "feedVersion": "demo-feed-v1",
+  "records": [
+    {
+      "indicator": "192.0.2.10",
+      "verdict": "MALICIOUS",
+      "source": "Synthetic Sentinel teaching feed",
+      "observedAt": "2026-10-26T12:00:00Z"
+    },
+    {
+      "indicator": "Old.Example.",
+      "verdict": "SUSPICIOUS",
+      "source": "Synthetic archived teaching feed",
+      "observedAt": "2026-09-01T12:00:00Z"
+    },
+    {
+      "indicator": "2001:db8::10",
+      "verdict": "BENIGN",
+      "source": "Synthetic Sentinel teaching feed",
+      "observedAt": "2026-10-26T12:00:00Z"
+    }
+  ]
+}

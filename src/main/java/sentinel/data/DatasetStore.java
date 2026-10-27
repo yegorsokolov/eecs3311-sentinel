@@ -13,11 +13,15 @@ import sentinel.domain.ToolResult;
 /**
  * One in-memory dataset with immutable retained versions.
  * A single state replacement publishes a fully checked batch atomically.
- * JSON disk persistence and additional query tools will be implemented separately.
+ * JSON disk persistence and active-case integration will be implemented separately.
  */
 public final class DatasetStore {
     private record State(int revision, Map<String, Event> byId, Map<String, List<Event>> versions) { }
     private final String datasetId;
+    private final java.time.Clock clock;
+    private final java.time.Duration maxIndicatorAge;
+    private final java.util.concurrent.ConcurrentMap<String, IndicatorFeedLoader.Feed> feeds =
+            new java.util.concurrent.ConcurrentHashMap<>();
     private volatile State state = new State(0, Map.of(), Map.of("v0", List.of()));
 
     public DatasetStore() {
@@ -25,6 +29,16 @@ public final class DatasetStore {
     }
 
     public DatasetStore(String datasetId) {
+        this(datasetId, java.time.Clock.systemUTC(), java.time.Duration.ofDays(30));
+    }
+
+    /** Explicit freshness policy/clock make local feed evaluation reproducible. */
+    public DatasetStore(String datasetId, java.time.Clock clock, java.time.Duration maxIndicatorAge) {
+        this.clock = Objects.requireNonNull(clock, "clock");
+        this.maxIndicatorAge = Objects.requireNonNull(maxIndicatorAge, "maxIndicatorAge");
+        if (maxIndicatorAge.isNegative() || maxIndicatorAge.isZero()) {
+            throw new IllegalArgumentException("Indicator freshness duration must be positive.");
+        }
         if (datasetId == null || datasetId.isBlank()) {
             throw new IllegalArgumentException("datasetId must not be blank.");
         }
@@ -130,8 +144,38 @@ public final class DatasetStore {
         return true;
     }
 
+    /** Parse fully before atomic publication. An existing feed version can never change content. */
+    public String loadIndicatorFeed(java.nio.file.Path path) {
+        var feed = IndicatorFeedLoader.load(path, clock.instant(),
+                IndicatorFeedLoader.MAX_BYTES, IndicatorFeedLoader.MAX_RECORDS);
+        var previous = feeds.putIfAbsent(feed.version(), feed);
+        if (previous != null && !previous.content().equals(feed.content())) {
+            throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.INVALID_FEED,
+                    "Feed version already exists with different content.");
+        }
+        return feed.version();
+    }
+
     public ToolResult lookup(ToolCall call) {
-        throw new UnsupportedOperationException("Indicator lookup is implemented in the retrieval step.");
+        long started = System.nanoTime();
+        var query = IndicatorLookupQuery.parse(call);
+        var feed = feeds.get(query.feedVersion());
+        if (feed == null) {
+            var code = feeds.isEmpty() ? sentinel.tools.ToolException.Code.FEED_UNAVAILABLE
+                    : sentinel.tools.ToolException.Code.UNKNOWN_FEED_VERSION;
+            throw new sentinel.tools.ToolException(code, "Requested indicator feed version is not loaded.");
+        }
+        var entry = feed.entries().get(query.indicator());
+        boolean stale = entry != null && java.time.Duration.between(entry.record().observedAt(), clock.instant())
+                .compareTo(maxIndicatorAge) > 0;
+        var match = entry == null
+                ? new sentinel.domain.IndicatorMatch(query.indicator(), query.feedVersion(), false,
+                        "UNKNOWN", null, null, false)
+                : new sentinel.domain.IndicatorMatch(query.indicator(), query.feedVersion(), true,
+                        entry.record().verdict(), entry.record().source(), entry.record().observedAt(), stale);
+        return new ToolResult(entry == null ? "UNKNOWN" : stale ? "STALE" : "SUCCESS",
+                entry == null ? List.of() : List.of(IndicatorEvidence.from(entry)), feed.version(),
+                Math.max(0, (System.nanoTime() - started) / 1_000_000), false, null, match);
     }
 
     public ToolResult activity(ToolCall call) {

@@ -1,17 +1,16 @@
 package sentinel.tools;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
 import sentinel.data.DatasetStore;
+import sentinel.data.IndicatorLookupQuery;
+import sentinel.domain.ToolCall;
+import sentinel.domain.ToolResult;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public class IndicatorLookupCommand extends LocalQueryCommand {
+/** Read-only lookup; invalid indicators are rejected before invoking the store. */
+public final class IndicatorLookupCommand extends LocalQueryCommand {
     public IndicatorLookupCommand(DatasetStore store) { super(store); }
     @Override
     protected ToolResult select(ToolCall call) {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
+        IndicatorLookupQuery.parse(call);
+        return store.lookup(call);
     }
 }
