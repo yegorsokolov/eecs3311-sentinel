@@ -8,7 +8,7 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 | F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC (wiring pending) | Partial: importer/store implemented; active-case/UI wiring pending | Component demo: demos/import-demo.jsh; video pending |
 | F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; executor/case/UI wiring pending | Component demo: demos/search-demo.jsh; video pending |
 | F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Scaffold only | Pending |
-| F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Scaffold only | Pending |
+| F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Partial: ordered versioned account events, counts and coverage implemented; executor/case/UI wiring pending | Component demo: demos/activity-demo.jsh; video pending |
 | F06 | Timeline correlation | Deterministic | AnalysisService, TimelineBuilder | analyze, build | MVC | Scaffold only | Pending |
 | F07 | Hypothesis analysis | Hybrid | AnalysisService, LLMGateway, OllamaAdapter | analyze, complete, validateCitations | MVC, Adapter | Scaffold only | Pending |
 | F08 | Severity assessment | Hybrid | RuleSeverityPolicy, AnalysisService | assess, analyze | MVC, Strategy | Scaffold only | Pending |
@@ -18,6 +18,8 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 | F12 | Report export | Deterministic | AgentController, ReportService | export | MVC | Scaffold only | Pending |
 
 ## Source-file index
+
+Step 6 implements the F05 retrieval component: UserActivityCommand delegates through LocalQueryCommand to DatasetStore.activity, with shared strict query parsing and typed ActivitySummary data on ToolResult. Results include ordered source-linked events, full-interval outcome/host counts and explicit total/returned coverage when capped. Unknown accounts return EMPTY with zero counts; unknown outcomes/hosts remain unknown. The optional summary field refines the Stage 1 result-data contract while retaining the existing five-argument constructor. Twenty-four tests cover retrieval, boundaries, validation, version stability, provenance, counts and unknown/partial semantics. Case/executor/UI integration remains pending.
 
 Step 5 implements the F03 retrieval component: LogSearchCommand delegates through LocalQueryCommand to DatasetStore.search. LogSearchQuery validates arguments; EventEvidence serializes source-linked events; ToolException distinguishes invalid arguments, missing datasets and missing versions. ToolResult defensively copies evidence. Tests cover inclusive intervals, exact filters, stable ordering/IDs, truncation, version pinning and errors. The 1000-result maximum and inclusive interval are implementation choices. ToolExecutor scope enforcement, evidence attachment and user-facing integration remain pending.
 

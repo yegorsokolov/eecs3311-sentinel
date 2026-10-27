@@ -18,12 +18,22 @@ record LogSearchQuery(String datasetId, String version, Instant start, Instant e
     private static final Set<String> REQUIRED = Set.of("datasetId", "datasetVersion", "start", "end", "limit");
 
     static LogSearchQuery parse(ToolCall call) {
-        if (call == null || !"logSearch".equals(call.toolName())) throw invalid("Expected a logSearch call.");
+        return parse(call, "logSearch", FILTERS, REQUIRED);
+    }
+
+    static LogSearchQuery parseActivity(ToolCall call) {
+        return parse(call, "userActivity", Set.of("accountId"),
+                Set.of("datasetId", "datasetVersion", "start", "end", "limit", "accountId"));
+    }
+
+    private static LogSearchQuery parse(ToolCall call, String tool, Set<String> allowedFilters,
+                                        Set<String> required) {
+        if (call == null || !tool.equals(call.toolName())) throw invalid("Expected a " + tool + " call.");
         Map<String, String> args = call.args();
-        if (!args.keySet().containsAll(REQUIRED)) throw invalid("Missing required logSearch arguments.");
+        if (!args.keySet().containsAll(required)) throw invalid("Missing required " + tool + " arguments.");
         for (var entry : args.entrySet()) {
-            if (!REQUIRED.contains(entry.getKey()) && !FILTERS.contains(entry.getKey())) {
-                throw invalid("Unknown logSearch argument.");
+            if (!required.contains(entry.getKey()) && !allowedFilters.contains(entry.getKey())) {
+                throw invalid("Unknown " + tool + " argument.");
             }
             if (entry.getValue().isBlank()) throw invalid("Search arguments must not be blank.");
         }
@@ -39,7 +49,7 @@ record LogSearchQuery(String datasetId, String version, Instant start, Instant e
             throw invalid("Search limit must be an integer from 1 to " + MAX_RESULTS + ".");
         }
         var filters = new java.util.HashMap<String, String>();
-        for (String field : FILTERS) if (args.containsKey(field)) filters.put(field, args.get(field));
+        for (String field : allowedFilters) if (args.containsKey(field)) filters.put(field, args.get(field));
         return new LogSearchQuery(args.get("datasetId"), args.get("datasetVersion"),
                 start, end, limit, Map.copyOf(filters));
     }

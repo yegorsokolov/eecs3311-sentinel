@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-5 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
+Steps 1-6 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search and account-activity commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
 
 ## Design
 
@@ -94,9 +94,17 @@ After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sent
 
 Search requires `datasetId`, `datasetVersion`, `start`, `end`, and `limit` (1-1000). Times require a UTC offset and both endpoints are inclusive. Optional exact-match filters are `eventId`, `eventType`, `accountId`, `sourceIp`, `hostId`, and `outcome`; filters combine with AND. Results sort by timestamp then event ID. Narrow the interval or filters when a result is PARTIAL. Evidence preserves source location and event content, with a stable ID per dataset/read-version/event. The original introduction version remains in the payload. Active-case scope enforcement and GUI/CLI integration remain pending.
 
+### Account activity (component demo)
+
+After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/activity-demo.jsh`. Expected: SUCCESS with ordered IDs demo-1/demo-2, one success, one failure and one distinct host; PARTIAL with one returned event and two total matches; EMPTY with explicit zero counts/interval for an unknown account; INVALID_ARGUMENT for limit zero. The dataset remains v1 with two events.
+
+The `userActivity` arguments are `datasetId`, `datasetVersion`, `accountId`, `start`, `end`, and `limit` (1-1000), all required. Account matching is exact with no alias expansion; times require offsets and include both endpoints. Events across all event types sort by timestamp then event ID and use the same source-linked evidence IDs as log search.
+
+`ToolResult.activitySummary()` supplies typed data for activity results (null for other tools). Counts cover **all matches** in the pinned version and requested interval, even when evidence is capped: total/returned events, exact lowercase success/failure outcomes, unknown outcomes, distinct known hosts and events with unknown hosts. Unrecognized outcome values remain unknown. Coverage includes the requested interval and first/last matching timestamps (null for empty results). These describe available stored events; they do not guarantee complete source logging or imply safety. GUI/CLI, case scope enforcement and evidence attachment remain pending.
+
 ## Verification
 
-The latest recorded build passed 116 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), and log search (20). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
+The latest recorded build passed 140 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), log search (20), and account activity (24). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
 
 ## Submission records
 

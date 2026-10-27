@@ -1,17 +1,12 @@
 package sentinel.tools;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import sentinel.domain.ToolCall;
+import sentinel.domain.ToolResult;
 import sentinel.data.DatasetStore;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public class UserActivityCommand extends LocalQueryCommand {
+/** Read-only account activity retrieval against a pinned dataset version. */
+public final class UserActivityCommand extends LocalQueryCommand {
     public UserActivityCommand(DatasetStore store) { super(store); }
     @Override
-    protected ToolResult select(ToolCall call) {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
-    }
+    protected ToolResult select(ToolCall call) { return store.activity(call); }
 }

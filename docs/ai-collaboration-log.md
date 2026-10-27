@@ -73,3 +73,13 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 **Outcome:** Automated verification passed 116 tests. Executor/case integration remains pending. I approved the commit and push after completing my review and testing.
 
 See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verification-log.md) and [weekly commit summary](weekly-commit-summary.md) for supporting records.
+
+## 8. Account activity retrieval — October 26
+
+**Task and instruction:** Implement the next project step from the existing milestone plan.
+
+**AI contribution:** Implemented ordered, version-pinned account activity through UserActivityCommand and DatasetStore, typed summary data with outcome/host counts and explicit coverage, 24 tests, and a packaged-JAR demo. Updated the affected project records.
+
+**My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 27.
+
+**Outcome:** Maven verification passed all 140 tests; the demo confirmed full, capped, empty and invalid-input behavior without dataset mutation. Executor scope enforcement, evidence attachment and GUI/CLI integration remain pending.

@@ -135,6 +135,39 @@ public final class DatasetStore {
     }
 
     public ToolResult activity(ToolCall call) {
-        throw new UnsupportedOperationException("Account activity is implemented in the retrieval step.");
+        long started = System.nanoTime();
+        LogSearchQuery query = LogSearchQuery.parseActivity(call);
+        if (!datasetId.equals(query.datasetId())) {
+            throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.UNKNOWN_DATASET,
+                    "Unknown dataset.");
+        }
+        List<Event> view = state.versions().get(query.version());
+        if (view == null) {
+            throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.UNKNOWN_VERSION,
+                    "Unknown dataset version.");
+        }
+        List<Event> matches = view.stream()
+                .filter(e -> !e.timestamp().isBefore(query.start()) && !e.timestamp().isAfter(query.end()))
+                .filter(e -> query.filters().get("accountId").equals(e.accountId()))
+                .sorted(java.util.Comparator.comparing(Event::timestamp).thenComparing(Event::eventId)).toList();
+        int successes = 0, failures = 0, unknownHosts = 0;
+        var hosts = new java.util.HashSet<String>();
+        for (Event event : matches) {
+            if ("success".equals(event.outcome())) successes++;
+            else if ("failure".equals(event.outcome())) failures++;
+            if (event.hostId() == null) unknownHosts++;
+            else hosts.add(event.hostId());
+        }
+        List<sentinel.domain.Evidence> evidence = matches.stream().limit(query.limit())
+                .map(e -> EventEvidence.from(datasetId, query.version(), e)).toList();
+        boolean truncated = matches.size() > query.limit();
+        var summary = new sentinel.domain.ActivitySummary(query.filters().get("accountId"),
+                query.start(), query.end(), matches.size(), evidence.size(), successes, failures,
+                matches.size() - successes - failures, hosts.size(), unknownHosts,
+                matches.isEmpty() ? null : matches.get(0).timestamp(),
+                matches.isEmpty() ? null : matches.get(matches.size() - 1).timestamp());
+        return new ToolResult(truncated ? "PARTIAL" : matches.isEmpty() ? "EMPTY" : "SUCCESS",
+                evidence, query.version(), Math.max(0, (System.nanoTime() - started) / 1_000_000),
+                truncated, summary);
     }
 }
