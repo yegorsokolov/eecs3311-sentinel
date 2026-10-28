@@ -1,12 +1,12 @@
 # Design-pattern implementation record
 
-These are the planned Stage 1 roles. Domain lifecycle, import, log-search, account-activity and indicator-lookup components now work, but none of the five complete pattern collaborations is demonstrated yet.
+The Stage 1 Command collaboration now works at component level through scoped ToolExecutor sessions, concrete commands and DatasetStore. The other patterns and complete application workflows remain pending.
 
 | Pattern | Problem | Participants and roles | Status |
 | --- | --- | --- | --- |
 | MVC | Shared GUI/CLI behavior | SentinelGUI and SentinelCLI: views; AgentController: controller; Investigation and values: model | Pending |
 | Strategy | Exchange AI and rule planning | AgentEngine: context; PlanningStrategy: contract; LLMPlanningStrategy and RulePlanningStrategy: strategies | Pending |
-| Command | Encapsulate restricted retrieval | ToolExecutor: invoker; ToolCommand: contract; LocalQueryCommand and concrete queries; DatasetStore: receiver | Partial: LogSearchCommand, UserActivityCommand and IndicatorLookupCommand execute through LocalQueryCommand; validated executor/registry integration pending |
+| Command | Encapsulate restricted retrieval | ToolExecutor: invoker; ToolCommand: contract; LocalQueryCommand and concrete queries; DatasetStore: receiver | Implemented component collaboration: ToolExecutor.Session validates and dispatches allow-listed commands through LocalQueryCommand to DatasetStore; 31 executor tests and demos/executor-demo.jsh verify scope, budgets and failures. Application integration pending |
 | Observer | Progress without view coupling | EventBus: publisher; ProgressListener: contract; GUI/CLI: listeners | Pending |
 | Adapter | Isolate model communication | LLMGateway: target; OllamaAdapter: adapter; Ollama: service | Pending |
 

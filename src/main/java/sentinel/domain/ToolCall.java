@@ -12,6 +12,28 @@ public record ToolCall(UUID id, String toolName, Map<String, String> args) {
     }
 
     public String key() {
-        throw new UnsupportedOperationException("Canonical tool keys are implemented with tool execution.");
+        // Validate tool arguments before using this key. Exact-match filters keep their original text.
+        var normalized = new java.util.TreeMap<>(args);
+        if ("logSearch".equals(toolName) || "userActivity".equals(toolName)) {
+            for (String field : java.util.List.of("start", "end")) {
+                if (normalized.containsKey(field)) {
+                    normalized.put(field, java.time.OffsetDateTime.parse(normalized.get(field)).toInstant().toString());
+                }
+            }
+            if (normalized.containsKey("limit")) {
+                normalized.put("limit", Integer.toString(Integer.parseInt(normalized.get("limit"))));
+            }
+        } else if ("indicatorLookup".equals(toolName) && normalized.containsKey("indicator")) {
+            normalized.put("indicator", Indicator.normalize(normalized.get("indicator")));
+        }
+        // Length-prefixed fields avoid delimiter collisions; call UUID and argument order are irrelevant.
+        var key = new StringBuilder();
+        append(key, toolName);
+        normalized.forEach((name, value) -> { append(key, name); append(key, value); });
+        return key.toString();
+    }
+
+    private static void append(StringBuilder key, String value) {
+        key.append(value.length()).append(':').append(value);
     }
 }

@@ -9,19 +9,19 @@ import sentinel.domain.ToolCall;
 import sentinel.tools.ToolException;
 import static sentinel.tools.ToolException.Code.INVALID_ARGUMENT;
 
-/** Parsed search arguments; active-case scope enforcement belongs to the executor. */
-record LogSearchQuery(String datasetId, String version, Instant start, Instant end,
+/** Parsed search arguments; scope enforcement is shared by ToolExecutor sessions. */
+public record LogSearchQuery(String datasetId, String version, Instant start, Instant end,
                       int limit, Map<String, String> filters) {
     static final int MAX_RESULTS = 1000;
     private static final Set<String> FILTERS = Set.of("eventId", "eventType", "accountId",
             "sourceIp", "hostId", "outcome");
     private static final Set<String> REQUIRED = Set.of("datasetId", "datasetVersion", "start", "end", "limit");
 
-    static LogSearchQuery parse(ToolCall call) {
+    public static LogSearchQuery parse(ToolCall call) {
         return parse(call, "logSearch", FILTERS, REQUIRED);
     }
 
-    static LogSearchQuery parseActivity(ToolCall call) {
+    public static LogSearchQuery parseActivity(ToolCall call) {
         return parse(call, "userActivity", Set.of("accountId"),
                 Set.of("datasetId", "datasetVersion", "start", "end", "limit", "accountId"));
     }

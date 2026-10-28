@@ -93,3 +93,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 27.
 
 **Outcome:** Maven verification passed all 181 tests. The demo confirmed fresh, stale, unknown, invalid-input and unavailable-feed behavior without changing event data. Executor/case/UI integration and durable storage remain pending.
+
+## 10. Controlled tool execution — October 28
+
+**Task and instruction:** Implement scoped, bounded invocation of the existing retrieval tools as the next milestone. Architectural context: ToolExecutor is the Command invoker; ToolScope and per-operation sessions bind trusted case context to the registry and shared query validators. Session-owned counters and canonical ToolCall keys enforce limits and duplicate suppression while concrete commands continue to delegate read-only retrieval to DatasetStore.
+
+**AI contribution:** Implemented registry/schema/scope validation, canonical keys, session budgets and explicitly transient retries, bounded worker execution, cancellation and typed failures. Added a trusted accepted-evidence authorization update that preserves budgets/history, 31 automated checks and a packaged-JAR demo; updated the affected project records.
+
+**My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 28.
+
+**Outcome:** Maven verification passed all 212 tests. The demo confirmed scoped retrieval, duplicate/scope refusal, preserved activity/indicator metadata and eight-attempt enforcement without changing event data. AgentEngine/controller integration, automatic evidence attachment, audit/staleness updates and model/plan budgets remain pending.

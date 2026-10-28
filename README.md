@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-7 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import wiring, tool execution and JSON file persistence remain pending.
+Steps 1-8 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import/evidence wiring, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -40,7 +40,7 @@ Configuration precedence is bundled `application.properties` < local `.env` < pr
 
 Supported variables: `SENTINEL_OLLAMA_URL`, `SENTINEL_OLLAMA_MODEL`, `SENTINEL_DATA_DIR`, `SENTINEL_CASE_DIR`, and `SENTINEL_EXPORT_DIR`. The simple UTF-8 .env format accepts blank lines, full-line comments, KEY=value, and matching single/double quotes. It performs no variable expansion, escape processing or inline-comment parsing; unknown variable names are ignored. Do not use shell `export` prefixes. Invalid entries produce a line-number error without echoing their contents.
 
-Stage 1 budgets remain 8 tool attempts, 2 plan revisions, 6 model calls, 10/60-second tool/model timeouts and one transient retry. Configuration exposes these bundled defaults; AgentEngine will enforce them in a later step.
+Stage 1 budgets remain 8 tool attempts, 2 plan revisions, 6 model calls, 10/60-second tool/model timeouts and one transient retry. ToolExecutor sessions now enforce the tool-attempt, timeout and transient-retry ceilings. AgentEngine orchestration, plan-revision and model-call enforcement remain pending.
 
 Local Ollama needs no API key. If a future provider requires one, enter it only in ignored local configuration. Never place secrets in source, snapshots, logs, videos or reports.
 
@@ -92,7 +92,7 @@ Timestamps normalize to UTC. Unknown fields, duplicate JSON keys, invalid types 
 
 After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/search-demo.jsh` in PowerShell. Expected: SUCCESS with two events, PARTIAL with one capped event, EMPTY for an unknown account, and INVALID_ARGUMENT for limit zero. The dataset remains v1 with two events.
 
-Search requires `datasetId`, `datasetVersion`, `start`, `end`, and `limit` (1-1000). Times require a UTC offset and both endpoints are inclusive. Optional exact-match filters are `eventId`, `eventType`, `accountId`, `sourceIp`, `hostId`, and `outcome`; filters combine with AND. Results sort by timestamp then event ID. Narrow the interval or filters when a result is PARTIAL. Evidence preserves source location and event content, with a stable ID per dataset/read-version/event. The original introduction version remains in the payload. Active-case scope enforcement and GUI/CLI integration remain pending.
+Search requires `datasetId`, `datasetVersion`, `start`, `end`, and `limit` (1-1000). Times require a UTC offset and both endpoints are inclusive. Optional exact-match filters are `eventId`, `eventType`, `accountId`, `sourceIp`, `hostId`, and `outcome`; filters combine with AND. Results sort by timestamp then event ID. Narrow the interval or filters when a result is PARTIAL. Evidence preserves source location and event content, with a stable ID per dataset/read-version/event. The original introduction version remains in the payload. ToolExecutor sessions enforce supplied case scope; automatic active-case wiring and GUI/CLI integration remain pending.
 
 ### Account activity (component demo)
 
@@ -100,7 +100,7 @@ After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sent
 
 The `userActivity` arguments are `datasetId`, `datasetVersion`, `accountId`, `start`, `end`, and `limit` (1-1000), all required. Account matching is exact with no alias expansion; times require offsets and include both endpoints. Events across all event types sort by timestamp then event ID and use the same source-linked evidence IDs as log search.
 
-`ToolResult.activitySummary()` supplies typed data for activity results (null for other tools). Counts cover **all matches** in the pinned version and requested interval, even when evidence is capped: total/returned events, exact lowercase success/failure outcomes, unknown outcomes, distinct known hosts and events with unknown hosts. Unrecognized outcome values remain unknown. Coverage includes the requested interval and first/last matching timestamps (null for empty results). These describe available stored events; they do not guarantee complete source logging or imply safety. GUI/CLI, case scope enforcement and evidence attachment remain pending.
+`ToolResult.activitySummary()` supplies typed data for activity results (null for other tools). Counts cover **all matches** in the pinned version and requested interval, even when evidence is capped: total/returned events, exact lowercase success/failure outcomes, unknown outcomes, distinct known hosts and events with unknown hosts. Unrecognized outcome values remain unknown. Coverage includes the requested interval and first/last matching timestamps (null for empty results). These describe available stored events; they do not guarantee complete source logging or imply safety. ToolExecutor sessions enforce supplied scope; GUI/CLI and automatic case-evidence attachment remain pending.
 
 ### Local indicator lookup (component demo)
 
@@ -128,11 +128,33 @@ Indicators accept IPv4, IPv6 literals and ASCII domains with at least two labels
 
 `ToolResult.indicatorMatch()` supplies normalized indicator, match flag, verdict, source, observation date, feed version and stale flag (null for other tools). No match returns status UNKNOWN, no evidence and no invented source/date; UNKNOWN is never treated as safe. Matched records return SUCCESS, or STALE when observation age is **greater than 30 days** by default. A stale record retains its original verdict and date. A matched record whose feed verdict is UNKNOWN still has a true match flag and source evidence. The clock and positive age threshold can be injected through the DatasetStore constructor; no new environment overrides are introduced.
 
-Matched evidence has a stable ID per indicator/feed version, a JSON payload and file/record provenance. Result sourceVersion and evidence datasetVersion identify the **feed version** for this tool. A missing/unreadable file or lookup with no loaded feeds raises FEED_UNAVAILABLE; an unloaded version when other feeds exist raises UNKNOWN_FEED_VERSION; invalid feed content raises INVALID_FEED. GUI/CLI, case-scope validation and attachment remain pending.
+Matched evidence has a stable ID per indicator/feed version, a JSON payload and file/record provenance. Result sourceVersion and evidence datasetVersion identify the **feed version** for this tool. A missing/unreadable file or lookup with no loaded feeds raises FEED_UNAVAILABLE; an unloaded version when other feeds exist raises UNKNOWN_FEED_VERSION; invalid feed content raises INVALID_FEED. ToolExecutor sessions validate supplied target/feed scope; GUI/CLI and automatic case-evidence attachment remain pending.
+
+### Controlled tool execution (component demo)
+
+After packaging, run `& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/executor-demo.jsh`. Expected: scoped SUCCESS with two events, DUPLICATE_CALL for equivalent arguments, OUT_OF_SCOPE for a different account, PARTIAL account activity with one returned/two total, and SUCCESS/MALICIOUS for an observed indicator. Three accepted attempts leave five remaining. A separate session refuses its ninth attempt with BUDGET_EXHAUSTED; event data stays v1/two events.
+
+`ToolExecutor.local(store)` registers only logSearch, userActivity and indicatorLookup. An explicit registry constructor can select a subset of these names and accepts `AppConfig.ExecutionLimits`; the default is eight attempts, ten seconds per attempt and one retry per explicitly transient failure. Injected limits may tighten these ceilings. Close the executor with try-with-resources.
+
+Execution requires `openSession(ToolScope)`. Direct `ToolExecutor.execute(call)` refuses unscoped execution. The trusted application supplies an immutable CaseScope, explicit ACCOUNT/INDICATOR target kind, selected feed version and normalized indicators from accepted in-scope evidence; model proposals cannot authorize scope. A target kind is explicit so domain-looking account names are not guessed to be indicators.
+
+| Tool | Session scope requirement |
+| --- | --- |
+| logSearch | Exact case dataset/version, interval within the inclusive case bounds, and target accountId; indicator targets instead require a matching sourceIp |
+| userActivity | Account scope, exact target accountId and case dataset/version, with interval inside case bounds |
+| indicatorLookup | Selected feedVersion plus the indicator target or an indicator from accepted case evidence |
+
+Domain event search is refused because the current event schema has no domain field. Schema/registry validation through `ToolExecutor.validate`, or schema plus scope validation through `Session.validate`, performs no retrieval and spends no attempts. Invalid/unregistered/out-of-scope calls never reach a command.
+
+A session owns its attempt counter and duplicate history for an explicit run/query. `ToolCall.key()` ignores the UUID and argument order, normalizes UTC offsets and numeric limits, and normalizes indicator-lookup spelling; exact-match search filter text remains exact. Equivalent submitted calls are refused even after failure or timeout. The trusted application may call `Session.acceptEvidenceIndicators` after accepting new in-scope evidence; this preserves the same budgets and duplicate history. Case attachment and this automatic authorization flow will be wired in a later increment. New sessions are explicit new operation budgets, not a way to resume a run with reset counters.
+
+Only TRANSIENT_FAILURE permits one internal retry, charged as another attempt. Timeout, interruption, permanent failures and duplicate calls are not retried. Timeout includes queue wait; expired/cancelled results are discarded. A single daemon worker and one queue slot bound resources even if a command ignores interruption. Such a command can keep the worker occupied until it returns; queued calls can time out and excess submissions return EXECUTOR_BUSY. Rejected submissions spend no attempt; accepted submissions, including cancelled ones, do. Closing cancels outstanding results. Unexpected command errors use a fixed diagnostic rather than exposing exception contents.
+
+This increment implements the Command collaboration at component level. AgentEngine/controller wiring, evidence attachment, audit/staleness updates, model budgets and GUI/CLI workflows remain pending.
 
 ## Verification
 
-The latest recorded build passed 181 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), log search (20), account activity (24), and indicator lookup (41). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
+The latest recorded build passed 212 tests: configuration/startup (17), domain contracts (23), lifecycle/snapshots (25), import (31), log search (20), account activity (24), indicator lookup (41), and controlled execution (31). Run `.\mvnw.cmd verify`; results are written to `target/surefire-reports/`. Tests run without Ollama. Full deterministic testing and KUMA validation remain Stage 3 work.
 
 ## Submission records
 
