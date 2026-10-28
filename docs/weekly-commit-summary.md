@@ -1,11 +1,11 @@
 # Weekly commit summary
 
-Updated 2026-10-27. Dates use America/Toronto. Stage 2 requires five meaningful code/test commits pushed in each period. Documentation-only changes are excluded.
+Updated 2026-10-28. Dates use America/Toronto. Stage 2 requires five meaningful code/test commits pushed in each period. Documentation-only changes are excluded.
 
 | Period | Dates (2026) | Count toward minimum | Status |
 | --- | --- | --- | --- |
 | 1 | October 20-26 | 5 / 5 | Minimum met without counting the initial scaffold |
-| 2 | October 27-November 2 | 2 / 5 | In progress |
+| 2 | October 27-November 2 | 3 / 5 | In progress |
 | 3 | November 3-9 | 0 / 5 | Not started |
 
 | Commit | Toronto date | Implementation / tests | Period |
@@ -17,6 +17,7 @@ Updated 2026-10-27. Dates use America/Toronto. Stage 2 requires five meaningful 
 | [d476e10](https://github.com/yegorsokolov/eecs3311-sentinel/commit/d476e103a46aa672f6e687f73a5929dd5b5d3ced) | October 22 | Versioned filtered log search, stable evidence/provenance, typed errors and 20 new tests | 1 |
 | [8a8866e](https://github.com/yegorsokolov/eecs3311-sentinel/commit/8a8866e1ea976588a574ae42e119b338b83d002e) | October 27 | Versioned account activity, outcome/host counts, explicit coverage and 24 new tests | 2 |
 | [49f1976](https://github.com/yegorsokolov/eecs3311-sentinel/commit/49f19763a86371aaea13ec3524149493573fc584) | October 27 | Validated immutable indicator feeds, normalized lookup, source evidence, freshness/failure semantics and 41 new tests | 2 |
+| [3125f77](https://github.com/yegorsokolov/eecs3311-sentinel/commit/3125f77633d9d6ca5e486cce3afcde8337b57d53) | October 28 | Scoped tool dispatch, canonical duplicate keys, budgets/retries, bounded execution/cancellation and 31 new tests | 2 |
 
 The five Period 1 implementation/test commits above satisfy the first reporting period without relying on the initial scaffold. Publication was authorized after review and testing.
 
@@ -25,3 +26,5 @@ The [initial scaffold](https://github.com/yegorsokolov/eecs3311-sentinel/commit/
 Step 6 was implemented and automatically verified on October 26, then reviewed, tested and approved for publication on October 27. Its actual commit date places it in Period 2. The publication-summary documentation commit is excluded from the substantive count.
 
 Step 7 was reviewed, tested and approved for publication on October 27. Its implementation commit counts toward Period 2; the accompanying publication-summary documentation commit does not.
+
+Step 8 was reviewed, tested and approved for publication on October 28. Its implementation commit brings Period 2 to three substantive commits; the publication-summary documentation commit is excluded.
