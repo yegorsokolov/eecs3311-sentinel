@@ -42,7 +42,8 @@ class ApplicationFlowTest {
         wire();
     }
     private void wire() {
-        PlanningStrategy planner = context -> { throw new AssertionError("Planning belongs to the next milestone"); };
+        var validator = new PlanValidator(tools, store);
+        var planner = new RulePlanningStrategy(validator, store);
         var analysis = new AnalysisService(prompt -> { fail("No model calls in these increments"); return ""; },
                 new TimelineBuilder(), facts -> { throw new AssertionError("No analysis in this increment"); });
         engine = new AgentEngine(planner, tools, analysis, events, store);
@@ -68,7 +69,7 @@ class ApplicationFlowTest {
         return investigation;
     }
     private void complete(Investigation investigation) {
-        investigation.setPlan(new Plan(UUID.randomUUID(), 0, List.of(search(investigation.snapshot().scope().datasetVersion(), Map.of()))));
+        controller.acceptRulePlan(investigation.snapshot().id());
         investigation.recordAction("STATE_CHANGED", "RUNNING", List.of());
         investigation.setAssessment(new Assessment(List.of(), List.of(),
                 new Severity(0, SeverityLevel.UNDETERMINED, List.of(), "test-fixture", List.of()),
@@ -79,10 +80,25 @@ class ApplicationFlowTest {
         var ex = assertThrows(ToolException.class, action); assertEquals(code, ex.code()); return ex;
     }
 
+    @Test void clarificationAndExplicitRuleApprovalReuseTheSameDraft() {
+        var investigation = controller.start(new Request("Investigate", null));
+        UUID id = investigation.snapshot().id();
+        assertEquals(CaseStatus.DRAFT, investigation.snapshot().status());
+        assertTrue(investigation.snapshot().history().stream().anyMatch(entry -> entry.outcome().equals("CLARIFICATION_REQUIRED")));
+        assertNull(controller.clarifyScope(id, scope("v0")));
+        assertEquals(id, controller.snapshot(id).id());
+        assertTrue(investigation.snapshot().history().stream().anyMatch(entry -> entry.outcome().equals("FALLBACK_APPROVAL_REQUIRED")));
+        var plan = controller.acceptRulePlan(id);
+        assertEquals(Plan.Origin.RULE, plan.origin());
+        assertEquals(CaseStatus.READY, investigation.snapshot().status());
+        assertEquals("v0", store.currentVersion());
+        assertTrue(investigation.snapshot().evidence().isEmpty());
+    }
+
     @Test void importUpdatesActiveVersionAndInvalidatesOldPlan() {
         var investigation = start();
         UUID id = investigation.snapshot().id();
-        investigation.setPlan(new Plan(UUID.randomUUID(), 0, List.of(search(investigation.snapshot().scope().datasetVersion(), Map.of()))));
+        controller.acceptRulePlan(id);
         var before = investigation.snapshot();
         var summary = controller.importLogs(id, Path.of("data/samples/import-valid.json"));
         assertEquals(2, summary.accepted());
@@ -135,7 +151,7 @@ class ApplicationFlowTest {
         var investigation = start();
         assertThrows(IllegalArgumentException.class,
                 () -> controller.importLogs(UUID.randomUUID(), Path.of("data/samples/import-valid.json")));
-        investigation.setPlan(new Plan(UUID.randomUUID(), 0, List.of(search(investigation.snapshot().scope().datasetVersion(), Map.of()))));
+        controller.acceptRulePlan(investigation.snapshot().id());
         investigation.recordAction("STATE_CHANGED", "RUNNING", List.of());
         assertThrows(IllegalStateException.class,
                 () -> controller.importLogs(investigation.snapshot().id(), Path.of("data/samples/import-valid.json")));
@@ -286,10 +302,19 @@ class ApplicationFlowTest {
 
     @Test void aRunningCaseCannotBeReplacedByStartingAnother() {
         var investigation = start();
-        investigation.setPlan(new Plan(UUID.randomUUID(), 0, List.of(search(investigation.snapshot().scope().datasetVersion(), Map.of()))));
+        controller.acceptRulePlan(investigation.snapshot().id());
         investigation.recordAction("STATE_CHANGED", "RUNNING", List.of());
         assertThrows(IllegalStateException.class, () -> controller.start(new Request("Other", scope("v0"))));
         assertEquals(investigation.snapshot().id(), controller.snapshot(investigation.snapshot().id()).id());
     }
 
-}
+    @Test void engineRevalidatesPlannerOutputInsteadOfTrustingStrategyClaims() {
+        var investigation = imported();
+        var bad = new Plan(UUID.randomUUID(), 0, List.of(search("v1", Map.of("accountId", "other"))), Map.of(), Plan.Origin.MODEL);
+        var analysis = new AnalysisService(prompt -> "", new TimelineBuilder(), facts -> null);
+        var unsafe = new AgentEngine(context -> bad, tools, analysis, events, store);
+        assertNull(unsafe.plan(new Request(investigation.snapshot().goal(), investigation.snapshot().scope()), investigation));
+        assertEquals(CaseStatus.DRAFT, investigation.snapshot().status());
+        assertNull(investigation.snapshot().plan());
+        assertTrue(investigation.snapshot().history().stream().anyMatch(entry -> entry.outcome().equals("INVALID_PLAN")));
+    }}

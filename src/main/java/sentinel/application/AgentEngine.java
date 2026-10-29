@@ -8,7 +8,7 @@ import sentinel.tools.*;
 import sentinel.analysis.*;
 import sentinel.events.*;
 
-/** Shared manual-query application service; planning and autonomous analysis follow separately. */
+/** Shared rule-planning/manual-query service; model planning and autonomous analysis follow separately. */
 public class AgentEngine {
     private final PlanningStrategy planner;
     private final ToolExecutor tools;
@@ -35,9 +35,44 @@ public class AgentEngine {
         return Objects.requireNonNull(store, "Integrated engine requires the shared DatasetStore.");
     }
 
+    /** Planning never runs tools; clarification/approval failures leave the same draft inspectable. */
     public Plan plan(Request request, Investigation investigation) {
-        throw new UnsupportedOperationException("Plan validation is implemented in the planning milestone.");
+        synchronized (investigation) {
+            var snapshot = investigation.snapshot();
+            if (!request.goal().equals(snapshot.goal()) || !Objects.equals(request.scope(), snapshot.scope())) {
+                throw new PlanningException(PlanningException.Code.INVALID_CONTEXT, "Request differs from the active case.");
+            }
+            return preparePlan(investigation, planner, false);
+        }
     }
+
+    public Plan acceptRulePlan(Investigation investigation) {
+        synchronized (investigation) {
+            var validator = new PlanValidator(tools, datasetStore());
+            return preparePlan(investigation, new RulePlanningStrategy(validator, datasetStore()), true);
+        }
+    }
+
+    private Plan preparePlan(Investigation investigation, PlanningStrategy strategy, boolean approved) {
+        if (investigation.snapshot().status() == CaseStatus.FAILED) {
+            throw new PlanningException(PlanningException.Code.INVALID_CONTEXT, "Failed cases cannot be replanned.");
+        }
+        try {
+            var context = new CaseContext(investigation.snapshot(), approved);
+            if (context.snapshot().scope() == null) {
+                throw new PlanningException(PlanningException.Code.CLARIFICATION_REQUIRED, "Provide complete case scope.");
+            }
+            Plan plan = new PlanValidator(tools, datasetStore()).validate(strategy.createPlan(context), context);
+            investigation.setPlan(plan);
+            events.publish(new ProgressEvent("PLANNING", plan.origin().name() + ":READY", List.of()));
+            return plan;
+        } catch (PlanningException ex) {
+            investigation.recordAction("PLANNING_BLOCKED", ex.code().name(), List.of());
+            events.publish(new ProgressEvent("PLANNING", ex.code().name(), List.of()));
+            return null;
+        }
+    }
+
 
     /** One explicit manual query has its own budget; autonomous collections reuse beginQuerySession. */
     public ToolResult query(Investigation investigation, ToolCall call) {

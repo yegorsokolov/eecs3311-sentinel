@@ -1,12 +1,7 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
-
-/** Stage 1 contract scaffold; business behavior is pending. */
-public record CaseContext(CaseSnapshot snapshot) {
-    // TODO: Validate invariants and defensively copy collection values.
+/** Immutable planning input; rule fallback approval is supplied explicitly by the application. */
+public record CaseContext(CaseSnapshot snapshot, boolean ruleFallbackAccepted) {
+    public CaseContext(CaseSnapshot snapshot) { this(snapshot, false); }
+    public CaseContext { DomainValidation.required(snapshot, "snapshot"); }
 }

@@ -12,7 +12,8 @@ import java.time.*;
 import java.util.*;
 var store = new DatasetStore("demo", Clock.fixed(Instant.parse("2026-10-29T05:15:00Z"), ZoneOffset.UTC), Duration.ofDays(30));
 var tools = ToolExecutor.local(store);
-PlanningStrategy rules = context -> { throw new UnsupportedOperationException("Planning is a later milestone"); };
+var validator = new PlanValidator(tools, store);
+var rules = new RulePlanningStrategy(validator, store);
 var bus = new EventBus();
 // Analysis and durable storage are not invoked in this component walkthrough.
 var analysis = new AnalysisService(prompt -> { throw new UnsupportedOperationException("No model calls in this demo"); }, new TimelineBuilder(), new RuleSeverityPolicy());
@@ -33,9 +34,8 @@ var enriched = engine.query(investigation, new ToolCall(UUID.randomUUID(), "indi
 System.out.println("Enrichment: " + enriched.indicatorMatch().verdict() + " / evidence=" + investigation.snapshot().evidence().size() + " / same-session attempts=" + session.attemptsUsed());
 controller.execute(id, new ToolCall(UUID.randomUUID(), "userActivity", args));
 System.out.println("Evidence after overlapping activity: " + investigation.snapshot().evidence().size());
-// A fixture plan exercises import invalidation without implementing Step 10 planning.
-investigation.setPlan(new Plan(UUID.randomUUID(), 0, List.of(call)));
-System.out.println("Fixture plan: " + investigation.snapshot().status());
+controller.acceptRulePlan(id);
+System.out.println("Explicitly approved plan: " + investigation.snapshot().plan().origin() + " / " + investigation.snapshot().status());
 var duplicate = controller.importLogs(id, Path.of("data/samples/import-valid.json"));
 System.out.println("Duplicate import: accepted=" + duplicate.accepted() + " / duplicates=" + duplicate.duplicates() + " / " + investigation.snapshot().status());
 controller.importLogs(id, Path.of("data/samples/import-additional.json"));

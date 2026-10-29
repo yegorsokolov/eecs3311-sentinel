@@ -37,6 +37,7 @@ public class AgentController {
         var candidate = new Investigation(request, targetType, feedVersion);
         if (active != null) engine.invalidateSessions(active.snapshot().id());
         active = candidate;
+        engine.plan(request, active);
         return active;
     }
 
@@ -44,8 +45,11 @@ public class AgentController {
         var investigation = requireActive(id);
         ensureDataset(scope);
         investigation.clarifyScope(scope);
-        return null; // Planning is integrated in the next milestone.
+        return engine.plan(new Request(investigation.snapshot().goal(), scope), investigation);
     }
+
+    /** Explicit analyst approval of the labeled rule fallback on the same case. */
+    public synchronized Plan acceptRulePlan(UUID id) { return engine.acceptRulePlan(requireActive(id)); }
 
     public synchronized CaseSnapshot snapshot(UUID id) { return requireActive(id).snapshot(); }
 

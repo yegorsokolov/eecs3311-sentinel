@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-9 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, plan validation, investigation orchestration and JSON file persistence remain pending.
+Steps 1-10 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -175,3 +175,17 @@ Verify with `./mvnw.cmd --batch-mode verify` (245 tests), then run the packaged 
 ```
 
 The walkthrough uses a fixture plan solely to demonstrate import invalidation; it does not implement rule or model planning. All sample data is synthetic.
+
+## Rule planning and validation (Step 10)
+
+AgentEngine delegates plan creation to PlanningStrategy and independently validates the proposal before Investigation becomes READY. RulePlanningStrategy generates a labeled, explicitly approved basic plan. CaseContext records the approval; missing scope and declined fallback preserve the same DRAFT case. Planning does not execute tools or manufacture evidence.
+
+PlanValidator reuses the Command registry and trusted ToolScope boundary. It checks registered tool names, typed arguments, dataset/version, target/time/feed authorization, canonical duplicate calls, ordered earlier prerequisites and configured attempt limits. Plan stores immutable origin/dependencies and selects the next eligible step; revisions are capped at 2. Model drafts and autonomous execution remain later milestones.
+
+The isolated Step 10 snapshot passes 272 tests, including 25 planning checks and two application checks added to Step 9's 245-test snapshot. Reproduce the planning walkthrough after building:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/planning-demo.jsh
+```
+
+`demos/case-integration-demo.jsh` now uses the real explicitly approved rule plan to demonstrate import-driven invalidation.

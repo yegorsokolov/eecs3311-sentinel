@@ -113,3 +113,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the case integration milestone, reviewed and tested Step 9, and approved its commit and push on October 29.
 
 **Outcome:** The isolated Step 9 publication snapshot passed 245 tests. The case demo verified import counts, canonical evidence attachment, same-session enrichment, duplicate preservation, fixture-plan/session invalidation and rejected imports without claiming model analysis or disk persistence.
+
+## 12. Approved rule planning and semantic plan validation — October 29
+
+**Task and instruction:** Implement deterministic basic plans and validate proposed tools, scopes, dependencies and limits before accepting READY. Architectural context: AgentEngine delegates to PlanningStrategy and independently revalidates its result; RulePlanningStrategy and PlanValidator reuse the existing Command registry/scope boundary. Immutable Plan origin/prerequisites and explicit CaseContext approval separate planning from execution.
+
+**AI contribution:** Implemented labeled rule plans, explicit approval/clarification on the same draft, canonical duplicate and prerequisite checks, configured step/revision limits and dependency-aware next-step selection. Added 25 planning checks and two application-boundary checks plus a packaged walkthrough.
+
+**My contribution:** I requested the rule-planning milestone, reviewed and tested Step 10, and authorized its commit and push on October 29.
+
+**Outcome:** The isolated Step 10 build passed 272 tests, zero failures/errors/skips. Model planning, provider adapters, autonomous execution and final interfaces are excluded from this publication snapshot.

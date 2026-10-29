@@ -4,7 +4,7 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 
 | ID | Feature | Type | Planned classes | Methods | Patterns | Status | Demo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Partial: request/scope and lifecycle foundation; planning pending | Pending |
+| F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Partial: explicit clarification/approval, labeled rule plans and semantic validation implemented; model/UI pending | Pending |
 | F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC | Partial: importer/store implemented; active-case import/audit/version/staleness implemented; UI pending | Component demo: demos/import-demo.jsh; video pending |
 | F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/search-demo.jsh; video pending |
 | F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Partial: strict local versioned feed loading, normalized matching, source evidence and unknown/stale/failure semantics; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/indicator-demo.jsh; video pending |
@@ -96,3 +96,6 @@ Step 1 supporting infrastructure is implemented in `src/main/java/sentinel/confi
 
 
 Step 9 integrates F02–F05 through AgentController and AgentEngine. CaseEvidence resolves trusted current-scope events; ResultVerifier verifies canonical store evidence and query metadata before Investigation deduplicates evidence atomically and records audit references. Imports preflight case state, update dataset version only on success, invalidate old plan/executor sessions, retain prior evidence and stale analysis. Executor sessions authorize accepted indicators without budget/history resets. EventBus isolates listener errors. Verified by 33 new tests and demos/case-integration-demo.jsh; disk persistence and user-facing workflows remain pending.
+
+
+Step 10 implements F01 deterministic planning through RulePlanningStrategy and PlanValidator. AgentEngine validates strategy output independently before setPlan; CaseContext approval keeps fallback explicit. Plan carries origin and immutable prerequisites; next selects eligible calls without execution. Tests cover allow-listed tools, canonical duplicates, scope/feed checks, dependency order, step/revision limits, and same-case clarification/approval. No model invocation or autonomous execution is included.
