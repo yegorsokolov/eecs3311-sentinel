@@ -14,8 +14,20 @@ public record CaseSnapshot(int schemaVersion, int caseVersion, UUID id, String g
                            CaseStatus status, CaseScope scope, Plan plan, List<Evidence> evidence,
                            Assessment assessment, List<ConversationEntry> conversation,
                            List<AuditEntry> history, String modelVersion, String promptVersion,
-                           String policyVersion) {
+                           String policyVersion, TargetType targetType, String feedVersion) {
+    /** Source-compatible constructor for cases created before explicit target/feed selection. */
+    public CaseSnapshot(int schemaVersion, int caseVersion, UUID id, String goal, CaseStatus status,
+                        CaseScope scope, Plan plan, List<Evidence> evidence, Assessment assessment,
+                        List<ConversationEntry> conversation, List<AuditEntry> history,
+                        String modelVersion, String promptVersion, String policyVersion) {
+        this(schemaVersion, caseVersion, id, goal, status, scope, plan, evidence, assessment,
+                conversation, history, modelVersion, promptVersion, policyVersion, TargetType.ACCOUNT, null);
+    }
+
     public CaseSnapshot {
+        DomainValidation.required(targetType, "targetType");
+        if (targetType == TargetType.INDICATOR && scope != null) Indicator.normalize(scope.target());
+        if (feedVersion != null) DomainValidation.requiredText(feedVersion, "feedVersion");
         if (schemaVersion != 1) throw new IllegalArgumentException("Unsupported snapshot schema.");
         if (caseVersion < 0) throw new IllegalArgumentException("caseVersion must not be negative.");
         DomainValidation.required(id, "id");

@@ -1,0 +1,11 @@
+[
+  {
+    "eventId": "demo-3",
+    "timestamp": "2026-10-22T12:04:00Z",
+    "eventType": "login",
+    "accountId": "demo-analyst",
+    "sourceIp": "192.0.2.20",
+    "hostId": "demo-workstation",
+    "outcome": "failure"
+  }
+]

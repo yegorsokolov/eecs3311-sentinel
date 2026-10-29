@@ -53,6 +53,8 @@ public final class LogImporter {
         this.maxEvents = maxEvents;
     }
 
+    public DatasetStore store() { return store; }
+
     public Summary importFile(Path path) {
         Objects.requireNonNull(path, "path");
         Path source = path.toAbsolutePath().normalize();

@@ -214,4 +214,19 @@ public final class DatasetStore {
                 evidence, query.version(), Math.max(0, (System.nanoTime() - started) / 1_000_000),
                 truncated, summary);
     }
-}
+
+    /** Canonical source resolution prevents forged/stale payloads from authorizing new tools. */
+    public java.util.Optional<Event> resolveEvent(sentinel.domain.Evidence item) {
+        List<Event> view = state.versions().get(item.datasetVersion());
+        if (view == null) return java.util.Optional.empty();
+        return view.stream().filter(event -> event.eventId().equals(item.sourceEventId()))
+                .filter(event -> EventEvidence.from(datasetId, item.datasetVersion(), event).equals(item)).findFirst();
+    }
+
+    public java.util.Optional<sentinel.domain.IndicatorRecord> resolveIndicator(sentinel.domain.Evidence item) {
+        var feed = feeds.get(item.datasetVersion());
+        if (feed == null) return java.util.Optional.empty();
+        var entry = feed.entries().get(item.sourceEventId());
+        return entry != null && IndicatorEvidence.from(entry).equals(item)
+                ? java.util.Optional.of(entry.record()) : java.util.Optional.empty();
+    }}

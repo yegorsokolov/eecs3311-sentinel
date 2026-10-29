@@ -5,16 +5,16 @@ All entries refer to original Stage 1 feature IDs. No full user-facing feature i
 | ID | Feature | Type | Planned classes | Methods | Patterns | Status | Demo |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Partial: request/scope and lifecycle foundation; planning pending | Pending |
-| F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC (wiring pending) | Partial: importer/store implemented; active-case/UI wiring pending | Component demo: demos/import-demo.jsh; video pending |
-| F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; scoped executor implemented; case/UI wiring pending | Component demo: demos/search-demo.jsh; video pending |
-| F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Partial: strict local versioned feed loading, normalized matching, source evidence and unknown/stale/failure semantics; scoped executor implemented; case/UI wiring pending | Component demo: demos/indicator-demo.jsh; video pending |
-| F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Partial: ordered versioned account events, counts and coverage implemented; scoped executor implemented; case/UI wiring pending | Component demo: demos/activity-demo.jsh; video pending |
+| F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC | Partial: importer/store implemented; active-case import/audit/version/staleness implemented; UI pending | Component demo: demos/import-demo.jsh; video pending |
+| F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/search-demo.jsh; video pending |
+| F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Partial: strict local versioned feed loading, normalized matching, source evidence and unknown/stale/failure semantics; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/indicator-demo.jsh; video pending |
+| F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Partial: ordered versioned account events, counts and coverage implemented; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/activity-demo.jsh; video pending |
 | F06 | Timeline correlation | Deterministic | AnalysisService, TimelineBuilder | analyze, build | MVC | Scaffold only | Pending |
 | F07 | Hypothesis analysis | Hybrid | AnalysisService, LLMGateway, OllamaAdapter | analyze, complete, validateCitations | MVC, Adapter | Scaffold only | Pending |
 | F08 | Severity assessment | Hybrid | RuleSeverityPolicy, AnalysisService | assess, analyze | MVC, Strategy | Scaffold only | Pending |
 | F09 | Recommendations | Hybrid | AnalysisService, Assessment | analyze | MVC, Adapter | Scaffold only | Pending |
 | F10 | Follow-up investigation | Hybrid | AgentEngine, AnalysisService, PlanningStrategy, ToolExecutor | ask, answer | MVC, Strategy, Command, Adapter | Scaffold only | Pending |
-| F11 | Case persistence | Deterministic | Investigation, CaseRepository, JsonCaseRepository, EventBus | snapshot, save, load, publish | MVC, Observer | Partial: immutable snapshots/in-memory restoration; file persistence pending | Pending |
+| F11 | Case persistence | Deterministic | Investigation, CaseRepository, JsonCaseRepository, EventBus | snapshot, save, load, publish | MVC, Observer | Partial: immutable snapshots/in-memory restoration with target/feed metadata and controller routing; file persistence pending | Pending |
 | F12 | Report export | Deterministic | AgentController, ReportService | export | MVC | Scaffold only | Pending |
 
 ## Source-file index
@@ -93,3 +93,6 @@ Step 1 supporting infrastructure is implemented in `src/main/java/sentinel/confi
 - `src/main/java/sentinel/tools/ToolCommand.java`
 - `src/main/java/sentinel/tools/ToolExecutor.java`
 - `src/main/java/sentinel/tools/UserActivityCommand.java`
+
+
+Step 9 integrates F02–F05 through AgentController and AgentEngine. CaseEvidence resolves trusted current-scope events; ResultVerifier verifies canonical store evidence and query metadata before Investigation deduplicates evidence atomically and records audit references. Imports preflight case state, update dataset version only on success, invalidate old plan/executor sessions, retain prior evidence and stale analysis. Executor sessions authorize accepted indicators without budget/history resets. EventBus isolates listener errors. Verified by 33 new tests and demos/case-integration-demo.jsh; disk persistence and user-facing workflows remain pending.

@@ -1,21 +1,24 @@
 package sentinel.events;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import sentinel.domain.ProgressEvent;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
-public class EventBus {
-    private final List<ProgressListener> listeners = new ArrayList<>();
-    public void subscribe(ProgressListener listener) {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
-    }
-    public void unsubscribe(ProgressListener listener) {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
-    }
+/** Observer dispatch isolated from case transactions: a failing view cannot undo accepted work. */
+public final class EventBus {
+    private final CopyOnWriteArrayList<ProgressListener> listeners = new CopyOnWriteArrayList<>();
+    private final AtomicInteger failures = new AtomicInteger();
+
+    public void subscribe(ProgressListener listener) { listeners.addIfAbsent(Objects.requireNonNull(listener)); }
+    public void unsubscribe(ProgressListener listener) { listeners.remove(Objects.requireNonNull(listener)); }
+    public int subscriberFailures() { return failures.get(); }
+
     public void publish(ProgressEvent event) {
-        throw new UnsupportedOperationException("Skeleton only: implementation pending");
+        Objects.requireNonNull(event, "event");
+        for (ProgressListener listener : listeners) {
+            try { listener.update(event); }
+            catch (RuntimeException ex) { failures.incrementAndGet(); }
+        }
     }
 }

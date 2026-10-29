@@ -18,3 +18,5 @@ The following remain empty-array placeholders:
 - `inventory/assets.json`: synthetic host criticality records.
 
 Use synthetic accounts, example domains and reserved example IPs. Preserve source positions and dataset versions. JSON runtime storage belongs under `runtime/`; no SQL database is required by the design.
+
+`data/samples/import-additional.json` adds a synthetic event for the Step 9 active-case version/invalidation walkthrough.

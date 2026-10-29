@@ -1,12 +1,13 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import java.util.List;
+import java.util.UUID;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Ephemeral observer notification; durable actions belong in Investigation history. */
 public record ProgressEvent(String stage, String outcome, List<UUID> evidenceIds) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public ProgressEvent {
+        DomainValidation.requiredText(stage, "stage");
+        DomainValidation.requiredText(outcome, "outcome");
+        evidenceIds = List.copyOf(DomainValidation.required(evidenceIds, "evidenceIds"));
+    }
 }

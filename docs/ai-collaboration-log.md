@@ -103,3 +103,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the next implementation increment, reviewed and tested it, and approved the commit and push on October 28.
 
 **Outcome:** Maven verification passed all 212 tests. The demo confirmed scoped retrieval, duplicate/scope refusal, preserved activity/indicator metadata and eight-attempt enforcement without changing event data. AgentEngine/controller integration, automatic evidence attachment, audit/staleness updates and model/plan budgets remain pending.
+
+## 11. Active-case import and evidence integration — October 29
+
+**Task and instruction:** Connect imports and scoped retrieval to the active case, preserving provenance, audit history and analysis freshness. Architectural context: AgentController coordinates the shared DatasetStore/importer and AgentEngine; ResultVerifier and CaseEvidence establish source trust before Investigation atomically accepts evidence. Case-bound executor sessions retain budgets and duplicate history as accepted evidence authorizes enrichment.
+
+**AI contribution:** Implemented active-case start/import/query operations, source validation, atomic evidence deduplication, import-driven version/plan/session updates and assessment staleness. Preserved target/feed metadata in snapshots and added immutable progress/Observer dispatch. Added 33 domain/application checks, an incremental fixture and a packaged component demo.
+
+**My contribution:** I requested the case integration milestone, reviewed and tested Step 9, and approved its commit and push on October 29.
+
+**Outcome:** The isolated Step 9 publication snapshot passed 245 tests. The case demo verified import counts, canonical evidence attachment, same-session enrichment, duplicate preservation, fixture-plan/session invalidation and rejected imports without claiming model analysis or disk persistence.

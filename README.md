@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-8 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, active-case import/evidence wiring, investigation orchestration and JSON file persistence remain pending.
+Steps 1-9 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, plan validation, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -161,3 +161,17 @@ The latest recorded build passed 212 tests: configuration/startup (17), domain c
 See `docs/feature-implementation-mapping.md`, `docs/design-patterns.md`, `docs/ai-tools-and-costs.md`, `docs/ai-collaboration-log.md`, `docs/verification-log.md`, `docs/weekly-commit-summary.md` and `docs/demonstration-index.md`.
 
 The Stage 2 report and final GUI/CLI demonstration recordings are pending. Submission records are grouped under `docs/`. Private planning, review, reference and historical notes are grouped under `local-notes/`, which is excluded from version control. Source code, runtime resources, sample data and executable demos remain in their standard project directories.
+
+## Active-case import and evidence integration (Step 9)
+
+AgentController owns one active Investigation and shares its DatasetStore with LogImporter and AgentEngine. ResultVerifier checks canonical source payloads, provenance and query scope before Investigation atomically accepts evidence; conflicting IDs reject the result. Overlapping search/activity results deduplicate without staling an assessment unless new evidence is attached. Canonical accepted event indicators authorize enrichment within the existing executor session, preserving budgets and duplicate history.
+
+New successful import versions update the active case scope, retain historical evidence, invalidate its plan/sessions and stale its assessment. Rejected and duplicate-only imports preserve version, plan and analysis. Target/feed metadata survives snapshots. EventBus delivers immutable progress and isolates listener failures. Planning, analysis, GUI/CLI workflows and disk persistence remain later work; start creates a draft without planning.
+
+Verify with `./mvnw.cmd --batch-mode verify` (245 tests), then run the packaged component walkthrough:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/case-integration-demo.jsh
+```
+
+The walkthrough uses a fixture plan solely to demonstrate import invalidation; it does not implement rule or model planning. All sample data is synthetic.
