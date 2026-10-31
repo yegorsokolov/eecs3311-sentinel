@@ -1,12 +1,13 @@
 package sentinel.domain;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
-
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Versioned application-owned instructions; retrieved context remains untrusted data. */
 public record Prompt(String version, String purpose, String content) {
-    // TODO: Validate invariants and defensively copy collection values.
+    public Prompt {
+        DomainValidation.requiredText(version, "version");
+        DomainValidation.requiredText(purpose, "purpose");
+        DomainValidation.requiredText(content, "content");
+        if (!version.matches("[A-Za-z0-9._-]{1,64}") || !purpose.matches("[A-Za-z0-9._-]{1,64}")) {
+            throw new IllegalArgumentException("Prompt version/purpose must be bounded identifiers.");
+        }
+    }
 }

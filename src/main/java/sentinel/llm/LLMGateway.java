@@ -1,12 +1,11 @@
 package sentinel.llm;
 
-import java.nio.file.Path;
-import java.net.URI;
-import java.time.Instant;
-import java.util.*;
-import sentinel.domain.*;
+import sentinel.domain.Prompt;
 
-/** Stage 1 contract scaffold; business behavior is pending. */
+/** Adapter port: one completion attempt, with retry/repair accounting owned by the application. */
+@FunctionalInterface
 public interface LLMGateway {
     String complete(Prompt prompt);
+    /** Known provider/model identifier; null means unknown (for example, an injected test gateway). */
+    default String modelVersion() { return null; }
 }

@@ -123,3 +123,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the rule-planning milestone, reviewed and tested Step 10, and authorized its commit and push on October 29.
 
 **Outcome:** The isolated Step 10 build passed 272 tests, zero failures/errors/skips. Model planning, provider adapters, autonomous execution and final interfaces are excluded from this publication snapshot.
+
+## 13. Bounded Ollama adapter — October 29; publication October 30
+
+**Task and instruction:** Implement the local model communication boundary with bounded requests, response parsing, timeouts and typed failures. Architectural context: OllamaAdapter translates LLMGateway/Prompt into non-streaming HTTP; ModelHttpTransport contains bounded transport and sanitized provider failures. ModelBudget supplies the shared caller-owned counter for retries and repairs, keeping provider details outside application/domain logic.
+
+**AI contribution:** Implemented validated prompt metadata, bounded encoding/accumulation, complete-body deadlines, interruption handling and typed HTTP/envelope failures. Added 37 deterministic fake-server/budget checks and a packaged optional service diagnostic.
+
+**My contribution:** I requested the Ollama integration milestone, reviewed and tested Step 11, and authorized its commit and push on October 30.
+
+**Outcome:** The isolated Step 11 publication snapshot passed 309 tests, zero failures/errors/skips. Its packaged diagnostic received a real qwen2.5:7b completion (20 characters) on October 30. This verifies the adapter protocol against the existing service; model planning and later provider/setup/application work are excluded from this publication.

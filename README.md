@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-10 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model integration, investigation orchestration and JSON file persistence remain pending.
+Steps 1-11 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model planning, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -16,7 +16,7 @@ No Stage 1 features, architecture choices or design patterns have been replaced.
 
 - JDK 17 or newer; source compatibility targets Java 17.
 - The included official Maven Wrapper downloads Maven 3.9.9 on first use; no global Maven install is needed. First use requires internet access for Maven and dependencies.
-- Ollama and its model will be needed when integration is implemented. The skeleton makes no model calls.
+- Ollama with qwen2.5:7b is needed for the optional model diagnostic; deterministic tests use local fake servers.
 
 From the project root:
 
@@ -30,7 +30,7 @@ Adjust JAVA_HOME to your JDK folder if different. Maven resolves pinned plugins,
 
 ## Local configuration
 
-The local `.env` is deliberately completely empty and ignored by Git. `.env.example` contains blank optional settings and no credentials. For a fresh clone, copy it only if `.env` does not already exist:
+The local `.env` is ignored by Git and must be preserved. `.env.example` contains blank optional settings and no credentials. For a fresh clone, copy it only if `.env` does not already exist:
 
 ```powershell
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
@@ -189,3 +189,15 @@ The isolated Step 10 snapshot passes 272 tests, including 25 planning checks and
 ```
 
 `demos/case-integration-demo.jsh` now uses the real explicitly approved rule plan to demonstrate import-driven invalidation.
+
+## Bounded local model adapter (Step 11)
+
+OllamaAdapter implements LLMGateway using non-streaming /api/generate requests. Versioned Prompt values validate metadata. ModelHttpTransport enforces an end-to-end deadline of at most 60 seconds, a 256 KiB request ceiling and a 1 MiB response ceiling, including stalled response bodies. Redirects and implicit retries are disabled; typed ModelException outcomes sanitize provider errors. ModelBudget atomically counts at most six attempts for application callers to share across requests, retries and repairs. Model planning integration follows in Step 12.
+
+The isolated publication snapshot passes 309 tests, including 37 adapter/budget checks. After building, optionally check an already running local Ollama with the configured model:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/ollama-check.jsh
+```
+
+The diagnostic prints model identity/completion length or a typed failure, without displaying prompt/response content or modifying configuration. On October 30 the packaged diagnostic received a real qwen2.5:7b completion (20 characters). This is a connectivity/protocol smoke test, not model-planning or quality verification.
