@@ -143,3 +143,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the model-planning milestone, reviewed and tested Step 12, and authorized its commit and push on November 1.
 
 **Outcome:** The isolated Step 12 snapshot passed 346 tests, zero failures/errors/skips, including 37 model-planning checks. The packaged fake-HTTP demo verified repaired MODEL/READY plans, budget refusal, visible provider failure and explicitly approved RULE fallback without retrieval. Fake-server checks do not establish real inference. Later orchestration, compatible-provider setup and interface work are excluded from this publication.
+
+## 15. Deterministic timeline correlation — Step 13 publication
+
+**Task and instruction:** Implement ordered source-linked timelines and bounded relationship candidates. Architectural context: TimelineBuilder transforms Event evidence into immutable ordered views; its canonical overload delegates dataset/version/target/time authorization to CaseEvidence and DatasetStore. JsonCodec validates bounded record payloads. Correlation compares known account/host fields without making causal or severity decisions, preserving the later AnalysisService boundary.
+
+**AI contribution:** Implemented source-ID deduplication/conflict detection, provenance checks, UTC/event-ID ordering, canonical scope filtering and immutable account/host relationships within an inclusive 15-minute window, capped at 1,000 pairs. Added 10 focused timeline checks and a synthetic packaged demo. Included the codec dependency without disk persistence or later application flows.
+
+**My contribution:** I reviewed and tested Step 13 and authorized its commit and push.
+
+**Outcome:** The isolated publication snapshot passed 356 tests, zero failures/errors/skips. Focused checks cover deterministic ordering, conflicts, provenance, strict payload rejection, canonical scope, inclusive time boundary, missing fields, immutable results and the relationship cap. Later analysis, severity, orchestration, persistence and interface changes remain excluded.

@@ -41,3 +41,8 @@ Step 11 publication verification — October 30, 2026: isolated JDK 17/Maven Wra
 Step 12 publication verification — November 1, 2026: isolated JDK 17/Maven Wrapper verify passed 346 tests, zero failures/errors/skips, including 37 ModelPlanningTest cases. These cover schema/size limits, application-owned identity, registry/scope/dependency validation, serialized-args rejection and repair, shared budgets, retry ceilings, clarification, same-case fallback approval and fake-HTTP-to-engine accepted metadata. The student confirmed review/testing and authorized publication. Steps 13–21 and optional provider/setup work remain excluded.
 
 The packaged model-planning demo passed: repaired READY/MODEL after two fake HTTP calls; one-call repair budget refusal; DRAFT/MODEL_UNAVAILABLE after the bounded transient retry; approved RULE/READY with zero additional HTTP calls; dataset v0 and zero events unchanged. Initial snapshot compilation identified a missing tool-registry accessor; including that Step 12 dependency resolved it before the successful verification above.
+
+
+Step 13 publication verification: isolated JDK 17/Maven Wrapper verify passed 356 tests, zero failures/errors/skips, including 10 TimelineBuilderTest checks. The student confirmed Step 13 review/testing and authorized publication. The snapshot includes TimelineBuilder and its strict JSON record-payload codec dependency; disk persistence and Steps 14–21 are excluded. Relationships are candidate associations, capped at 1,000, and do not establish causation.
+
+Packaged demos/timeline-demo.jsh passed: ordered/deduplicated IDs [a, b] and exactly one accountId/hostId relationship at the 15-minute boundary. No model inference or case/dataset disk mutation was performed.

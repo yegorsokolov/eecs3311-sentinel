@@ -105,3 +105,6 @@ Step 11 supplies the Adapter infrastructure for F01 and later grounded analysis:
 
 
 Step 12 extends F01 with LLMPlanningStrategy.createPlan, PlanningPrompt.build and ModelPlanParser.parse, sharing PlanValidator with rule planning. AgentEngine independently accepts the validated plan and Investigation.recordModelUse stores known identifiers. Prompt/context encoding does not authorize tools or widen scope; shared ModelBudget charges every attempt. One repair and one transient retry are bounded, and failure never silently becomes RULE. Verified by 37 deterministic planning checks and a fake-HTTP packaged demo; full user-facing workflows remain pending.
+
+
+Step 13 implements the F06 timeline component: TimelineBuilder.build(List<Evidence>) validates source-linked payloads and orders/deduplicates events; build(DatasetStore, CaseSnapshot) uses CaseEvidence.events for canonical current-scope filtering; correlate(List<Event>) produces immutable bounded account/host associations. JsonCodec supplies strict bounded record decoding. Ten focused tests and demos/timeline-demo.jsh verify the component; GUI/CLI assessment integration remains later work.

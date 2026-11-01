@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-12 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, investigation orchestration and JSON file persistence remain pending.
+Steps 1-13 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -215,3 +215,17 @@ After building, run the deterministic fake-HTTP walkthrough:
 ```
 
 It demonstrates repaired MODEL/READY planning, exhausted repair budget, unavailable-provider handling and explicitly approved RULE fallback without collection. This uses a fake service and does not establish real model inference. The isolated publication build passes 346 tests, including 37 model-planning cases (the original 36 plus a regression rejecting serialized args objects).
+
+## Timeline correlation (Step 13)
+
+TimelineBuilder.build deduplicates event evidence by source ID, rejects conflicting content and mismatched provenance, and sorts normalized UTC timestamps with event-ID tie breaking. The DatasetStore/CaseSnapshot overload resolves only accepted canonical events in the active dataset/version, target and time scope through CaseEvidence. Non-event indicator evidence does not become a timeline event.
+
+TimelineBuilder.correlate reports candidate pairs sharing a known account or host within an inclusive 15-minute window. Results are deterministic, immutable and capped at 1,000 relationships. These are associations, not causal assertions; the cap can omit further candidates. JsonCodec supplies strict bounded record-payload decoding; disk case/dataset persistence is not included in this increment.
+
+After building, run the synthetic component walkthrough:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/timeline-demo.jsh
+```
+
+Expected: ordered IDs [a, b], one relationship sharing accountId/hostId at the exact 15-minute boundary, and a reminder that relationships do not establish causation. No model or disk writes are needed. The isolated Step 13 snapshot passes 356 tests, including 10 focused timeline tests. Full analysis/orchestration and presentation integration follow in later increments.
