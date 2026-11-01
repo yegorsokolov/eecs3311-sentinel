@@ -102,3 +102,6 @@ Step 10 implements F01 deterministic planning through RulePlanningStrategy and P
 
 
 Step 11 supplies the Adapter infrastructure for F01 and later grounded analysis: LLMGateway.complete(Prompt) is the provider-independent port; OllamaAdapter.complete encodes/validates the native protocol, ModelHttpTransport.post enforces bounded transport, ModelException supplies safe typed outcomes and ModelBudget.acquire counts caller-owned attempts. Prompt validates version/purpose/content. Verified by 37 deterministic checks and an actual local completion diagnostic. Model planning and application orchestration are not yet integrated in this snapshot.
+
+
+Step 12 extends F01 with LLMPlanningStrategy.createPlan, PlanningPrompt.build and ModelPlanParser.parse, sharing PlanValidator with rule planning. AgentEngine independently accepts the validated plan and Investigation.recordModelUse stores known identifiers. Prompt/context encoding does not authorize tools or widen scope; shared ModelBudget charges every attempt. One repair and one transient retry are bounded, and failure never silently becomes RULE. Verified by 37 deterministic planning checks and a fake-HTTP packaged demo; full user-facing workflows remain pending.

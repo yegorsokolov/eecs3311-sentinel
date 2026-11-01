@@ -60,6 +60,8 @@ public final class ToolExecutor implements AutoCloseable {
                 "userActivity", new UserActivityCommand(store), "indicatorLookup", new IndicatorLookupCommand(store)));
     }
 
+    public Set<String> registeredToolNames() { return commands.keySet(); }
+
     /** No unscoped execution path is permitted. Use openSession with trusted case context. */
     public ToolResult execute(ToolCall call) {
         throw failure(SCOPE_REQUIRED, "Tool execution requires a scoped session.");

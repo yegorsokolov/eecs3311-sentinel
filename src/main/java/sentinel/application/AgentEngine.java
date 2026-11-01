@@ -1,6 +1,8 @@
 package sentinel.application;
 
 import java.util.*;
+import sentinel.llm.ModelBudget;
+import java.util.concurrent.ConcurrentHashMap;
 import sentinel.domain.*;
 import sentinel.data.*;
 import sentinel.planning.*;
@@ -8,8 +10,9 @@ import sentinel.tools.*;
 import sentinel.analysis.*;
 import sentinel.events.*;
 
-/** Shared rule-planning/manual-query service; model planning and autonomous analysis follow separately. */
+/** Shared validated planning/manual-query service; autonomous analysis follows separately. */
 public class AgentEngine {
+    private final Map<UUID, ModelBudget> modelBudgets = new ConcurrentHashMap<>();
     private final PlanningStrategy planner;
     private final ToolExecutor tools;
     private final AnalysisService analysis;
@@ -62,8 +65,9 @@ public class AgentEngine {
             if (context.snapshot().scope() == null) {
                 throw new PlanningException(PlanningException.Code.CLARIFICATION_REQUIRED, "Provide complete case scope.");
             }
-            Plan plan = new PlanValidator(tools, datasetStore()).validate(strategy.createPlan(context), context);
+            Plan plan = new PlanValidator(tools, datasetStore()).validate(strategy.createPlan(context, modelBudgets.computeIfAbsent(context.snapshot().id(), id -> new ModelBudget())), context);
             investigation.setPlan(plan);
+            if (plan.origin() == Plan.Origin.MODEL) investigation.recordModelUse(strategy.modelVersion(), strategy.promptVersion());
             events.publish(new ProgressEvent("PLANNING", plan.origin().name() + ":READY", List.of()));
             return plan;
         } catch (PlanningException ex) {

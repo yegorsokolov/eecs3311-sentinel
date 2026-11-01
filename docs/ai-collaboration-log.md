@@ -133,3 +133,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I requested the Ollama integration milestone, reviewed and tested Step 11, and authorized its commit and push on October 30.
 
 **Outcome:** The isolated Step 11 publication snapshot passed 309 tests, zero failures/errors/skips. Its packaged diagnostic received a real qwen2.5:7b completion (20 characters) on October 30. This verifies the adapter protocol against the existing service; model planning and later provider/setup/application work are excluded from this publication.
+
+## 14. Validated model planning and approved fallback — October 29; publication November 1
+
+**Task and instruction:** Implement versioned model planning, semantic validation, bounded repair and an explicitly approved labeled rule fallback. Architectural context: LLMPlanningStrategy converts bounded model drafts into application-owned Plan identities/revisions through ModelPlanParser and the shared PlanValidator/Command scope boundary. AgentEngine retains each case's ModelBudget and records known provider/prompt identifiers only after accepting a valid model plan.
+
+**AI contribution:** Implemented planning-v1 context/template building, strict parsing, one repair, one transient retry across the operation and shared attempt accounting. Preserved same-case clarification and explicit fallback approval. Added deterministic planning/HTTP tests and a packaged fake-service demonstration, including rejection/repair of serialized args objects.
+
+**My contribution:** I requested the model-planning milestone, reviewed and tested Step 12, and authorized its commit and push on November 1.
+
+**Outcome:** The isolated Step 12 snapshot passed 346 tests, zero failures/errors/skips, including 37 model-planning checks. The packaged fake-HTTP demo verified repaired MODEL/READY plans, budget refusal, visible provider failure and explicitly approved RULE fallback without retrieval. Fake-server checks do not establish real inference. Later orchestration, compatible-provider setup and interface work are excluded from this publication.

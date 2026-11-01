@@ -4,7 +4,7 @@ AI cybersecurity incident triage and investigation agent for EECS 3311 Software 
 
 ## Current status
 
-Steps 1-11 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, model planning, investigation orchestration and JSON file persistence remain pending.
+Steps 1-12 implement build/configuration diagnostics, core contracts, the in-memory case lifecycle/snapshots, and validated JSON import into an atomic versioned dataset store, plus filtered log-search, account-activity and local indicator-lookup commands and scoped, bounded tool execution sessions. Step 9 connects active-case import and retrieval, source-verified evidence attachment, deduplication, audit history and assessment staleness. F01-F12 are not yet complete as user-facing workflows. GUI, investigation CLI commands, investigation orchestration and JSON file persistence remain pending.
 
 ## Design
 
@@ -192,7 +192,7 @@ The isolated Step 10 snapshot passes 272 tests, including 25 planning checks and
 
 ## Bounded local model adapter (Step 11)
 
-OllamaAdapter implements LLMGateway using non-streaming /api/generate requests. Versioned Prompt values validate metadata. ModelHttpTransport enforces an end-to-end deadline of at most 60 seconds, a 256 KiB request ceiling and a 1 MiB response ceiling, including stalled response bodies. Redirects and implicit retries are disabled; typed ModelException outcomes sanitize provider errors. ModelBudget atomically counts at most six attempts for application callers to share across requests, retries and repairs. Model planning integration follows in Step 12.
+OllamaAdapter implements LLMGateway using non-streaming /api/generate requests. Versioned Prompt values validate metadata. ModelHttpTransport enforces an end-to-end deadline of at most 60 seconds, a 256 KiB request ceiling and a 1 MiB response ceiling, including stalled response bodies. Redirects and implicit retries are disabled; typed ModelException outcomes sanitize provider errors. ModelBudget atomically counts at most six attempts for application callers to share across requests, retries and repairs. Model planning is integrated in Step 12.
 
 The isolated publication snapshot passes 309 tests, including 37 adapter/budget checks. After building, optionally check an already running local Ollama with the configured model:
 
@@ -201,3 +201,17 @@ The isolated publication snapshot passes 309 tests, including 37 adapter/budget 
 ```
 
 The diagnostic prints model identity/completion length or a typed failure, without displaying prompt/response content or modifying configuration. On October 30 the packaged diagnostic received a real qwen2.5:7b completion (20 characters). This is a connectivity/protocol smoke test, not model-planning or quality verification.
+
+## Validated model planning (Step 12)
+
+LLMPlanningStrategy builds the versioned planning-v1 prompt with JSON-encoded untrusted case context. ModelPlanParser accepts only the bounded draft schema; the application owns plan/call identities, origin and revision. PlanValidator independently checks registry, scope, feed, dependencies and limits before AgentEngine accepts READY and records known model/prompt identifiers. Planning never executes retrieval.
+
+One invalid draft may receive one repair; only explicitly transient provider failures receive one retry across the operation. All attempts share ModelBudget, retained per case by AgentEngine. Missing context is clarified before inference, provider failures remain visible on the same draft, and a labeled RULE fallback requires separate analyst approval.
+
+After building, run the deterministic fake-HTTP walkthrough:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/model-planning-demo.jsh
+```
+
+It demonstrates repaired MODEL/READY planning, exhausted repair budget, unavailable-provider handling and explicitly approved RULE fallback without collection. This uses a fake service and does not establish real model inference. The isolated publication build passes 346 tests, including 37 model-planning cases (the original 36 plus a regression rejecting serialized args objects).

@@ -158,6 +158,18 @@ public final class Investigation {
         caseVersion++;
     }
 
+    /** Record only identifiers known from successful model planning, never fabricated provider usage. */
+    public void recordModelUse(String model, String prompt) {
+        if (model == null && prompt == null) return;
+        if (model != null) DomainValidation.requiredText(model, "modelVersion");
+        if (prompt != null) DomainValidation.requiredText(prompt, "promptVersion");
+        if (status == CaseStatus.FAILED) throw new IllegalStateException("FAILED is terminal.");
+        if (model != null) modelVersion = model;
+        if (prompt != null) promptVersion = prompt;
+        history.add(new AuditEntry(clock.instant(), "MODEL_CONTEXT_RECORDED", "MODEL_CONTEXT", List.of()));
+        caseVersion++;
+    }
+
     /** Store already validated analysis; this never marks a run completed by itself. */
     public void setAssessment(Assessment acceptedAssessment) {
         requireState(CaseStatus.RUNNING);

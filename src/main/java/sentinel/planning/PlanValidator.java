@@ -17,7 +17,26 @@ public final class PlanValidator {
         this.store = Objects.requireNonNull(store);
     }
 
+    public DatasetStore datasetStore() { return store; }
+    public Set<String> allowedTools() { return tools.registeredToolNames(); }
+    public int stepLimit(CaseContext context) {
+        validateContext(context);
+        return tools.openSession(CaseEvidence.scope(store, context.snapshot())).attemptsRemaining();
+    }
+
+    public void validateContext(CaseContext context) {
+        if (context == null || context.snapshot().status() == CaseStatus.FAILED) {
+            throw failure(INVALID_CONTEXT, "Planning requires an active case.");
+        }
+        var scope = context.snapshot().scope();
+        if (scope == null) throw failure(CLARIFICATION_REQUIRED, "Provide dataset, target and UTC interval.");
+        if (!store.datasetId().equals(scope.datasetId())) throw failure(INVALID_CONTEXT, "Selected dataset is unavailable.");
+        try { store.events(scope.datasetVersion()); }
+        catch (IllegalArgumentException ex) { throw failure(INVALID_CONTEXT, "Selected dataset version is unavailable."); }
+    }
+
     public Plan validate(Plan plan, CaseContext context) {
+        validateContext(context);
         if (context == null || context.snapshot().status() == CaseStatus.FAILED) {
             throw failure(INVALID_CONTEXT, "Planning requires an active case.");
         }
