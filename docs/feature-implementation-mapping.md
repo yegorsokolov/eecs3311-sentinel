@@ -1,110 +1,114 @@
-# Feature-to-implementation mapping
+# Feature to implementation mapping
 
-All entries refer to original Stage 1 feature IDs. No full user-facing feature is complete yet; partial component progress is recorded below. Method signatures alone do not establish functionality. Record actual collaborations, verification evidence and final video timestamps as implementation proceeds.
+All twelve accepted Stage 1 features are implemented locally through shared Swing/CLI controller workflows. New completion work awaits student review and authorized publication. Model failure remains explicit PARTIAL/unavailable behavior. Videos are not yet recorded.
 
-| ID | Feature | Type | Planned classes | Methods | Patterns | Status | Demo |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| F01 | Investigation planning | Hybrid | AgentController, AgentEngine, PlanningStrategy, LLMPlanningStrategy, RulePlanningStrategy, PlanValidator | start, plan, createPlan, validate | MVC, Strategy, Adapter | Partial: explicit clarification/approval, labeled rule plans and semantic validation implemented; model/UI pending | Pending |
-| F02 | Dataset import | Deterministic | LogImporter, DatasetStore, Investigation | importLogs, importFile, ingest, record | MVC | Partial: importer/store implemented; active-case import/audit/version/staleness implemented; UI pending | Component demo: demos/import-demo.jsh; video pending |
-| F03 | Security log search | Deterministic | ToolExecutor, LogSearchCommand, DatasetStore | execute, select, search | MVC, Command | Partial: filtered versioned search and command implemented; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/search-demo.jsh; video pending |
-| F04 | Indicator enrichment | Deterministic | IndicatorLookupCommand, DatasetStore | select, lookup | MVC, Command | Partial: strict local versioned feed loading, normalized matching, source evidence and unknown/stale/failure semantics; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/indicator-demo.jsh; video pending |
-| F05 | Account activity | Deterministic | UserActivityCommand, DatasetStore | select, activity | MVC, Command | Partial: ordered versioned account events, counts and coverage implemented; scoped executor implemented; source-verified case evidence/audit integration implemented; UI pending | Component demo: demos/activity-demo.jsh; video pending |
-| F06 | Timeline correlation | Deterministic | AnalysisService, TimelineBuilder | analyze, build | MVC | Scaffold only | Pending |
-| F07 | Hypothesis analysis | Hybrid | AnalysisService, LLMGateway, OllamaAdapter | analyze, complete, validateCitations | MVC, Adapter | Scaffold only | Pending |
-| F08 | Severity assessment | Hybrid | RuleSeverityPolicy, AnalysisService | assess, analyze | MVC, Strategy | Scaffold only | Pending |
-| F09 | Recommendations | Hybrid | AnalysisService, Assessment | analyze | MVC, Adapter | Scaffold only | Pending |
-| F10 | Follow-up investigation | Hybrid | AgentEngine, AnalysisService, PlanningStrategy, ToolExecutor | ask, answer | MVC, Strategy, Command, Adapter | Scaffold only | Pending |
-| F11 | Case persistence | Deterministic | Investigation, CaseRepository, JsonCaseRepository, EventBus | snapshot, save, load, publish | MVC, Observer | Partial: immutable snapshots/in-memory restoration with target/feed metadata and controller routing; file persistence pending | Pending |
-| F12 | Report export | Deterministic | AgentController, ReportService | export | MVC | Scaffold only | Pending |
+| Feature | Type | Key methods | Patterns | Status | Video |
+| --- | --- | --- | --- | --- | --- |
+| F01 Natural language planning | Hybrid | start, plan, createPlan, validate, acceptRulePlan | MVC, Strategy, Adapter | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F02 Validated dataset import | Deterministic | importLogs, importFile, ingest, recordImport | MVC | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F03 Filtered security log search | Deterministic | openSession, execute, query, search, addEvidence | MVC, Command | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F04 Threat indicator enrichment | Deterministic | loadIndicatorFeed, lookup, query, acceptEvidenceIndicators | MVC, Command | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F05 Account activity investigation | Deterministic | activity, execute, query, addEvidence | MVC, Command | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F06 Timeline correlation | Deterministic | events, build, correlate, analyze | MVC | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F07 Grounded hypothesis analysis | Hybrid | analyze, validateCitations, setAssessment | MVC, Adapter | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F08 Explainable severity | Hybrid | derive, assess, analyze | MVC, Strategy | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F09 Response recommendations | Hybrid | analyze, validateCitations, export | MVC, Adapter | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F10 Contextual follow up | Hybrid | ask, answer, createPlan, query, recordConversation | MVC, Strategy, Command, Adapter | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F11 Persistent cases and history | Deterministic | save, load, list, restore, snapshot, publish | MVC, Observer | Implemented locally; review pending for new work | URL/timestamp placeholder |
+| F12 Report export | Deterministic | preview, export, snapshot | MVC | Implemented locally; review pending for new work | URL/timestamp placeholder |
 
-## Source-file index
+## F01 Natural language planning
 
-Step 8 implements the shared F03-F05 Command invoker: ToolExecutor copies an allow-listed registry, uses the same query parsers as the store, and creates sessions bound to ToolScope. Session.validate checks dataset/version, target, interval and feed/evidence-indicator authorization; Session.execute enforces canonical duplicate keys, eight total attempts including retries, a ten-second per-attempt timeout and at most one retry per explicitly transient failure. New accepted evidence indicators can be authorized without resetting counters/history. ToolCall.key normalizes semantic arguments and excludes call UUID/order. One daemon worker plus a single queue slot bounds late/uncooperative work; cancellation discards results and close cancels outstanding futures. Thirty-one tests cover actual commands, scope rejection, metadata preservation, canonical keys, retries/budgets, interruption, timeouts, cancellation and concurrent duplicates. ToolScope and sessions refine the existing scope/run contracts without adding a feature or pattern. AgentEngine/controller integration, automatic evidence attachment and model/plan budgets remain pending.
+Stage 1: UC01 / SD01. AgentController creates/clarifies the case; AgentEngine delegates to PlanningStrategy; LLMPlanningStrategy and RulePlanningStrategy generate plans; PlanValidator checks tools, scopes, dependencies and limits.
 
-Step 7 implements F04 retrieval: IndicatorLookupCommand validates through IndicatorLookupQuery before calling DatasetStore.lookup. IndicatorFeedLoader parses a bounded strict UTF-8 versioned feed before atomic publication; Indicator and IndicatorRecord validate normalized source-dated records. IndicatorEvidence provides stable source-linked JSON evidence; optional IndicatorMatch data on ToolResult distinguishes matched UNKNOWN verdicts from absent records and preserves stale verdicts/dates. The five- and six-argument ToolResult constructors remain available. Forty-one tests cover normalized IP/domain matching, validation, atomic rejection/version retention, provenance, freshness and failures. The default 30-day age threshold and explicit loadIndicatorFeed entry point are implementation refinements; no feature or pattern is replaced. Scoped executor integration is implemented; case/UI integration and durable storage remain pending.
+The analyst supplies a goal, dataset, target and UTC interval. Invalid model drafts receive one repair. Missing scope leaves DRAFT, and basic rule fallback requires explicit approval on the same case. Planning never executes tools.
 
-Step 6 implements the F05 retrieval component: UserActivityCommand delegates through LocalQueryCommand to DatasetStore.activity, with shared strict query parsing and typed ActivitySummary data on ToolResult. Results include ordered source-linked events, full-interval outcome/host counts and explicit total/returned coverage when capped. Unknown accounts return EMPTY with zero counts; unknown outcomes/hosts remain unknown. The optional summary field refines the Stage 1 result-data contract while retaining the existing five-argument constructor. Twenty-four tests cover retrieval, boundaries, validation, version stability, provenance, counts and unknown/partial semantics. Scoped executor integration is implemented; case/UI integration remains pending.
+Invocation: New case or Generate model plan; CLI new / plan / rule. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
 
-Step 5 implements the F03 retrieval component: LogSearchCommand delegates through LocalQueryCommand to DatasetStore.search. LogSearchQuery validates arguments; EventEvidence serializes source-linked events; ToolException distinguishes invalid arguments, missing datasets and missing versions. ToolResult defensively copies evidence. Tests cover inclusive intervals, exact filters, stable ordering/IDs, truncation, version pinning and errors. The 1000-result maximum and inclusive interval are implementation choices. ToolExecutor sessions now enforce supplied scope; automatic evidence attachment and user-facing integration remain pending.
+## F02 Validated dataset import
 
+Stage 1: UC02 / SD02. AgentController preflights state; LogImporter validates a bounded UTF-8 event array; DatasetStore publishes durable immutable versions; Investigation records version, audit and staleness.
 
-Step 4 implements F02/UC02/SD02 components: LogImporter.importFile performs bounded UTF-8 decoding, JSON schema/type checks and UTC normalization, then calls DatasetStore.ingest once. The store checks IDs against the staged/current events and atomically publishes an immutable version only when new events are accepted. Summary reports version, new/duplicate counts and safe errors. Controller invocation, case audit updates, stale assessments and durable datasets remain pending. LogImporterTest provides 31 checks; the packaged-JAR demo verifies the sample flow.
+Conflicting event IDs reject atomically; identical duplicates count once. New versions retain historical evidence, clear the old plan, invalidate sessions and stale analysis. Invalid input and failed durable writes preserve the previous dataset.
 
-Step 3 provides partial F01/F11 infrastructure in Investigation (construction, clarifyScope, reviseScope, setPlan, record, setAssessment, snapshot, restore), CaseSnapshot and immutable nested values. It guards lifecycle transitions, preserves goal/metadata/history and pauses restored running cases. It does not complete planning, evidence ingestion, analysis, GUI/CLI workflows or disk persistence. InvestigationTest verifies these aggregate boundaries; the application must supply semantically validated plans and assessments.
+Invocation: Import JSON; CLI import. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
 
-Step 2 implements foundational contracts in `domain/CaseScope.java`, `Request.java`, `Event.java`, and `ImportBatch.java`, supported by package-private `DomainValidation.java` (all beneath `src/main/java/sentinel/`). They support F01/F02 and later retrieval/analysis, but do not complete those features. Constructors reject invalid mandatory fields; Request can await scope clarification; ImportBatch copies its list. CoreDomainTest covers these boundaries. Other domain records remain scaffolds.
+## F03 Filtered security log search
 
-Step 1 supporting infrastructure is implemented in `src/main/java/sentinel/config/AppConfig.java`, `ConfigurationException.java`, and `sentinel/Main.java`. It loads validated defaults/local overrides and provides --check-config, without invoking the model or changing case data. This is startup support, not a new meaningful feature or completion of F01-F12. Covered by AppConfigTest and MainTest; build and diagnostic commands are in the project README.
+Stage 1: UC03 / SD03. ToolExecutor checks a case-bound session and dispatches LogSearchCommand to DatasetStore; ResultVerifier checks canonical source payloads before Investigation attaches evidence.
 
-- `src/main/java/sentinel/Main.java`
-- `src/main/java/sentinel/analysis/AnalysisService.java`
-- `src/main/java/sentinel/analysis/RuleSeverityPolicy.java`
-- `src/main/java/sentinel/analysis/SeverityPolicy.java`
-- `src/main/java/sentinel/analysis/TimelineBuilder.java`
-- `src/main/java/sentinel/application/AgentController.java`
-- `src/main/java/sentinel/application/AgentEngine.java`
-- `src/main/java/sentinel/config/AppConfig.java`
-- `src/main/java/sentinel/data/DatasetStore.java`
-- `src/main/java/sentinel/data/LogImporter.java`
-- `src/main/java/sentinel/domain/Action.java`
-- `src/main/java/sentinel/domain/Answer.java`
-- `src/main/java/sentinel/domain/Assessment.java`
-- `src/main/java/sentinel/domain/AuditEntry.java`
-- `src/main/java/sentinel/domain/CaseContext.java`
-- `src/main/java/sentinel/domain/CaseScope.java`
-- `src/main/java/sentinel/domain/CaseSnapshot.java`
-- `src/main/java/sentinel/domain/CaseStatus.java`
-- `src/main/java/sentinel/domain/CaseSummary.java`
-- `src/main/java/sentinel/domain/Completeness.java`
-- `src/main/java/sentinel/domain/ConversationEntry.java`
-- `src/main/java/sentinel/domain/Event.java`
-- `src/main/java/sentinel/domain/Evidence.java`
-- `src/main/java/sentinel/domain/Facts.java`
-- `src/main/java/sentinel/domain/Hypothesis.java`
-- `src/main/java/sentinel/domain/ImportBatch.java`
-- `src/main/java/sentinel/domain/IndicatorRecord.java`
-- `src/main/java/sentinel/domain/Investigation.java`
-- `src/main/java/sentinel/domain/Plan.java`
-- `src/main/java/sentinel/domain/ProgressEvent.java`
-- `src/main/java/sentinel/domain/Prompt.java`
-- `src/main/java/sentinel/domain/Request.java`
-- `src/main/java/sentinel/domain/Result.java`
-- `src/main/java/sentinel/domain/Severity.java`
-- `src/main/java/sentinel/domain/SeverityLevel.java`
-- `src/main/java/sentinel/domain/Summary.java`
-- `src/main/java/sentinel/domain/ToolCall.java`
-- `src/main/java/sentinel/domain/ToolResult.java`
-- `src/main/java/sentinel/events/EventBus.java`
-- `src/main/java/sentinel/events/ProgressListener.java`
-- `src/main/java/sentinel/llm/LLMGateway.java`
-- `src/main/java/sentinel/llm/OllamaAdapter.java`
-- `src/main/java/sentinel/persistence/CaseRepository.java`
-- `src/main/java/sentinel/persistence/JsonCaseRepository.java`
-- `src/main/java/sentinel/planning/LLMPlanningStrategy.java`
-- `src/main/java/sentinel/planning/PlanValidator.java`
-- `src/main/java/sentinel/planning/PlanningStrategy.java`
-- `src/main/java/sentinel/planning/RulePlanningStrategy.java`
-- `src/main/java/sentinel/presentation/SentinelCLI.java`
-- `src/main/java/sentinel/presentation/SentinelGUI.java`
-- `src/main/java/sentinel/reporting/ReportService.java`
-- `src/main/java/sentinel/tools/IndicatorLookupCommand.java`
-- `src/main/java/sentinel/tools/LocalQueryCommand.java`
-- `src/main/java/sentinel/tools/LogSearchCommand.java`
-- `src/main/java/sentinel/tools/ToolCommand.java`
-- `src/main/java/sentinel/tools/ToolExecutor.java`
-- `src/main/java/sentinel/tools/UserActivityCommand.java`
+The view submits string-valued arguments pinned to a dataset/version, target and interval. Results are ordered and deduplicated with provenance and audit references. Empty, capped and failed retrieval are distinct outcomes.
 
+Invocation: logSearch query; CLI query --tool logSearch. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
 
-Step 9 integrates F02–F05 through AgentController and AgentEngine. CaseEvidence resolves trusted current-scope events; ResultVerifier verifies canonical store evidence and query metadata before Investigation deduplicates evidence atomically and records audit references. Imports preflight case state, update dataset version only on success, invalidate old plan/executor sessions, retain prior evidence and stale analysis. Executor sessions authorize accepted indicators without budget/history resets. EventBus isolates listener errors. Verified by 33 new tests and demos/case-integration-demo.jsh; disk persistence and user-facing workflows remain pending.
+## F04 Threat indicator enrichment
 
+Stage 1: UC03 / SD04. IndicatorFeedLoader validates source-dated records; IndicatorLookupCommand delegates to DatasetStore.lookup; AgentEngine accepts only the scoped target or indicators resolved from accepted events.
 
-Step 10 implements F01 deterministic planning through RulePlanningStrategy and PlanValidator. AgentEngine validates strategy output independently before setPlan; CaseContext approval keeps fallback explicit. Plan carries origin and immutable prerequisites; next selects eligible calls without execution. Tests cover allow-listed tools, canonical duplicates, scope/feed checks, dependency order, step/revision limits, and same-case clarification/approval. No model invocation or autonomous execution is included.
+Normalized IP/domain lookup preserves selected feed version, verdict, source and observation date. UNKNOWN is not SAFE; stale context remains visible. Observed indicators can extend the visible plan without resetting budgets or duplicate history.
 
+Invocation: indicatorLookup query; CLI query --tool indicatorLookup. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
 
-Step 11 supplies the Adapter infrastructure for F01 and later grounded analysis: LLMGateway.complete(Prompt) is the provider-independent port; OllamaAdapter.complete encodes/validates the native protocol, ModelHttpTransport.post enforces bounded transport, ModelException supplies safe typed outcomes and ModelBudget.acquire counts caller-owned attempts. Prompt validates version/purpose/content. Verified by 37 deterministic checks and an actual local completion diagnostic. Model planning and application orchestration are not yet integrated in this snapshot.
+## F05 Account activity investigation
 
+Stage 1: UC03 / SD03. UserActivityCommand reuses LocalQueryCommand; DatasetStore computes ordered events/counts; ActivitySummary records full interval and returned coverage; Investigation attaches unique results.
 
-Step 12 extends F01 with LLMPlanningStrategy.createPlan, PlanningPrompt.build and ModelPlanParser.parse, sharing PlanValidator with rule planning. AgentEngine independently accepts the validated plan and Investigation.recordModelUse stores known identifiers. Prompt/context encoding does not authorize tools or widen scope; shared ModelBudget charges every attempt. One repair and one transient retry are bounded, and failure never silently becomes RULE. Verified by 37 deterministic planning checks and a fake-HTTP packaged demo; full user-facing workflows remain pending.
+The shared retrieval path reports successes, failures, hosts and unknown values. Truncation retains total-versus-returned coverage; unknown accounts return empty results. Overlapping activity/search evidence attaches once.
 
+Invocation: userActivity query; CLI query --tool userActivity. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
 
-Step 13 implements the F06 timeline component: TimelineBuilder.build(List<Evidence>) validates source-linked payloads and orders/deduplicates events; build(DatasetStore, CaseSnapshot) uses CaseEvidence.events for canonical current-scope filtering; correlate(List<Event>) produces immutable bounded account/host associations. JsonCodec supplies strict bounded record decoding. Ten focused tests and demos/timeline-demo.jsh verify the component; GUI/CLI assessment integration remains later work.
+## F06 Timeline correlation
+
+Stage 1: UC04 / SD05. CaseEvidence resolves canonical in-scope source events; TimelineBuilder orders/deduplicates and produces relationships; AnalysisService includes the timeline in Assessment.
+
+UTC order is timestamp then event ID. Shared account/host within 15 minutes creates candidate related pairs, not causation. Missing optional fields do not block ordering; source-ID conflicts reject the standalone builder. Output is capped at 1000 pairs.
+
+Invocation: Timeline after Run; CLI run / exported report. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F07 Grounded hypothesis analysis
+
+Stage 1: UC04 / SD05. AnalysisService prompts through LLMGateway, resolves prompt-local refs to canonical UUIDs and validates structured synthesis; Investigation stores accepted Assessment values.
+
+The model receives at most 24 canonical evidence items, fixed severity and prior hypotheses. Unknown citations, invalid schema or confidence receive one repair. Persistent failure keeps deterministic results as PARTIAL with AI analysis unavailable. Citation validity is not semantic proof.
+
+Invocation: Hypotheses after Run; CLI run. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F08 Explainable severity
+
+Stage 1: UC04 / SD05. RuleSeverityPolicy derives Facts from source events and accepted feed context; SeverityPolicy fixes scoring; AnalysisService preserves that result independently of model assertions.
+
+Each rule scores once: five failed logins in ten minutes +2; subsequent success within ten minutes +3; malicious login source +2; affected critical host +1. LOW 0-2, MEDIUM 3-5, HIGH 6-8; no usable authentication means UNDETERMINED. Unknown optional facts score zero and are disclosed.
+
+Invocation: Assessment after Run; CLI run. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F09 Response recommendations
+
+Stage 1: UC04 / SD05. AnalysisService validates Recommendation fields, references and categories; Assessment stores accepted rationale, priority and prerequisites; ReportService formats without inference.
+
+Only COLLECT, REVIEW and ESCALATE proposals are accepted. Every proposal cites evidence and is marked for analyst approval; no containment command exists. Invalid or unavailable synthesis produces no fabricated recommendation.
+
+Invocation: Assessment recommendations; CLI run. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F10 Contextual follow up
+
+Stage 1: UC05 / SD06. AgentEngine optionally refreshes scoped tools through RulePlanningStrategy and ToolExecutor; AnalysisService answers; Investigation owns ConversationEntry history.
+
+Questions use accepted evidence, fixed severity and prior hypotheses. A refresh: prefix requests bounded collection; scope widening requires an explicit revision. Answers resolve to existing UUIDs, with one repair for invalid citations. Failures are recorded and autosaved.
+
+Invocation: Ask and Conversation; CLI ask. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F11 Persistent cases and history
+
+Stage 1: UC06-UC07 / SD07. JsonCaseRepository validates closed JSON records and case revisions; AtomicFiles replaces files atomically; DatasetStore restores retained sources/feed provenance; Investigation restores aggregate state.
+
+Locks reject competing/stale case writes. Invalid schemas/references reject before restoration. RUNNING restores as PAUSED and needs revalidation. Unavailable source versions remain inspectable but block retrieval. Case/dataset files are separately atomic, not a cross-file transaction.
+
+Invocation: Save and Open case; CLI save / open / list. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+## F12 Report export
+
+Stage 1: UC08 / SD08. ReportService formats immutable accepted case data; AtomicFiles protects output; AgentController exposes preview/export to both views.
+
+Markdown includes scope, plan, provenance/payloads, timeline/relationships, severity, hypotheses, recommendations, conversation, failures, completeness and versions. Export makes no model calls. Existing destinations require GUI confirmation or explicit CLI --overwrite.
+
+Invocation: Report and Export Markdown; CLI preview / export. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.

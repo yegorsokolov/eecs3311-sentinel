@@ -1,0 +1,64 @@
+@startuml
+actor Analyst
+participant "GUI or CLI" as UI
+participant AgentController as C
+participant AgentEngine as E
+participant ToolExecutor as T
+participant DatasetStore as D
+participant AnalysisService as A
+participant LLMGateway as L
+Analyst -> UI: Run active case
+UI -> C: run(caseId)
+C -> E: run(investigation)
+E -> E: validate READY plan; reuse ModelBudget
+E -> T: openSession(trusted scope)
+loop up to 8 attempts including retries
+ E -> T: Session.execute(eligible ToolCall)
+ T -> D: search / activity / lookup
+ D --> E: canonical result + provenance
+ E -> E: verify; attach; audit; authorize indicators
+ opt observed indicators need enrichment
+  E -> E: validate visible revision (maximum 2)
+ end
+end
+E -> A: analyze(case, same budget)
+A -> A: canonical timeline; fixed severity v1
+A -> L: complete(analysis-v1)
+alt valid scoped citations
+ L --> A: compact synthesis refs
+ A -> A: resolve refs to immutable UUIDs
+else invalid output
+ A -> L: one budgeted repair
+else model failure or timeout
+ A -> A: deterministic PARTIAL, no fabricated synthesis
+end
+A --> E: Assessment
+E -> E: setAssessment; COMPLETED or PARTIAL
+E --> UI: progress and accepted snapshot
+@enduml
+
+@startuml
+actor Analyst
+participant "GUI or CLI" as UI
+participant AgentController as C
+participant JsonCaseRepository as R
+participant AtomicFiles as F
+Analyst -> UI: Save or Open case
+UI -> C: save(caseId)
+C -> R: save(immutable CaseSnapshot)
+R -> R: case lock; validate monotonic revision
+R -> F: bounded JSON -> temp -> atomic replace
+F --> UI: saved revision or explicit failure
+Analyst -> UI: Open UUID
+UI -> C: open(UUID)
+C -> R: load(UUID)
+R -> R: reject schema/identity/reference errors
+R -> R: restore RUNNING as PAUSED
+R --> C: Investigation
+C -> C: invalidate old sessions; publish OPENED
+C --> UI: inspectable state; retrieval checks sources
+Analyst -> UI: Revalidate paused plan
+UI -> C: resume(UUID)
+C -> C: validate unchanged plan; retain revision
+C --> UI: READY (no model request)
+@enduml

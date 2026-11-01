@@ -1,13 +1,13 @@
-# Design-pattern implementation record
+# Implemented design patterns
 
-The Stage 1 Command collaboration now works at component level through scoped ToolExecutor sessions, concrete commands and DatasetStore. Step 9 integrates it with the controller/model and adds immutable progress dispatch; complete user-facing workflows remain pending.
+The accepted five patterns now collaborate in the connected application. No extra pattern is claimed for routing or serialization helpers.
 
-| Pattern | Problem | Participants and roles | Status |
-| --- | --- | --- | --- |
-| MVC | Shared GUI/CLI behavior | SentinelGUI and SentinelCLI: views; AgentController: controller; Investigation and values: model | Controller/model import and retrieval integration implemented; views pending |
-| Strategy | Exchange AI and rule planning | AgentEngine: context; PlanningStrategy: contract; RulePlanningStrategy: approved basic strategy; LLMPlanningStrategy: validated model strategy | Rule and LLM strategies implemented with independent validation, bounded repair/shared model budgets and explicit fallback approval |
-| Command | Encapsulate restricted retrieval | ToolExecutor: invoker; ToolCommand: contract; LocalQueryCommand and concrete queries; DatasetStore: receiver | Implemented component collaboration: ToolExecutor.Session validates and dispatches allow-listed commands through LocalQueryCommand to DatasetStore; 31 executor tests and demos/executor-demo.jsh verify scope, budgets and failures. Application integration implemented through source validation, evidence attachment and audit updates |
-| Observer | Progress without view coupling | EventBus: publisher; ProgressListener: contract; GUI/CLI: listeners | Immutable progress dispatch and listener failure isolation implemented; views pending |
-| Adapter | Isolate model communication | LLMGateway: target; OllamaAdapter: adapter; ModelHttpTransport: bounded HTTP collaborator; Ollama: service | Implemented: strict bounded non-streaming translation, typed failures, fake-server tests and real local completion diagnostic; planning integration implemented through LLMPlanningStrategy |
+| Pattern | Problem and roles | Working collaboration |
+| --- | --- | --- |
+| MVC | Both views need the same behavior; SentinelGUI/CLI are views, AgentController coordinates, Investigation is model | ActionDispatcher routes Actions to shared start/import/query/run/ask/save/open/export services. SwingWorker performs service work off the EDT. |
+| Strategy | Planning and severity vary behind ports | AgentEngine delegates to PlanningStrategy (LLMPlanningStrategy or explicitly approved RulePlanningStrategy), then independently validates output. AnalysisService invokes SeverityPolicy with deterministic Facts. |
+| Command | Model/tool requests must be restricted | ToolExecutor.Session validates and invokes ToolCommand; LogSearchCommand, UserActivityCommand and IndicatorLookupCommand extend LocalQueryCommand; DatasetStore is receiver. Engine validates canonical output before attachment. |
+| Observer | Services must report progress independently of views | EventBus publishes immutable ProgressEvent to ProgressListener; CLI writes stderr, Swing queues updates to the EDT. Failed subscribers cannot undo accepted mutations. |
+| Adapter | Model protocol must stay outside application/domain code | LLMGateway is target; OllamaAdapter and optional OpenAICompatibleAdapter translate bounded HTTP and typed failures. ModelGatewayFactory selects the implementation in composition. |
 
-The original five patterns remain unchanged. Implementation UML and source-method evidence will be added as each collaboration becomes functional. Current component progress is recorded in the feature mapping.
+These preserve Stage 1. Updated class views and editable UML are under `docs/uml/`; current service details are in `implementation-architecture.md`. The latest Java build passed 405 tests. Fake-server checks validate transport and failure behavior; actual Qwen planning, synthesis and follow-up have separate recorded smoke evidence, not a broad quality guarantee.

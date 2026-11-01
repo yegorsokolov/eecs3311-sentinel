@@ -1,10 +1,12 @@
 # AI-human collaboration log
 
+The following requests are lightly edited for clarity; they are paraphrases, not verbatim quotations.
+
 I used the accepted Stage 1 design to guide development. For the increments I reviewed, I checked the generated code against that design, tested it locally, and decided when it was ready to publish. I also reviewed and organized the documentation. Codex helped write code, run automated checks, and draft documentation. The entries below separate that assistance from my own work; test counts refer to the automated checks.
 
 ## 1. Establishing a design-led development process — October 20
 
-**Task and instruction:** Create a local Java project and deliverable scaffold consistent with the accepted Stage 1 design and Stage 2 requirements. Preserve the existing architecture and defer the final report until implementation is ready. Architectural context: retain the shared AgentController, domain Investigation aggregate, bounded AgentEngine, Command-based tools and LLMGateway/Ollama adapter boundaries from Stage 1.
+**Task and instruction:** Create a local Java project and deliverable scaffold consistent with the accepted Stage 1 design and Stage 2 requirements. Preserve the existing architecture and defer the final report until implementation is ready. Retain the shared AgentController, domain Investigation aggregate, bounded AgentEngine, Command-based tools and LLMGateway/Ollama adapter boundaries from Stage 1.
 
 **AI contribution:** Reviewed the assignment documents, Stage 1 report and diagrams; mapped the planned classes to packages; created build/configuration placeholders, demo-data locations and submission-record templates.
 
@@ -14,7 +16,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 2. Build and configuration — October 20
 
-**Task and instruction:** Implement the first small development increment and provide commands and expected outcomes for local verification. Architectural context: keep configuration loading in AppConfig and startup diagnostics in Main, separate from case mutations, tool execution and model calls.
+**Task and instruction:** Implement the first small development increment and provide commands and expected outcomes for local verification. Keep configuration loading in AppConfig and startup diagnostics in Main, separate from case mutations, tool execution and model calls.
 
 **AI contribution:** Added immutable configuration loading and validation, startup diagnostics, Maven Wrapper and 17 automated tests. Investigated a build-output restriction affecting the local project directory.
 
@@ -24,7 +26,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 3. Core domain contracts — October 20
 
-**Task and instruction:** Implement the next focused increment using the Stage 1 data contracts. Architectural context: validate CaseScope, Request and Event at the domain boundary, defensively copy ImportBatch collections, and leave duplicate/conflict decisions to the importer/store layer.
+**Task and instruction:** Implement the next focused increment using the Stage 1 data contracts. Validate CaseScope, Request and Event at the domain boundary, defensively copy ImportBatch collections, and leave duplicate/conflict decisions to the importer/store layer.
 
 **AI contribution:** Added validation for CaseScope, Request and Event, defensive copying for ImportBatch, and 23 domain tests. Preserved incomplete requests for later clarification and retained duplicates for the import layer to process.
 
@@ -34,7 +36,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 4. Case lifecycle and immutable snapshots — October 21
 
-**Task and instruction:** Implement the next lifecycle increment while preserving the accepted state model. Architectural context: Investigation owns guarded state changes and produces immutable CaseSnapshot values; restoration preserves the analyst goal and pauses running cases, while file persistence remains a repository responsibility.
+**Task and instruction:** Implement the next lifecycle increment while preserving the accepted state model. Keep guarded state changes in Investigation and expose immutable CaseSnapshot values. Preserve the analyst goal and pause running cases on restoration, leaving file persistence to the repository.
 
 **AI contribution:** Added guarded state transitions, immutable snapshots, in-memory restoration and 25 lifecycle tests. Corrected the scaffold's omission of the original analyst goal from snapshots. Restoration of a running snapshot produces a paused case without executing it.
 
@@ -44,7 +46,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 5. Validated dataset import — October 22
 
-**Task and instruction:** Implement the next step with MVP tests and a reproducible local review flow. Architectural context: LogImporter validates and normalizes the complete JSON batch before DatasetStore atomically publishes an immutable version; active-case audit and assessment updates remain an application integration step.
+**Task and instruction:** Implement the next step with MVP tests and a reproducible local review flow. Have LogImporter validate and normalize the complete JSON batch before DatasetStore publishes an immutable version atomically. Leave active-case audit and assessment updates for the application integration step.
 
 **AI contribution:** Implemented bounded JSON validation, UTC normalization, atomic ingestion, immutable dataset versions and duplicate/conflict handling. Added 31 tests, synthetic input files and a packaged-JAR demonstration.
 
@@ -54,7 +56,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 6. Reviewing submission evidence and repository organization — October 22
 
-**Task and instruction:** Make the documentation concise, accurate and relevant to the submission, while keeping personal working notes separate. Architectural context: trace F01-F12 to their Stage 1 classes and pattern roles, distinguishing implemented domain/data components from pending controller, orchestration and presentation collaborations.
+**Task and instruction:** Make the documentation concise, accurate and relevant to the submission, while keeping personal working notes separate. Trace F01-F12 to their Stage 1 classes and pattern roles, distinguishing implemented domain/data components from pending controller, orchestration and presentation collaborations.
 
 **AI contribution:** Checked required report content, updated the weekly commit summary with published commit links, consolidated operational guidance into the README, and separated internal notes from submission records.
 
@@ -64,7 +66,7 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 ## 7. Planning substantive increments and implementing log search — October 22
 
-**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Plan the remaining work around feature dependencies and the course schedule. Architectural context: LogSearchCommand delegates through LocalQueryCommand to DatasetStore.search, using strict query parsing and stable source-linked Evidence; registry dispatch and case-scope enforcement belong to the later ToolExecutor increment.
+**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Plan the remaining work around feature dependencies and the course schedule. Route LogSearchCommand through LocalQueryCommand to DatasetStore.search, with strict query parsing and stable source-linked Evidence. Leave registry dispatch and case-scope enforcement for the later ToolExecutor increment.
 
 **AI contribution:** Prepared an internal milestone plan, implemented versioned filtered log search with typed errors and immutable evidence, added 20 tests and a component demo, and clarified all five supported environment variables and defaults.
 
@@ -76,7 +78,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## 8. Account activity retrieval — October 26
 
-**Task and instruction:** Implement account activity retrieval as the next milestone. Architectural context: UserActivityCommand reuses the LocalQueryCommand workflow and delegates to DatasetStore.activity; ActivitySummary carries full-interval counts and returned-event coverage alongside versioned Evidence, without changing event data.
+**Task and instruction:** Implement account activity retrieval as the next milestone. Reuse the LocalQueryCommand workflow in UserActivityCommand and delegate retrieval to DatasetStore.activity. Return full-interval counts and returned-event coverage in ActivitySummary alongside versioned Evidence, without changing event data.
 
 **AI contribution:** Implemented ordered, version-pinned account activity through UserActivityCommand and DatasetStore, typed summary data with outcome/host counts and explicit coverage, 24 tests, and a packaged-JAR demo. Updated the affected project records.
 
@@ -86,7 +88,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## 9. Local indicator feed lookup — October 27
 
-**Task and instruction:** Implement local indicator feed lookup as the next milestone. Architectural context: IndicatorLookupCommand validates its request before DatasetStore.lookup; IndicatorFeedLoader parses the complete bounded feed before atomic version publication. IndicatorRecord, IndicatorMatch and source-linked Evidence retain verdicts, dates and provenance, with an injectable clock/freshness policy for deterministic testing.
+**Task and instruction:** Implement local indicator feed lookup as the next milestone. Validate IndicatorLookupCommand requests before calling DatasetStore.lookup, and parse the complete bounded feed in IndicatorFeedLoader before publishing its version atomically. Preserve verdicts, dates and provenance in IndicatorRecord, IndicatorMatch and source-linked Evidence, with an injectable clock and freshness policy for deterministic tests.
 
 **AI contribution:** Implemented strict bounded JSON feed loading, immutable feed versions, IP/domain normalization, source-dated lookup evidence and typed match metadata. Added explicit unknown/stale/unavailable semantics, 41 automated checks, a synthetic feed and a packaged-JAR demo; synchronized the affected project records.
 
@@ -96,7 +98,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## 10. Controlled tool execution — October 28
 
-**Task and instruction:** Implement scoped, bounded invocation of the existing retrieval tools as the next milestone. Architectural context: ToolExecutor is the Command invoker; ToolScope and per-operation sessions bind trusted case context to the registry and shared query validators. Session-owned counters and canonical ToolCall keys enforce limits and duplicate suppression while concrete commands continue to delegate read-only retrieval to DatasetStore.
+**Task and instruction:** Implement scoped, bounded invocation of the existing retrieval tools as the next milestone. Use ToolExecutor as the Command invoker, with ToolScope and per-operation sessions binding trusted case context to the registry and shared query validators. Keep counters and canonical ToolCall keys within each session to enforce limits and suppress duplicates, while concrete commands continue to delegate read-only retrieval to DatasetStore.
 
 **AI contribution:** Implemented registry/schema/scope validation, canonical keys, session budgets and explicitly transient retries, bounded worker execution, cancellation and typed failures. Added a trusted accepted-evidence authorization update that preserves budgets/history, 31 automated checks and a packaged-JAR demo; updated the affected project records.
 
@@ -106,50 +108,131 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## 11. Active-case import and evidence integration — October 29
 
-**Task and instruction:** Connect imports and scoped retrieval to the active case, preserving provenance, audit history and analysis freshness. Architectural context: AgentController coordinates the shared DatasetStore/importer and AgentEngine; ResultVerifier and CaseEvidence establish source trust before Investigation atomically accepts evidence. Case-bound executor sessions retain budgets and duplicate history as accepted evidence authorizes enrichment.
+**Task and instruction:** Connect imports and scoped retrieval to the active case, preserving provenance, audit history and analysis freshness. Coordinate the shared DatasetStore, importer and AgentEngine through AgentController. Use ResultVerifier and CaseEvidence to verify sources before Investigation accepts evidence atomically. Preserve executor budgets and duplicate history within the case-bound session as accepted evidence authorizes enrichment.
 
-**AI contribution:** Implemented active-case start/import/query operations, source validation, atomic evidence deduplication, import-driven version/plan/session updates and assessment staleness. Preserved target/feed metadata in snapshots and added immutable progress/Observer dispatch. Added 33 domain/application checks, an incremental fixture and a packaged component demo.
+**AI contribution:** Implemented active-case start/import/query operations, source validation, atomic evidence deduplication, import-driven version/plan/session updates and assessment staleness. Preserved target/feed metadata in snapshots and added immutable progress/Observer dispatch. Added 35 domain/application checks, an incremental fixture and a packaged component demo.
 
 **My contribution:** I requested the case integration milestone, reviewed and tested Step 9, and approved its commit and push on October 29.
 
-**Outcome:** The isolated Step 9 publication snapshot passed 245 tests. The case demo verified import counts, canonical evidence attachment, same-session enrichment, duplicate preservation, fixture-plan/session invalidation and rejected imports without claiming model analysis or disk persistence.
+**Outcome:** The combined Steps 9–10 verification passed 272 tests. The case demo verified import counts, canonical evidence attachment, same-session enrichment, duplicate preservation, plan/session invalidation and rejected imports without claiming model analysis or disk persistence.
 
 ## 12. Approved rule planning and semantic plan validation — October 29
 
-**Task and instruction:** Implement deterministic basic plans and validate proposed tools, scopes, dependencies and limits before accepting READY. Architectural context: AgentEngine delegates to PlanningStrategy and independently revalidates its result; RulePlanningStrategy and PlanValidator reuse the existing Command registry/scope boundary. Immutable Plan origin/prerequisites and explicit CaseContext approval separate planning from execution.
+**Task and instruction:** Implement deterministic basic plans and validate all proposed tools, scopes, dependencies and limits before accepting READY. Have AgentEngine delegate to PlanningStrategy and independently revalidate the result. Reuse the existing Command registry and scope checks in RulePlanningStrategy and PlanValidator, and keep scheduling separate from execution through immutable Plan origin/prerequisites and explicit CaseContext approval.
 
-**AI contribution:** Implemented labeled rule plans, explicit approval/clarification on the same draft, canonical duplicate and prerequisite checks, configured step/revision limits and dependency-aware next-step selection. Added 25 planning checks and two application-boundary checks plus a packaged walkthrough.
+**AI contribution:** Implemented labeled rule plans, explicit approval/clarification on the same draft, canonical duplicate and prerequisite checks, configured step/revision limits and dependency-aware next-step selection. Added 25 planning checks and a packaged demo; updated affected architecture, mapping and verification records.
 
-**My contribution:** I requested the rule-planning milestone, reviewed and tested Step 10, and authorized its commit and push on October 29.
+**My contribution:** I requested the rule-planning milestone, reviewed and tested Step 10, and authorized its commit and push on October 29. Publication commit: cdd850f.
 
-**Outcome:** The isolated Step 10 build passed 272 tests, zero failures/errors/skips. Model planning, provider adapters, autonomous execution and final interfaces are excluded from this publication snapshot.
+**Outcome:** All 272 tests passed. Planning demos preserved empty source/evidence state, required approval, rejected invalid scope/dependencies and refused changes beyond revision 2. Model planning and autonomous orchestration remain pending.
 
-## 13. Bounded Ollama adapter — October 29; publication October 30
+## 13. Bounded Ollama adapter — October 29
 
-**Task and instruction:** Implement the local model communication boundary with bounded requests, response parsing, timeouts and typed failures. Architectural context: OllamaAdapter translates LLMGateway/Prompt into non-streaming HTTP; ModelHttpTransport contains bounded transport and sanitized provider failures. ModelBudget supplies the shared caller-owned counter for retries and repairs, keeping provider details outside application/domain logic.
+**Task and instruction:** Implement the local model communication boundary with bounded requests, response parsing, timeouts and typed failures. Use OllamaAdapter to translate the LLMGateway/Prompt contract into non-streaming HTTP, keeping provider payloads and errors outside domain and application logic. Track requests through a shared ModelBudget, including retry and repair attempts.
 
-**AI contribution:** Implemented validated prompt metadata, bounded encoding/accumulation, complete-body deadlines, interruption handling and typed HTTP/envelope failures. Added 37 deterministic fake-server/budget checks and a packaged optional service diagnostic.
+**AI contribution:** Implemented validated prompt metadata, bounded request encoding and response accumulation, complete-body deadlines, interruption handling and sanitized HTTP/envelope failures. Added 37 deterministic fake-server/budget checks and a bounded optional local-service diagnostic.
 
-**My contribution:** I requested the Ollama integration milestone, reviewed and tested Step 11, and authorized its commit and push on October 30.
+**My contribution:** I requested the Ollama integration milestone, reviewed and tested Step 11, and authorized its commit and push on October 30. Publication commit: 3fdcc95.
 
-**Outcome:** The isolated Step 11 publication snapshot passed 309 tests, zero failures/errors/skips. Its packaged diagnostic received a real qwen2.5:7b completion (20 characters) on October 30. This verifies the adapter protocol against the existing service; model planning and later provider/setup/application work are excluded from this publication.
+**Outcome:** Adapter/budget verification passed 309 cumulative tests. The actual local-service diagnostic returned UNAVAILABLE, so no real model inference, token usage or performance result is claimed.
 
-## 14. Validated model planning and approved fallback — October 29; publication November 1
+**Publication verification (October 30):** The isolated snapshot passed 309 tests with zero failures/errors/skips. Its packaged local diagnostic received a real qwen2.5:7b completion (20 characters), superseding the earlier unavailable-service checkpoint for adapter connectivity. Model planning and later application changes remain outside this commit.
 
-**Task and instruction:** Implement versioned model planning, semantic validation, bounded repair and an explicitly approved labeled rule fallback. Architectural context: LLMPlanningStrategy converts bounded model drafts into application-owned Plan identities/revisions through ModelPlanParser and the shared PlanValidator/Command scope boundary. AgentEngine retains each case's ModelBudget and records known provider/prompt identifiers only after accepting a valid model plan.
+## 14. Validated model planning and approved fallback — October 29
 
-**AI contribution:** Implemented planning-v1 context/template building, strict parsing, one repair, one transient retry across the operation and shared attempt accounting. Preserved same-case clarification and explicit fallback approval. Added deterministic planning/HTTP tests and a packaged fake-service demonstration, including rejection/repair of serialized args objects.
+**Task and instruction:** Implement versioned model planning, semantic validation, bounded repair and a separately approved labeled rule fallback. Have LLMPlanningStrategy convert bounded model drafts into application-owned Plan identities and revisions, then apply the same PlanValidator and Command scope checks used for rule planning. Record known model and prompt identifiers in AgentEngine only after a valid plan is accepted.
 
-**My contribution:** I requested the model-planning milestone, reviewed and tested Step 12, and authorized its commit and push on November 1.
+**AI contribution:** Implemented the planning-v1 template/context builder, strict draft parser, one repair, one explicitly transient retry across the operation and shared model-call accounting. Preserved explicit fallback approval on the same case. Added 36 planning checks and a packaged fake-HTTP workflow demonstration; updated relevant architecture and verification records.
 
-**Outcome:** The isolated Step 12 snapshot passed 346 tests, zero failures/errors/skips, including 37 model-planning checks. The packaged fake-HTTP demo verified repaired MODEL/READY plans, budget refusal, visible provider failure and explicitly approved RULE fallback without retrieval. Fake-server checks do not establish real inference. Later orchestration, compatible-provider setup and interface work are excluded from this publication.
+**My contribution:** I requested the model-planning milestone and reported three US$20 Codex top-ups for Sentinel (US$60 total), with an initial estimate of 1,200 credits above the included Codex allowance, plus additional included allowance whose amount was unknown. The later history-based review in [AI tools and costs](ai-tools-and-costs.md) distinguishes that estimate from verified project metering and accounts for other projects sharing the subscription. I reviewed and tested Step 12 and authorized its commit and push on November 1. Publication commit: cde91a4.
 
-## 15. Deterministic timeline correlation — Step 13 publication
+**Outcome:** All 345 tests passed. The fake-HTTP demo verified repaired MODEL/READY plans, budget refusal, visible provider failure and explicitly approved RULE fallback without retrieval. Real Qwen inference remains unverified because local Ollama was unavailable.
 
-**Task and instruction:** Implement ordered source-linked timelines and bounded relationship candidates. Architectural context: TimelineBuilder transforms Event evidence into immutable ordered views; its canonical overload delegates dataset/version/target/time authorization to CaseEvidence and DatasetStore. JsonCodec validates bounded record payloads. Correlation compares known account/host fields without making causal or severity decisions, preserving the later AnalysisService boundary.
+**Publication verification (November 1):** The isolated snapshot passed 346 tests, zero failures/errors/skips, including 37 model-planning checks. The packaged fake-HTTP demo passed repaired MODEL/READY planning, shared-budget refusal, visible failure and approved RULE fallback without retrieval. Later work remains excluded.
 
-**AI contribution:** Implemented source-ID deduplication/conflict detection, provenance checks, UTC/event-ID ordering, canonical scope filtering and immutable account/host relationships within an inclusive 15-minute window, capped at 1,000 pairs. Added 10 focused timeline checks and a synthetic packaged demo. Included the codec dependency without disk persistence or later application flows.
+## 15. Real Qwen diagnosis and verification — October 29
 
-**My contribution:** I reviewed and tested Step 13 and authorized its commit and push.
+**Task and instruction:** Debug the prior local-model UNAVAILABLE result, test real Qwen and establish the required model size. After briefly asking about VPS pricing, I chose to continue with the working local CUDA setup.
 
-**Outcome:** The isolated publication snapshot passed 356 tests, zero failures/errors/skips. Focused checks cover deterministic ordering, conflicts, provenance, strict payload rejection, canonical scope, inclusive time boundary, missing fields, immutable results and the relationship cap. Later analysis, severity, orchestration, persistence and interface changes remain excluded.
+**Codex contribution:** Diagnosed missing/unreachable Ollama, installed its official portable runtime and Qwen2.5 7B into ignored runtime storage, compared CUDA 13 and CUDA 12, and added opt-in real-model and startup scripts. CUDA 12 resolved the observed performance problem without changing the application timeout. Recorded model identity, actual timing measurements and test limits.
+
+**Outcome:** All 345 automated tests passed. Real adapter completion and a validated MODEL plan passed with CUDA 12; the first warm run took 3.19 and 23.44 seconds respectively. One synthetic account scope was tested, without executing tools or claiming full analysis quality. Publication remains pending; no commit or push was made.
+
+## 16. Portable model setup and interchangeable connector — October 29 (in progress)
+
+
+
+**My directions:**
+
+- Diagnose the earlier UNAVAILABLE result and test real Qwen through Sentinel's Ollama adapter. Determine the model size and hardware needed for the project's bounded planning workflow.
+- Compare DigitalOcean and OVH hosting costs, then continue locally once the CUDA configuration resolves the issue.
+- Add complete Windows and Linux Qwen setup scripts. Use local Ollama without an API key by default, and support a user-supplied hosted-provider key through ignored configuration.
+- Keep the AI integration replaceable behind LLMGateway so planning and application services do not depend on a particular model provider. Support configurable endpoints/models and an adapter for compatible hosted APIs.
+- Stop at a checkpoint and defer completion until 13:30 Toronto time on October 29.
+
+**Additional direction:** Resume the scheduled work now; the 13:30 continuation did not trigger. Complete the saved setup/connector scope and preserve the existing uncommitted implementation.
+
+**AI contribution:** Added Windows and Linux entry scripts with a shared standard-library setup helper for checksum-verified portable Ollama installation, model download/reuse, loopback startup, real inference checks and safe .env configuration. Added optional hosted-key helpers with hidden input and restricted file permissions. Extracted ModelHttpTransport, added OpenAICompatibleAdapter, ModelSettings and ModelGatewayFactory, and connected the live check through LLMGateway. Documented provider compatibility, requirements and limitations without coupling planning/domain code to provider payloads.
+
+**My contribution:** I chose local Qwen by default with optional hosted credentials and requested interchangeable model APIs. I manually resumed after the scheduled continuation failed to appear. Review/publication remains pending.
+
+**Outcome:** All 371 Java tests and 11 setup-helper tests passed. Windows setup and a repeat run succeeded. Real native planning passed in 22.00 seconds with one request; the OpenAI-compatible local path passed in 37.47 seconds with one repair. Linux installation logic and shell syntax were checked, but native Linux execution remains unverified. No hosted key was created and no paid inference was called. The old automation was paused; its missed-trigger cause was not established. Existing work was preserved and no commit or push was made.
+
+## 17. Timeline correlation and fixed severity — October 29
+
+**Task and instruction:** Complete source-grounded reconstruction and the accepted severity policy. Use TimelineBuilder to order canonical CaseEvidence and identify candidate relationships through shared accounts or hosts. Derive Facts in RuleSeverityPolicy independently of model output, and preserve the fixed policy result in Assessment through AnalysisService.
+
+**AI contribution:** Implemented UTC/source-ID ordering, deduplication/conflict checks, 15-minute relationships, policy-v1 R1-R4 scoring, explicit critical-host input and coverage limitations. Added synthetic takeover/benign fixtures and meaningful boundary/integration checks.
+
+**My contribution:** I requested completion of the remaining application. My review of this new increment is pending.
+
+**Outcome:** The complete Java build passed 404 tests. The six-login takeover produces 7 HIGH, or 8 with its affected host declared critical; absent usable authentication is UNDETERMINED. Relationships are labeled candidates rather than causation.
+
+## 18. Grounded synthesis and bounded orchestration — October 29
+
+**Task and instruction:** Connect model interpretation and follow-up to bounded evidence collection. Keep the plan-act-observe loop in AgentEngine and share ModelBudget across planning and analysis. Retain scope, budgets and duplicate history in one ToolExecutor session, and have AnalysisService validate compact synthesis references against canonical evidence before Investigation accepts hypotheses, recommendations or conversation entries.
+
+**AI contribution:** Implemented observation-driven enrichment revisions, fixed run budgets, cooperative cancellation, partial/failure outcomes, versioned grounded prompts, compact ref resolution, one repair, cited answers, optional scoped refresh and saved failure records. Investigated real local inference deadlines and shortened context/output contracts while retaining validation.
+
+**My contribution:** I requested a working local agent. Review of the completion implementation and its model interpretations remains pending.
+
+**Outcome:** Fake-provider tests verify invalid citations, repair, shared budgets, cancellation and offline behavior. Early real model requests timed out and remained PARTIAL. A subsequent packaged real Qwen run returned COMPLETE / 7 HIGH in 30.54 seconds; a cited follow-up succeeded in 26.14 seconds. These are observed synthetic-case smoke results, not a broad model evaluation. No response action is executed.
+
+## 19. Persistence and shared application interfaces — October 29
+
+**Task and instruction:** Complete durable case workflows and both analyst interfaces. Persist retained state through closed JSON contracts and AtomicFiles in JsonCaseRepository and DatasetStore. Route the same Actions from SentinelCLI and SentinelGUI through ActionDispatcher to AgentController. Deliver progress through EventBus, keep service work off the event-dispatch thread with SwingWorker, and export accepted values through ReportService without new inference.
+
+**AI contribution:** Implemented schema/reference/revision validation, atomic files and case locks, source/feed restore, RUNNING-to-PAUSED restoration with explicit unchanged-plan revalidation at the revision ceiling, conversation/history and Markdown export with explicit overwrite. Connected CLI JSON/progress/exit codes and Swing result tabs, saved-case selection and background actions; corrected clipped controls found during visual checking.
+
+**My contribution:** I requested completion through both interfaces. My review/testing and publication decisions for this new work remain pending; video evidence has not been supplied.
+
+**Outcome:** All 404 Java tests passed. Real packaged CLI creation, import, run, answer, export and reopen succeeded; the actual Swing window opened the saved synthetic case and displayed its accepted values and limitations. The Word implementation report includes feature mappings, current UML, cost disclosures, actual verification and video placeholders. No new commit or push was performed.
+
+## 20. Automatic Qwen setup and native Linux reproduction - October 29
+
+**Task and instruction:** Include local model setup requirements, make setup connect Qwen to Sentinel automatically, test it, and then use an approved temporary DigitalOcean Linux VPS to verify native reproduction. Explain whether course instructions prescribe the instructor's testing environment.
+
+**AI contribution:** Extended local Qwen setup with prerequisite guidance, automatic JDK/build/application verification, optional GUI launch, and checks for conflicting process configuration. Added native Linux verification and a portable synthetic CLI scenario. Prepared a credential-free source package, provisioned temporary Ubuntu instances using the authorized existing DigitalOcean credential, resolved archive-timestamp and SSH startup-readiness defects in the test harness, retained verification evidence, and removed the temporary resources. Compared the full and Stage 2 course instructions with the reproduction workflow without assuming a prescribed grading environment.
+
+**My contribution:** I defined the acceptance criteria: automated local Qwen setup must connect to Sentinel and pass real application checks. I requested independent verification on a clean Linux environment, authorized the credential source and temporary infrastructure expenditure, and directed hardware selection within a one-hour testing window. I also required the implementation to be assessed against the course's reproduction requirements. Source review and publication approval for these changes remain pending.
+
+**Outcome:** Native Ubuntu 24.04.5 CPU verification passed 404 Java tests, 18 setup tests, real Qwen completion/planning and a synthetic COMPLETE / 7 HIGH CLI investigation with cited follow-up, export and reopen. All test Droplets and temporary account/local SSH keys were removed; an authenticated audit confirmed zero remaining Droplets. Estimated compute cost across attempts was US$0.02925 before tax, not an invoiced amount. No hosted model inference, Linux GUI test, KUMA evaluation, commit or push was performed.
+
+
+## Step 13 publication confirmation
+
+**Task and instruction:** Publish the reviewed timeline component. Retain the canonical CaseEvidence/DatasetStore boundary and strict JsonCodec payload decoding in TimelineBuilder, keeping bounded account and host associations separate from severity and model interpretation.
+
+**My contribution:** I confirmed that Step 13 was reviewed and tested and authorized publication.
+
+**AI contribution and outcome:** Isolated the timeline component with 10 focused tests and a synthetic demo; 356 tests passed with zero failures/errors/skips, and the packaged timeline demo passed. Pushed 550c4ea to origin/main. Later source/demo files were preserved byte-for-byte; Steps 14–21 remain unpublished.
+
+## 21. Planning reliability, query presentation and interface documentation — October 29–November 1
+
+**Task and instruction:** Resolve a rejected local Qwen plan while preserving strict validation. Make the GUI Evidence view replace its displayed contents after each manual query, so a six-record query followed by a two-record query shows only the latter results. Produce separate GUI and CLI user references describing implemented controls, inputs, behaviours and recovery, with links between the documents.
+
+**AI contribution:** Diagnosed Qwen's serialization of the entire tool-arguments object as a quoted JSON string and its reuse of an example's shorter time interval. Clarified the planning prompt's object/value requirements and required exact use of the supplied interval; added a regression check for rejection and bounded repair without tool execution. Updated the GUI to clear the Evidence display when a manual query starts and render only the returned evidence, while preserving accumulated case evidence for analysis, persistence and reports. Added separate [GUI](gui-user-guide.md) and [CLI](cli-user-guide.md) user guides, cross-linked from each other, the README and architecture documentation. Documented lifecycle prerequisites, query status versus action success, latest-query display versus retained evidence, activity-summary limitations, storage, error recovery and CLI JSON envelopes/exit codes.
+
+**My contribution:** I supplied the failing planning output and queried the expected retrieval results, including capped and invalid-interval cases. I identified that accumulated evidence in the GUI obscured the effect of a query limit and specified replacement of the displayed results. I requested separate user documentation for both interfaces and required reciprocal references. Review and publication of these new changes remain pending.
+
+**Outcome:** Real Qwen planning returned MODEL/READY for the full requested 12:00–13:00 UTC interval without collecting evidence during planning. The rebuilt application passed 405 Java tests with zero failures, errors or skips. Supplied CLI output confirmed six-record SUCCESS, two-record PARTIAL/truncated, invalid-interval rejection and an EMPTY filter result. A separate isolated documentation check exercised case creation/import, six/two/empty searches, activity counts, indicator enrichment, rule planning, show/preview/save, export/overwrite and open/list against the packaged application. Model-dependent documentation examples were checked against source rather than rerun in that documentation check. The changed GUI was launched, but attempted desktop activation failed, so live six-then-two visual verification remains outstanding. No claim of completed visual verification, new commit or push is made.

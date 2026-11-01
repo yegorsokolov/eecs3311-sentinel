@@ -1,0 +1,57 @@
+@startuml
+skinparam classAttributeIconSize 0
+interface PlanningStrategy { +createPlan(CaseContext, ModelBudget): Plan }
+interface SeverityPolicy { +assess(Facts): Severity }
+interface LLMGateway { +complete(Prompt): String }
+interface ToolCommand { +execute(ToolCall): ToolResult }
+interface CaseRepository { +save(CaseSnapshot): int
++load(UUID): Investigation }
+interface ProgressListener { +update(ProgressEvent): void }
+SentinelGUI ..|> ProgressListener
+SentinelCLI ..|> ProgressListener
+SentinelGUI --> ActionDispatcher
+SentinelCLI --> ActionDispatcher
+ActionDispatcher --> AgentController
+AgentController --> AgentEngine
+AgentController "1" o-- "0..1" Investigation : active
+AgentController --> CaseRepository
+AgentController --> LogImporter
+AgentController --> ReportService
+AgentEngine --> PlanningStrategy
+LLMPlanningStrategy ..|> PlanningStrategy
+RulePlanningStrategy ..|> PlanningStrategy
+LLMPlanningStrategy --> PlanValidator
+RulePlanningStrategy --> PlanValidator
+LLMPlanningStrategy --> LLMGateway
+AnalysisService --> LLMGateway
+OllamaAdapter ..|> LLMGateway
+OpenAICompatibleAdapter ..|> LLMGateway
+AgentEngine --> ModelBudget
+AgentEngine --> ToolExecutor
+ToolExecutor "1" o-- "1..3" ToolCommand
+LocalQueryCommand ..|> ToolCommand
+LogSearchCommand --|> LocalQueryCommand
+UserActivityCommand --|> LocalQueryCommand
+IndicatorLookupCommand --|> LocalQueryCommand
+LocalQueryCommand --> DatasetStore
+LogImporter --> DatasetStore
+AgentEngine --> ResultVerifier
+ResultVerifier --> DatasetStore
+AgentEngine --> AnalysisService
+AnalysisService --> TimelineBuilder
+AnalysisService --> SeverityPolicy
+RuleSeverityPolicy ..|> SeverityPolicy
+JsonCaseRepository ..|> CaseRepository
+JsonCaseRepository --> JsonCodec
+DatasetStore --> JsonCodec
+AnalysisService --> JsonCodec
+JsonCaseRepository --> AtomicFiles
+DatasetStore --> AtomicFiles
+ReportService --> AtomicFiles
+Investigation "1" *-- "0..*" AuditEntry
+Investigation "1" o-- "0..*" Evidence
+Investigation --> CaseSnapshot
+AgentEngine --> EventBus
+AgentController --> EventBus
+EventBus "1" --> "0..*" ProgressListener
+@enduml
