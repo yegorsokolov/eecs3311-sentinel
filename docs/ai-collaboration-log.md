@@ -280,3 +280,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 17 was reviewed and tested and authorized its commit and push on November 3.
 
 **Outcome:** The isolated snapshot passed 427 tests, zero failures/errors/skips, including 18 persistence checks and two codec regressions. The packaged demo round-tripped completed-case state, dataset history and canonical feed provenance; restored RUNNING state remained PAUSED until explicit revalidation. Dataset files assume one writer; there is no cross-file transaction. Steps 18–21 and optional provider/setup work remain excluded.
+
+
+## Step 18: grounded follow-up and Markdown export publication — November 3
+
+**Task and instruction:** Implement evidence-grounded follow-up answers and deterministic runtime report export. Architectural context: AgentEngine coordinates AnalysisService with current CaseSnapshot scope, canonical source evidence and a bounded ModelBudget; Investigation validates and stores conversation entries. Optional approved refresh reuses scoped Command execution. ReportService renders accepted aggregate values through AtomicFiles without inference, keeping runtime Markdown separate from the assignment Word artifact.
+
+**AI contribution:** Implemented bounded cited answers, one repair, explicit no-evidence outcomes, scope/state checks, sanitized failure history, conversation persistence and optional scoped refresh. Implemented accepted-state report preview/export with provenance, assessment/completeness, proposals, conversation and audit history, including explicit overwrite behavior. Added 17 focused checks and a packaged fake-gateway walkthrough. Publication verification found a JSON null answer bypassing repair; added a null guard and reran verification.
+
+**My contribution:** I confirmed Step 18 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
+
+**Outcome:** The corrected isolated snapshot passed 444 tests, zero failures/errors/skips. Answer citations and persistence, partial/unassessed reports and deterministic atomic export are verified without real model inference. Citation membership does not prove semantic correctness, and the scope phrase guard is not a complete language classifier. Steps 19–21 and optional provider/setup work remain excluded.

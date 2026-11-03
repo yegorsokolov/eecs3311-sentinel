@@ -263,6 +263,14 @@ public final class Investigation {
         caseVersion++;
     }
 
+    public synchronized void recordConversation(String question, Answer answer, String failure) {
+        var entry = new ConversationEntry(clock.instant(), question, answer, failure);
+        var next = new ArrayList<>(conversation); next.add(entry);
+        new CaseSnapshot(1, caseVersion, id, goal, status, scope, plan, evidence, assessment, next,
+                history, modelVersion, promptVersion, policyVersion, targetType, feedVersion);
+        conversation.add(entry); caseVersion++;
+    }
+
     private static Assessment stale(Assessment value) {
         return value == null || value.completeness() == Completeness.STALE ? value
                 : new Assessment(value.timeline(), value.hypotheses(), value.severity(),

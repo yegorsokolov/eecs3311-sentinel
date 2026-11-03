@@ -51,6 +51,8 @@ public class AgentController {
     /** Explicit analyst approval of the labeled rule fallback on the same case. */
     public synchronized Plan acceptRulePlan(UUID id) { return engine.acceptRulePlan(requireActive(id)); }
 
+    public synchronized Path export(UUID id,Path path,boolean overwrite) { return reporter.export(requireActive(id),path,overwrite); }
+
     public synchronized CaseSnapshot snapshot(UUID id) { return requireActive(id).snapshot(); }
 
     public synchronized Summary importLogs(UUID id, Path path) {

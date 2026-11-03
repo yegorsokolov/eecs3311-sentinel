@@ -48,8 +48,18 @@ public final class AnalysisService {
             return new Assessment(ordered,List.of(),new Severity(score.score(),score.level(),score.ruleIds(),score.policyVersion(),limits),List.of(),Completeness.PARTIAL);
         }
     }
-    public Answer answer(Investigation investigation,String question) {
-        throw new UnsupportedOperationException("Follow-up answers are integrated in a later milestone.");
+    public Answer answer(Investigation investigation,String question){return answer(investigation,question,new ModelBudget());}
+    public Answer answer(Investigation investigation,String question,ModelBudget budget){
+        if(question==null || question.isBlank() || question.length()>4000)throw new IllegalArgumentException("Question must contain 1 to 4000 characters.");
+        var s=investigation.snapshot();if(s.scope()==null)throw new IllegalArgumentException("Scope clarification required.");
+        // Scope widening is an explicit controller action, never inferred from model output.
+        String q=question.toLowerCase(Locale.ROOT);if(q.contains("all accounts")||q.contains("another account")||q.contains("outside scope")||q.contains("different dataset"))throw new IllegalArgumentException("Explicit scope revision required.");
+        var selected=trusted(s).stream().limit(24).toList();if(selected.isEmpty())return new Answer("No accepted evidence is available for this case.",List.of(),List.of("Collect in-scope evidence before drawing conclusions"));
+        for(int attempt=0;attempt<2;attempt++){
+            budget.acquire();String reply=llm.complete(prompt("answer",s,selected,s.assessment()==null?null:s.assessment().severity(),question,attempt==0?"":"INVALID_SCHEMA_OR_CITATION"));
+            try{Answer a=JsonCodec.decode(resolveRefs(reply,selected),Answer.class);if(a==null || a.evidenceIds().isEmpty() || !ids(selected).containsAll(a.evidenceIds()) || a.text().length()>8000)throw new IllegalArgumentException();return a;}
+            catch(IllegalArgumentException ex){if(attempt==1)throw new IllegalArgumentException("Answer remained invalid after one repair.");}
+        }throw new IllegalStateException();
     }
     public boolean validateCitations(String response,Investigation investigation){try{validate(parseSynthesis(response,trusted(investigation.snapshot()).stream().limit(24).toList()),trusted(investigation.snapshot()).stream().limit(24).toList());return true;}catch(IllegalArgumentException ex){return false;}}
     private List<Evidence> trusted(CaseSnapshot s){

@@ -203,6 +203,17 @@ public class AgentEngine {
         }finally{cancellations.remove(id);if(started){modelBudgets.remove(id);invalidateSessions(id);}}
     }
     public Answer ask(Investigation investigation,String question) {
-        throw new UnsupportedOperationException("Follow-up analysis is implemented in its milestone.");
+        if(question==null || question.isBlank() || question.length()>4000)throw new IllegalArgumentException("Provide a bounded question.");
+        var s=investigation.snapshot();if(s.scope()==null || s.status()==CaseStatus.RUNNING || s.status()==CaseStatus.FAILED)throw new IllegalStateException("Case cannot accept a follow-up now.");
+        try {
+            // Explicit optional refresh reuses validated plans and a single tool session, never broadens scope.
+            var budget=new ModelBudget();if(question.toLowerCase(Locale.ROOT).startsWith("refresh:")){
+                var context=new CaseContext(s,true);var plan=new RulePlanningStrategy(new PlanValidator(tools,datasetStore()),datasetStore()).createPlan(context);
+                var session=beginQuerySession(investigation);for(var call:plan.steps())query(investigation,call,session);
+                invalidateSessions(s.id());
+            }
+            Answer answer=analysis.answer(investigation,question,budget);investigation.recordConversation(question,answer,null);
+            events.publish(new ProgressEvent("ANSWER","ACCEPTED",answer.evidenceIds()));return answer;
+        }catch(RuntimeException ex){investigation.recordConversation(question,null,ex instanceof ModelException m?m.code().name():"ANSWER_UNAVAILABLE_OR_SCOPE_REVISION_REQUIRED");throw ex;}
     }
 }

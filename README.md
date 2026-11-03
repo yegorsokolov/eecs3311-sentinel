@@ -178,3 +178,19 @@ The isolated Step 17 snapshot passes 427 tests, including 18 persistence integra
 ```
 
 The demo uses a fake model and writes only new synthetic files under runtime/persistence-demo/take-*. It verifies completed-case equality, dataset history/feed provenance and explicit paused-case revalidation. Later follow-up, export and user-interface implementation remain outside this publication.
+
+## Step 18: grounded follow-up and runtime Markdown export
+
+AgentEngine.ask and AnalysisService.answer use the current case scope and accepted canonical evidence, fixed severity and prior hypotheses. Answers resolve prompt-local references into accepted Evidence UUIDs and require citations; invalid output receives at most one repair within ModelBudget. Empty evidence yields an explicit answer without inference. Recognized scope-widening requests require explicit scope revision; the phrase guard is not a complete natural-language classifier. Source authorization and bounded tool scope remain enforced independently of wording. Accepted answers and sanitized failures are retained in the conversation and survive case save/reopen.
+
+An explicit refresh: question performs approved basic collection in the existing scope through one bounded ToolExecutor session before answering. It does not revise the scope. Questions must contain 1–4,000 characters; RUNNING/FAILED cases cannot accept follow-up.
+
+ReportService.preview/export deterministically renders accepted case state as runtime Markdown: scope/version identifiers, plan, evidence/provenance, timeline/relationships, severity/completeness, hypotheses, recommendations, conversation and audit/failure history. Unassessed cases are labeled partial. Export uses AtomicFiles and requires explicit overwrite; report generation makes no model requests. Runtime Markdown case reports are distinct from the assignment Word report.
+
+The isolated Step 18 snapshot passes 444 tests, including 17 focused follow-up/report checks. After building, run:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/followup-report-demo.jsh
+```
+
+The fake-gateway demo accepts a cited answer, saves/reopens its conversation, writes Markdown under a fresh runtime/persistence-demo/take-* directory and refuses silent overwrite. Steps 19–21 and optional provider/setup changes remain separate.
