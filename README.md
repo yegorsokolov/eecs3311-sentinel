@@ -120,3 +120,17 @@ Execution defaults bound a run to eight tool attempts, two plan revisions and si
 The GUI and CLI share ActionDispatcher and AgentController. AgentEngine coordinates validated planning, scoped tool execution and analysis; Investigation owns the case lifecycle. LLMGateway isolates model providers, DatasetStore retains canonical source versions, JsonCaseRepository persists snapshots, and ReportService exports accepted values without new inference.
 
 The implementation uses MVC, Strategy, Command, Observer and Adapter. See [implementation architecture](docs/implementation-architecture.md), [design patterns](docs/design-patterns.md) and the [implemented class model](docs/uml/implemented-system.puml).
+
+## Step 14: deterministic severity policy
+
+RuleSeverityPolicy derives facts only from accepted canonical evidence in the current case scope. Policy version 1 applies each rule once: R1 adds 2 for at least five failed logins for the same account within an inclusive 10-minute window; R2 adds 3 for a success strictly after a qualifying burst and within the following 10 minutes; R3 adds 2 for a login IP matched by accepted canonical MALICIOUS evidence from the selected feed; R4 adds 1 for an affected in-scope host explicitly listed as critical. Facts retains supporting source event IDs and immutable inputs.
+
+Scores 0–2 are LOW, 3–5 MEDIUM and 6–8 HIGH. Without usable authentication evidence the result is UNDETERMINED. Missing inventory/feed and partial coverage produce explicit limitations; missing evidence is not a safety finding. Model text cannot change this policy. Full analysis/orchestration integration remains outside this publication.
+
+The isolated Step 14 snapshot passes 368 tests, including 12 focused severity checks. After building, run the synthetic component demo:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/severity-demo.jsh
+```
+
+Expected: score 5 MEDIUM, rules R1/R2, contributing event IDs, and missing inventory/feed limitations. No model inference or case/dataset disk mutation is performed.

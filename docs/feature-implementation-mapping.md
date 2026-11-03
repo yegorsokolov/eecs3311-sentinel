@@ -112,3 +112,6 @@ Stage 1: UC08 / SD08. ReportService formats immutable accepted case data; Atomic
 Markdown includes scope, plan, provenance/payloads, timeline/relationships, severity, hypotheses, recommendations, conversation, failures, completeness and versions. Export makes no model calls. Existing destinations require GUI confirmation or explicit CLI --overwrite.
 
 Invocation: Report and Export Markdown; CLI preview / export. See [stage2-report.pdf](stage2-report.pdf) for the full file mapping and demonstration index.
+
+
+Step 14 publication implements the deterministic severity component of F07 through RuleSeverityPolicy.derive/assess and immutable Facts: accepted canonical source facts, R1–R4 weights 2/3/2/1, fixed LOW/MEDIUM/HIGH thresholds, UNDETERMINED without usable authentication, supporting source event IDs and explicit coverage limitations. Twelve focused checks and demos/severity-demo.jsh verify the component independently of model synthesis and later application integration.

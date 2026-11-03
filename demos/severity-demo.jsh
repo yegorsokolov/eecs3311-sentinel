@@ -1,0 +1,23 @@
+import sentinel.analysis.*;
+import sentinel.data.*;
+import sentinel.domain.*;
+import java.time.*;
+import java.util.*;
+var time = Instant.parse("2026-10-22T12:00:00Z");
+var store = new DatasetStore("severity-demo");
+var rows = new ArrayList<Event>();
+for (int n=0; n<5; n++) rows.add(new Event("failure-"+n,time.plusSeconds(n),"login","demo-analyst",null,"demo-host","failure","synthetic#/"+n,"pending"));
+rows.add(new Event("success",time.plusSeconds(5),"login","demo-analyst",null,"demo-host","success","synthetic#/5","pending"));
+store.ingest(new ImportBatch(rows));
+var scope = new CaseScope("severity-demo",store.currentVersion(),"demo-analyst",time,time.plusSeconds(600));
+var investigation = new Investigation(new Request("Investigate synthetic logins",scope));
+var args = Map.of("datasetId",scope.datasetId(),"datasetVersion",scope.datasetVersion(),"accountId",scope.target(),"start",scope.start().toString(),"end",scope.end().toString(),"limit","100");
+investigation.addEvidence(store.search(new ToolCall(UUID.randomUUID(),"logSearch",args)));
+var facts = RuleSeverityPolicy.derive(store,investigation.snapshot(),Set.of(),false,false);
+var severity = new RuleSeverityPolicy().assess(facts);
+if (severity.score()!=5 || severity.level()!=SeverityLevel.MEDIUM || !severity.ruleIds().equals(List.of("R1","R2"))) throw new AssertionError("Unexpected severity");
+System.out.println("Synthetic severity: "+severity.score()+" / "+severity.level()+" / "+severity.ruleIds());
+System.out.println("Contributing source events: "+facts.supportingEventIds());
+System.out.println("Limitations: "+severity.limitations());
+System.out.println("Deterministic policy v"+severity.policyVersion()+"; no model inference or disk mutation.");
+/exit

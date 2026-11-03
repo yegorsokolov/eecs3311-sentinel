@@ -99,3 +99,8 @@ Step 11 publication — October 30: 3fdcc95 pushed to origin/main after isolated
 Step 12 publication November 1: cde91a4 pushed to origin/main after isolated verification passed 346 tests, zero failures/errors/skips, and the packaged fake-HTTP planning demo passed. One serialized-args regression is included beyond the original 36 planning checks. Later source/demo files preserved byte-for-byte; Steps 13–21 and optional provider/setup work remain unpublished.
 
 Step 13 publication: 550c4ea pushed to origin/main after isolated verify passed 356 tests, zero failures/errors/skips, including 10 focused timeline checks; packaged timeline demo passed. Source/demo preservation hashes verified. No later implementation or secrets were included.
+
+
+Step 14 publication verification — November 3, 2026: isolated JDK 17/Maven Wrapper verify passed 368 tests, zero failures/errors/skips, including 12 RuleSeverityPolicyTest checks. Tests cover all 16 rule-flag combinations, exact score thresholds, five failures/10-minute boundary, strictly subsequent success/10-minute boundary, account isolation, canonical selected-feed evidence versus forged or unselected sources, affected critical hosts, missing inputs, partial coverage and defensive Facts copies. Student review/testing and publication authorization were confirmed. Later analysis/orchestration/persistence/interface changes remain excluded.
+
+Packaged demos/severity-demo.jsh passed: synthetic R1/R2 score 5 MEDIUM, policy version 1, contributing failure/success source IDs and missing inventory/feed limitations. No model inference or case/dataset disk mutation was performed.

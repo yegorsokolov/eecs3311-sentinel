@@ -236,3 +236,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I supplied the failing planning output and queried the expected retrieval results, including capped and invalid-interval cases. I identified that accumulated evidence in the GUI obscured the effect of a query limit and specified replacement of the displayed results. I requested separate user documentation for both interfaces and required reciprocal references. Review and publication of these new changes remain pending.
 
 **Outcome:** Real Qwen planning returned MODEL/READY for the full requested 12:00–13:00 UTC interval without collecting evidence during planning. The rebuilt application passed 405 Java tests with zero failures, errors or skips. Supplied CLI output confirmed six-record SUCCESS, two-record PARTIAL/truncated, invalid-interval rejection and an EMPTY filter result. A separate isolated documentation check exercised case creation/import, six/two/empty searches, activity counts, indicator enrichment, rule planning, show/preview/save, export/overwrite and open/list against the packaged application. Model-dependent documentation examples were checked against source rather than rerun in that documentation check. The changed GUI was launched, but attempted desktop activation failed, so live six-then-two visual verification remains outstanding. No claim of completed visual verification, new commit or push is made.
+
+
+## Step 14: deterministic severity publication — November 3
+
+**Task and instruction:** Implement the accepted fixed severity policy with supporting evidence and coverage limitations. Architectural context: RuleSeverityPolicy implements SeverityPolicy; derive resolves accepted events through CaseEvidence/DatasetStore and verifies selected-feed indicator evidence through canonical source resolution. Immutable Facts holds rule predicates, supporting source event IDs and limitations; Severity remains independent of model interpretations and later AnalysisService orchestration.
+
+**AI contribution:** Implemented one-time R1–R4 contributions, authentication timing/account checks, trusted malicious-feed matching, critical-host facts and explicit unknown/partial-coverage outcomes. Added 12 focused checks covering all rule combinations, timing boundaries, trusted sources, scope, limitations and immutable Facts, plus a synthetic packaged demo. Isolated this increment from later model analysis, disk persistence and interfaces.
+
+**My contribution:** I reviewed and tested Step 14 and authorized its commit and push on November 3.
+
+**Outcome:** The isolated Step 14 snapshot passed 368 tests, zero failures/errors/skips. Deterministic score thresholds and source-linked facts are verified without model inference. Steps 15–21 and optional provider/setup work remain outside this publication.
