@@ -154,6 +154,13 @@ public class AgentEngine {
     }
 
 
+    public Plan revalidate(Investigation investigation) {
+        synchronized(investigation) {
+            var s=investigation.snapshot();if(s.status()!=CaseStatus.PAUSED)throw new IllegalStateException("Revalidation requires a paused saved case.");
+            var validated=new PlanValidator(tools,datasetStore()).validate(s.plan(),new CaseContext(s,s.plan().origin()==Plan.Origin.RULE));
+            investigation.setPlan(validated);investigation.recordAction("PLAN_REVALIDATED","READY",List.of());return validated;
+        }
+    }
     public void cancel(UUID id) { var flag=cancellations.get(id);if(flag!=null)flag.set(true); }
     public void inventory(Set<String> hosts) { analysis.inventory(hosts); }
     public Assessment run(Investigation investigation) {

@@ -68,6 +68,7 @@ public class AgentController {
 
     public synchronized ToolResult execute(UUID id, ToolCall call) { return engine.query(requireActive(id), call); }
     public Assessment run(UUID id) { Investigation selected; synchronized(this){selected=requireActive(id);} return engine.run(selected); }
+    public synchronized Plan resume(UUID id) { return engine.revalidate(requireActive(id)); }
     public void cancel(UUID id) { engine.cancel(id); }
     public synchronized void inventory(Set<String> hosts) { engine.inventory(hosts); }
     public synchronized Answer ask(UUID id, String question) { return engine.ask(requireActive(id), question); }

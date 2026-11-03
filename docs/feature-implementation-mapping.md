@@ -121,3 +121,6 @@ Step 15 publication implements grounded analysis/recommendation components throu
 
 
 Step 16 publishes AgentEngine.run/cancel/inventory and AgentController.run/cancel/inventory with synchronized Investigation operations. The engine selects eligible Plan steps, reuses scoped Command execution, attaches source-verified evidence, performs bounded observed-indicator revisions and passes its retained planning ModelBudget into AnalysisService. Lifecycle/progress and deterministic PARTIAL/FAILED outcomes preserve evidence. Fifteen focused integration checks and demos/orchestration-demo.jsh verify this increment independently of later disk persistence, follow-up and presentation workflows.
+
+
+Step 17 publishes JSON persistence/restoration through JsonCaseRepository.save/load/list, DatasetStore.save/restore/durable, AtomicFiles.read/write and strict JsonCodec record conversion. Repository revisions/locks/identity and dataset version-prefix/feed provenance validation protect accepted state. AgentEngine.revalidate and AgentController.resume require explicit readiness validation after RUNNING-to-PAUSED restoration. Eighteen focused integration checks plus two codec regressions and demos/persistence-demo.jsh verify this component. The recording-era long duration fix is included; later GUI query-result decoding inherits it.

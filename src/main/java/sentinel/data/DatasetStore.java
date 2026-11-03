@@ -18,6 +18,7 @@ import sentinel.domain.ToolResult;
 public final class DatasetStore {
     private record State(int revision, Map<String, Event> byId, Map<String, List<Event>> versions) { }
     private final String datasetId;
+    private java.nio.file.Path durablePath;
     private final java.time.Clock clock;
     private final java.time.Duration maxIndicatorAge;
     private final java.util.concurrent.ConcurrentMap<String, IndicatorFeedLoader.Feed> feeds =
@@ -88,7 +89,9 @@ public final class DatasetStore {
         Map<String, Event> immutableEvents = java.util.Collections.unmodifiableMap(new LinkedHashMap<>(staged));
         Map<String, List<Event>> versions = new LinkedHashMap<>(before.versions());
         versions.put(nextVersion, List.copyOf(staged.values()));
-        state = new State(before.revision() + 1, immutableEvents, Map.copyOf(versions));
+        State candidate = new State(before.revision() + 1, immutableEvents, Map.copyOf(versions));
+        persist(candidate, feeds);
+        state = candidate;
         return new Summary(nextVersion, accepted, duplicates, List.of());
     }
 
@@ -145,14 +148,15 @@ public final class DatasetStore {
     }
 
     /** Parse fully before atomic publication. An existing feed version can never change content. */
-    public String loadIndicatorFeed(java.nio.file.Path path) {
+    public synchronized String loadIndicatorFeed(java.nio.file.Path path) {
         var feed = IndicatorFeedLoader.load(path, clock.instant(),
                 IndicatorFeedLoader.MAX_BYTES, IndicatorFeedLoader.MAX_RECORDS);
-        var previous = feeds.putIfAbsent(feed.version(), feed);
+        var previous = feeds.get(feed.version());
         if (previous != null && !previous.content().equals(feed.content())) {
             throw new sentinel.tools.ToolException(sentinel.tools.ToolException.Code.INVALID_FEED,
                     "Feed version already exists with different content.");
         }
+        if (previous == null) { var candidate = new java.util.HashMap<>(feeds); candidate.put(feed.version(), feed); persist(state, candidate); feeds.put(feed.version(), feed); }
         return feed.version();
     }
 
@@ -229,4 +233,35 @@ public final class DatasetStore {
         var entry = feed.entries().get(item.sourceEventId());
         return entry != null && IndicatorEvidence.from(entry).equals(item)
                 ? java.util.Optional.of(entry.record()) : java.util.Optional.empty();
-    }}
+    }
+    public record SavedIndicator(sentinel.domain.IndicatorRecord record, String provenance) { }
+    public record SavedDataset(int schemaVersion, String datasetId, int revision,
+            Map<String, List<Event>> versions, Map<String, List<SavedIndicator>> feeds) { }
+    public synchronized void durable(java.nio.file.Path path) { durablePath = Objects.requireNonNull(path); }
+    private SavedDataset saved(State s, Map<String, IndicatorFeedLoader.Feed> fs) {
+        var f = new java.util.TreeMap<String,List<SavedIndicator>>();
+        fs.forEach((key,value)->f.put(key,value.entries().values().stream().sorted(java.util.Comparator.comparing(e->e.record().indicator()))
+                .map(e->new SavedIndicator(e.record(),e.provenance())).toList()));
+        return new SavedDataset(1,datasetId,s.revision(),s.versions(),Map.copyOf(f));
+    }
+    private void persist(State s, Map<String, IndicatorFeedLoader.Feed> fs) {
+        if(durablePath!=null)sentinel.persistence.AtomicFiles.write(durablePath,sentinel.persistence.JsonCodec.encode(saved(s,fs)),true);
+    }
+    public synchronized void save(java.nio.file.Path path) { sentinel.persistence.AtomicFiles.write(path,sentinel.persistence.JsonCodec.encode(saved(state,feeds)),true); }
+    public synchronized void restore(java.nio.file.Path path) {
+        SavedDataset data=sentinel.persistence.JsonCodec.decode(sentinel.persistence.AtomicFiles.read(path),SavedDataset.class);
+        if(data.schemaVersion()!=1 || !datasetId.equals(data.datasetId()) || data.revision()<0 || data.revision()>1000
+                || data.versions().size()!=data.revision()+1 || !data.versions().getOrDefault("v0",List.of(new Event("invalid",java.time.Instant.EPOCH,"x",null,null,null,null,"invalid","v0"))).isEmpty())throw new IllegalArgumentException("Invalid dataset snapshot.");
+        var versions=new LinkedHashMap<String,List<Event>>();Map<String,Event> previous=Map.of();
+        for(int i=0;i<=data.revision();i++){
+            List<Event> view=Objects.requireNonNull(data.versions().get("v"+i));var current=new LinkedHashMap<String,Event>();
+            for(Event e:view){if(current.putIfAbsent(e.eventId(),e)!=null)throw new IllegalArgumentException("Duplicate persisted event.");
+                Event old=previous.get(e.eventId());if(old!=null&&!old.equals(e)||old==null&&!e.datasetVersion().equals("v"+i))throw new IllegalArgumentException("Invalid event history.");}
+            if(!current.entrySet().containsAll(previous.entrySet()))throw new IllegalArgumentException("Lost persisted event.");previous=current;versions.put("v"+i,List.copyOf(view));
+        }
+        var newFeeds=new java.util.HashMap<String,IndicatorFeedLoader.Feed>();
+        data.feeds().forEach((key,items)->{var entries=new java.util.HashMap<String,IndicatorFeedLoader.Entry>();for(var item:items){if(!key.equals(item.record().feedVersion())||item.provenance()==null||item.provenance().isBlank()||entries.putIfAbsent(item.record().indicator(),new IndicatorFeedLoader.Entry(item.record(),item.provenance()))!=null)throw new IllegalArgumentException("Invalid feed history.");}newFeeds.put(key,new IndicatorFeedLoader.Feed(key,entries));});
+        State next=new State(data.revision(),java.util.Collections.unmodifiableMap(new LinkedHashMap<>(previous)),Map.copyOf(versions));
+        state=next;feeds.clear();feeds.putAll(newFeeds);
+    }
+}

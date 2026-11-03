@@ -269,3 +269,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 16 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
 
 **Outcome:** The isolated corrected snapshot passed 407 tests, zero failures/errors/skips. Checks cover enrichment, dependencies, revision/attempt ceilings, shared planning/analysis budgets, cancellation/interruption, retained partial evidence, duplicate-run refusal, controller cancellation availability and fatal-state transitions. Steps 17–21 and optional provider/setup work remain excluded.
+
+
+## Step 17: atomic JSON persistence publication — November 3
+
+**Task and instruction:** Implement validated atomic JSON case/dataset persistence and safe restoration. Architectural context: JsonCaseRepository implements CaseRepository using strict JsonCodec contracts, monotonic case revisions, file identity and per-case writer locks. AtomicFiles supplies bounded UTF-8 atomic file replacement. DatasetStore validates immutable version/feed history before publishing restored state and persists durable candidates before memory updates. AgentEngine/AgentController explicitly revalidate a restored PAUSED case without changing its plan revision.
+
+**AI contribution:** Implemented case save/load/list, dataset/feed provenance restoration, candidate-first durable writes and explicit paused-plan revalidation. Included the recording-era JSON long conversion fix and its ToolResult regression in this increment. Added 18 focused persistence integration checks and a packaged synthetic persistence demo, keeping later follow-up/export/interface and optional provider setup changes separate.
+
+**My contribution:** I confirmed Step 17 was reviewed and tested and authorized its commit and push on November 3.
+
+**Outcome:** The isolated snapshot passed 427 tests, zero failures/errors/skips, including 18 persistence checks and two codec regressions. The packaged demo round-tripped completed-case state, dataset history and canonical feed provenance; restored RUNNING state remained PAUSED until explicit revalidation. Dataset files assume one writer; there is no cross-file transaction. Steps 18–21 and optional provider/setup work remain excluded.

@@ -34,7 +34,7 @@ public final class JsonCodec {
         if(p.currentToken()==JsonToken.START_OBJECT){var m=new LinkedHashMap<String,Object>();while(p.nextToken()!=JsonToken.END_OBJECT){if(p.currentToken()!=JsonToken.FIELD_NAME)throw new IOException();String k=p.currentName();p.nextToken();m.put(k,read(p));}return m;}
         if(p.currentToken()==JsonToken.START_ARRAY){var l=new ArrayList<>();while(p.nextToken()!=JsonToken.END_ARRAY){if(l.size()>=100_000)throw new IOException();l.add(read(p));}return l;}
         if(p.currentToken()==JsonToken.VALUE_STRING)return p.getText();
-        if(p.currentToken()==JsonToken.VALUE_NUMBER_INT)return p.getIntValue();
+        if(p.currentToken()==JsonToken.VALUE_NUMBER_INT){if(p.getNumberType()==JsonParser.NumberType.INT)return p.getIntValue();return p.getLongValue();}
         if(p.currentToken()==JsonToken.VALUE_TRUE)return true;if(p.currentToken()==JsonToken.VALUE_FALSE)return false;
         if(p.currentToken()==JsonToken.VALUE_NULL)return null;throw new IOException();
     }
@@ -47,6 +47,7 @@ public final class JsonCodec {
         }
         Class<?> c=(Class<?>)t;if(v==null){if(c.isPrimitive())throw new IllegalArgumentException();return null;}
         if(c==String.class)return (String)v;if(c==int.class || c==Integer.class)return (Integer)v;
+        if(c==long.class || c==Long.class){if(v instanceof Integer n)return n.longValue();if(v instanceof Long)return v;throw new IllegalArgumentException();}
         if(c==boolean.class || c==Boolean.class)return (Boolean)v;
         if(c==UUID.class)return UUID.fromString((String)v);if(c==Instant.class)return Instant.parse((String)v);
         if(c.isEnum())return Enum.valueOf((Class)c,(String)v);

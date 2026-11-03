@@ -162,3 +162,19 @@ The isolated Step 16 publication snapshot passes 407 tests, including 15 focused
 ```
 
 Expected: progress through RUNNING to COMPLETED, synthetic score 7 HIGH, six timeline events, seven evidence items, plan revision 1 and one fake model call. No real inference or case/dataset disk writes occur. Disk restoration/revalidation, follow-up questions and user-interface workflows remain later increments.
+
+## Step 17: atomic JSON persistence and restoration
+
+JsonCaseRepository stores bounded schema-v1 CaseSnapshot JSON with strict fields/types/reference validation, case-file identity checks, a per-case writer lock and monotonic revisions. Equal-version conflicting or stale saves are rejected. AtomicFiles writes UTF-8 through a same-directory temporary file, flushes it and atomically replaces the destination; no-overwrite writes fail if a destination already exists. Reads/writes are capped at 20 MiB and malformed UTF-8 is rejected.
+
+DatasetStore saves/restores all immutable dataset versions and selected feed records with provenance. Restore validates version history before publishing state. With durable storage configured, imports/feed additions persist the candidate before updating memory, preserving prior state on failure. Dataset storage assumes a single writer; case and dataset files do not form one cross-file transaction.
+
+A saved RUNNING case restores as PAUSED. AgentEngine.revalidate and AgentController.resume require explicit validation of its unchanged plan and current source scope before READY; this does not spend a plan revision or automatically start execution. The recording-era JsonCodec fix preserves long-valued ToolResult durations, including values above Integer.MAX_VALUE, while rejecting integer overflow/fractions for int fields.
+
+The isolated Step 17 snapshot passes 427 tests, including 18 persistence integration checks and two codec regressions. After building, run:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/persistence-demo.jsh
+```
+
+The demo uses a fake model and writes only new synthetic files under runtime/persistence-demo/take-*. It verifies completed-case equality, dataset history/feed provenance and explicit paused-case revalidation. Later follow-up, export and user-interface implementation remain outside this publication.
