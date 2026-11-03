@@ -115,3 +115,6 @@ Invocation: Report and Export Markdown; CLI preview / export. See [stage2-report
 
 
 Step 14 publication implements the deterministic severity component of F07 through RuleSeverityPolicy.derive/assess and immutable Facts: accepted canonical source facts, R1–R4 weights 2/3/2/1, fixed LOW/MEDIUM/HIGH thresholds, UNDETERMINED without usable authentication, supporting source event IDs and explicit coverage limitations. Twelve focused checks and demos/severity-demo.jsh verify the component independently of model synthesis and later application integration.
+
+
+Step 15 publication implements grounded analysis/recommendation components through AnalysisService.analyze, validateCitations, versioned synthesis records and JsonCodec. Trusted context comes from canonical accepted scope evidence, TimelineBuilder and fixed RuleSeverityPolicy. Supporting/contradicting references must belong to selected evidence; recommendations are restricted proposals with rationale/priority/prerequisites. One repair and one transient retry share ModelBudget. Invalid/unavailable output preserves deterministic PARTIAL results. Verified by 24 focused checks and demos/analysis-demo.jsh; orchestration, follow-up and interface integration remain later increments.

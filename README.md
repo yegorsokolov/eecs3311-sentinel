@@ -134,3 +134,17 @@ The isolated Step 14 snapshot passes 368 tests, including 12 focused severity ch
 ```
 
 Expected: score 5 MEDIUM, rules R1/R2, contributing event IDs, and missing inventory/feed limitations. No model inference or case/dataset disk mutation is performed.
+
+## Step 15: grounded model analysis and recommendations
+
+AnalysisService.analyze combines the deterministic canonical timeline and fixed severity with a bounded synthesis request. The analysis-v1 contract accepts compact prompt-local E1 references or the full Synthesis record; references resolve to accepted immutable evidence UUIDs before validation. Hypotheses distinguish support, contradiction, qualitative confidence and limitations. Recommendations accept only COLLECT, REVIEW or ESCALATE and retain rationale, priority, source citations and prerequisites for analyst approval.
+
+At most 24 canonical in-scope evidence items enter model context; the full timeline remains available, while capped coverage is explicitly PARTIAL. One schema/citation repair and one transient retry share the caller's ModelBudget. Malformed, unavailable or budget-exhausted output preserves timeline/severity with an audit record and explicit AI-unavailable limitation. Model output cannot change severity or execute a recommendation. Citation membership is checked; it does not establish semantic correctness or causation.
+
+The isolated publication snapshot passes 392 tests, including 24 focused grounded-analysis checks. After building, run the deterministic synthetic gateway walkthrough:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/analysis-demo.jsh
+```
+
+Expected: one repaired COMPLETE synthesis in two calls, unchanged score 5 MEDIUM, citations resolved to canonical evidence and a recommendation requiring analyst approval. This fixture performs no real model inference. Follow-up questions, autonomous orchestration and later persistence/interfaces remain separate milestones.

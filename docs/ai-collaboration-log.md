@@ -247,3 +247,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I reviewed and tested Step 14 and authorized its commit and push on November 3.
 
 **Outcome:** The isolated Step 14 snapshot passed 368 tests, zero failures/errors/skips. Deterministic score thresholds and source-linked facts are verified without model inference. Steps 15–21 and optional provider/setup work remain outside this publication.
+
+
+## Step 15: grounded model analysis publication — November 3
+
+**Task and instruction:** Implement grounded hypotheses and analyst-reviewed recommendations with citation validation and bounded repair. Architectural context: AnalysisService combines TimelineBuilder, RuleSeverityPolicy and canonical CaseEvidence/DatasetStore resolution before invoking LLMGateway. JsonCodec parses versioned synthesis contracts; prompt-local references map to immutable Evidence UUIDs. ModelBudget bounds retry/repair attempts, while fixed Severity and proposal-only recommendations preserve the domain/application boundary.
+
+**AI contribution:** Implemented compact/full synthesis parsing, canonical source-context selection, supporting/contradicting citations, qualitative confidence, constrained recommendations and deterministic PARTIAL fallback. Added 24 focused checks and a synthetic gateway demo. During publication verification, malformed top-level/null response fields escaped validation and successful context capping omitted its explicit limitation; repaired those defects, including rejecting non-string references, and reran verification. Preserved later follow-up methods in the working checkout while excluding their implementation from this snapshot.
+
+**My contribution:** I confirmed Step 15 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and added checks are attributed to Codex; no additional student review is claimed.
+
+**Outcome:** The isolated corrected Step 15 snapshot passed 392 tests, zero failures/errors/skips. Invalid or unavailable AI output preserves the deterministic timeline/severity; canonical citation checks do not prove interpretation quality. Steps 16–21, follow-up implementation and optional provider/setup changes remain excluded.
