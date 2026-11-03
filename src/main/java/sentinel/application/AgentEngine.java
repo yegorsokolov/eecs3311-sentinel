@@ -1,18 +1,20 @@
 package sentinel.application;
 
 import java.util.*;
-import sentinel.llm.ModelBudget;
-import java.util.concurrent.ConcurrentHashMap;
 import sentinel.domain.*;
 import sentinel.data.*;
 import sentinel.planning.*;
 import sentinel.tools.*;
 import sentinel.analysis.*;
 import sentinel.events.*;
+import sentinel.llm.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Shared validated planning/manual-query service; autonomous analysis follows separately. */
+/** Shared validated planning, scoped retrieval and bounded investigation orchestration. */
 public class AgentEngine {
     private final Map<UUID, ModelBudget> modelBudgets = new ConcurrentHashMap<>();
+    private final Map<UUID, AtomicBoolean> cancellations = new ConcurrentHashMap<>();
     private final PlanningStrategy planner;
     private final ToolExecutor tools;
     private final AnalysisService analysis;
@@ -76,7 +78,6 @@ public class AgentEngine {
             return null;
         }
     }
-
 
     /** One explicit manual query has its own budget; autonomous collections reuse beginQuerySession. */
     public ToolResult query(Investigation investigation, ToolCall call) {
@@ -152,11 +153,49 @@ public class AgentEngine {
         synchronized (sessions) { sessions.entrySet().removeIf(entry -> entry.getValue().caseId().equals(caseId)); }
     }
 
-    public Assessment run(Investigation investigation) {
-        throw new UnsupportedOperationException("Bounded autonomous orchestration is implemented in its milestone.");
-    }
 
-    public Answer ask(Investigation investigation, String question) {
+    public void cancel(UUID id) { var flag=cancellations.get(id);if(flag!=null)flag.set(true); }
+    public void inventory(Set<String> hosts) { analysis.inventory(hosts); }
+    public Assessment run(Investigation investigation) {
+        UUID id=investigation.snapshot().id();var flag=new AtomicBoolean();boolean started=false;
+        if(cancellations.putIfAbsent(id,flag)!=null)throw new IllegalStateException("Case already running.");
+        try {
+            var snapshot=investigation.snapshot();if(snapshot.status()!=CaseStatus.READY)throw new IllegalStateException("Run requires a validated READY plan; paused cases must be revalidated.");
+            new PlanValidator(tools,datasetStore()).validate(snapshot.plan(),new CaseContext(snapshot,snapshot.plan().origin()==Plan.Origin.RULE));
+            var session=beginQuerySession(investigation);var done=new HashSet<UUID>();boolean partial=false;
+            investigation.recordAction("STATE_CHANGED","RUNNING",List.of());started=true;
+            events.publish(new ProgressEvent("RUN","RUNNING",List.of()));
+            while(true){
+                if(flag.get()||Thread.currentThread().isInterrupted()){flag.set(true);partial=true;investigation.recordAction("RUN_STOPPED","CANCELLED",List.of());break;}
+                var current=investigation.snapshot().plan();var step=current.next(done);
+                if(step.isEmpty()){
+                    // Observation-driven read-only enrichment: revise the visible plan, preserving session accounting.
+                    var additions=new ArrayList<ToolCall>();var keys=current.steps().stream().map(ToolCall::key).collect(java.util.stream.Collectors.toSet());
+                    var s=investigation.snapshot();if(s.feedVersion()!=null && current.revision()<2)for(String indicator:CaseEvidence.indicators(datasetStore(),s).stream().sorted().toList()){
+                        var call=new ToolCall(UUID.randomUUID(),"indicatorLookup",Map.of("indicator",indicator,"feedVersion",s.feedVersion()));
+                        if(!keys.contains(call.key()) && current.steps().size()+additions.size()<8 && additions.size()<session.attemptsRemaining())additions.add(call);
+                    }
+                    if(additions.isEmpty())break;
+                    var all=new ArrayList<>(current.steps());all.addAll(additions);var revised=new Plan(UUID.randomUUID(),current.revision()+1,all,current.dependencies(),current.origin());
+                    new PlanValidator(tools,datasetStore()).validate(revised,new CaseContext(s,current.origin()==Plan.Origin.RULE));investigation.setPlan(revised);investigation.recordAction("PLAN_REVISED","OBSERVED_INDICATORS",List.of());continue;
+                }
+                try{ToolResult result=query(investigation,step.get(),session);partial|=result.truncated()||result.status().equals("STALE");done.add(step.get().id());}
+                catch(ToolException ex){if(ex.code()==ToolException.Code.INTERRUPTED)flag.set(true);partial=true;investigation.recordAction("RUN_STOPPED",ex.code().name(),List.of());break;}
+            }
+            if(Thread.currentThread().isInterrupted())flag.set(true);
+            var budget=modelBudgets.computeIfAbsent(id,k->new ModelBudget());
+            Assessment accepted=flag.get()?analysis.partial(investigation,"Run cancelled; AI analysis not requested"):analysis.analyze(investigation,budget,partial);
+            if(flag.get()||Thread.currentThread().isInterrupted())accepted=analysis.partial(investigation,"Run cancelled; deterministic results retained");
+            investigation.setAssessment(accepted);
+            investigation.recordAction("STATE_CHANGED",accepted.completeness()==Completeness.COMPLETE?"COMPLETED":"PARTIAL",List.of());
+            events.publish(new ProgressEvent("RUN",investigation.snapshot().status().name(),List.of()));
+            return accepted;
+        }catch(RuntimeException ex){
+            if(investigation.snapshot().status()==CaseStatus.RUNNING){investigation.recordAction("STATE_CHANGED","FAILED",List.of());events.publish(new ProgressEvent("RUN","FAILED",List.of()));}
+            throw ex;
+        }finally{cancellations.remove(id);if(started){modelBudgets.remove(id);invalidateSessions(id);}}
+    }
+    public Answer ask(Investigation investigation,String question) {
         throw new UnsupportedOperationException("Follow-up analysis is implemented in its milestone.");
     }
 }

@@ -87,7 +87,7 @@ public final class Investigation {
     }
 
     /** Complete or correct scope while still awaiting a plan. */
-    public void clarifyScope(CaseScope clarifiedScope) {
+    public synchronized void clarifyScope(CaseScope clarifiedScope) {
         requireState(CaseStatus.DRAFT);
         DomainValidation.required(clarifiedScope, "scope");
         if (targetType == TargetType.INDICATOR) Indicator.normalize(clarifiedScope.target());
@@ -97,7 +97,7 @@ public final class Investigation {
     }
 
     /** A completed case whose revised scope needs planning returns to DRAFT (SM01). */
-    public void reviseScope(CaseScope revisedScope) {
+    public synchronized void reviseScope(CaseScope revisedScope) {
         requireState(CaseStatus.COMPLETED);
         if (targetType == TargetType.INDICATOR && revisedScope != null) Indicator.normalize(revisedScope.target());
         scope = revisedScope; // null explicitly means clarification is required
@@ -112,7 +112,7 @@ public final class Investigation {
      * Accept a plan after PlanValidator succeeds. Revalidation never starts execution.
      * During a run, the engine may replace remaining steps within its revision budget.
      */
-    public void setPlan(Plan validatedPlan) {
+    public synchronized void setPlan(Plan validatedPlan) {
         DomainValidation.required(validatedPlan, "plan");
         if (scope == null) throw new IllegalStateException("Scope clarification is required.");
         if (status == CaseStatus.FAILED) throw new IllegalStateException("FAILED is terminal.");
@@ -124,7 +124,7 @@ public final class Investigation {
     }
 
     /** Attach a validated result atomically; same-ID conflicts never partially mutate the case. */
-    public void addEvidence(ToolResult result) {
+    public synchronized void addEvidence(ToolResult result) {
         DomainValidation.required(result, "result");
         if (scope == null || status == CaseStatus.FAILED) throw new IllegalStateException("Case cannot accept evidence.");
         if (!java.util.Set.of("SUCCESS", "PARTIAL", "EMPTY", "UNKNOWN", "STALE").contains(result.status())) {
@@ -159,7 +159,7 @@ public final class Investigation {
     }
 
     /** Record only identifiers known from successful model planning, never fabricated provider usage. */
-    public void recordModelUse(String model, String prompt) {
+    public synchronized void recordModelUse(String model, String prompt) {
         if (model == null && prompt == null) return;
         if (model != null) DomainValidation.requiredText(model, "modelVersion");
         if (prompt != null) DomainValidation.requiredText(prompt, "promptVersion");
@@ -171,7 +171,7 @@ public final class Investigation {
     }
 
     /** Store already validated analysis; this never marks a run completed by itself. */
-    public void setAssessment(Assessment acceptedAssessment) {
+    public synchronized void setAssessment(Assessment acceptedAssessment) {
         requireState(CaseStatus.RUNNING);
         DomainValidation.required(acceptedAssessment, "assessment");
         if (acceptedAssessment.completeness() == Completeness.STALE) {
@@ -191,11 +191,11 @@ public final class Investigation {
      * READY is reached only through setPlan (explicit successful validation).
      * PAUSED is reached only by restoring a saved RUNNING case.
      */
-    public void recordAction(String action, String outcome, List<UUID> ids) {
+    public synchronized void recordAction(String action, String outcome, List<UUID> ids) {
         record(new AuditEntry(clock.instant(), action, outcome, ids));
     }
 
-    public void record(AuditEntry entry) {
+    public synchronized void record(AuditEntry entry) {
         DomainValidation.required(entry, "entry");
         CaseStatus target = status;
         if (entry.action().equals("STATE_CHANGED")) {
@@ -221,7 +221,7 @@ public final class Investigation {
         caseVersion++;
     }
 
-    public CaseSnapshot snapshot() {
+    public synchronized CaseSnapshot snapshot() {
         return candidate(status, plan, assessment, history);
     }
 
@@ -237,7 +237,7 @@ public final class Investigation {
     }
 
     /** Validate before the importer mutates its store. Running/failed cases cannot change datasets. */
-    public void validateImport(String datasetId) {
+    public synchronized void validateImport(String datasetId) {
         if (scope == null || !scope.datasetId().equals(datasetId)) {
             throw new IllegalStateException("Import requires the active case dataset.");
         }
@@ -247,7 +247,7 @@ public final class Investigation {
     }
 
     /** New versions invalidate plans and analysis; failed/duplicate-only reads preserve them. */
-    public void recordImport(String datasetId, Summary summary) {
+    public synchronized void recordImport(String datasetId, Summary summary) {
         validateImport(datasetId);
         DomainValidation.required(summary, "summary");
         boolean changed = summary.successful() && !scope.datasetVersion().equals(summary.datasetVersion());

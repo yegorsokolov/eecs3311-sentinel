@@ -148,3 +148,17 @@ The isolated publication snapshot passes 392 tests, including 24 focused grounde
 ```
 
 Expected: one repaired COMPLETE synthesis in two calls, unchanged score 5 MEDIUM, citations resolved to canonical evidence and a recommendation requiring analyst approval. This fixture performs no real model inference. Follow-up questions, autonomous orchestration and later persistence/interfaces remain separate milestones.
+
+## Step 16: bounded investigation orchestration
+
+AgentEngine.run independently validates a READY plan, enters RUNNING, selects dependency-eligible calls and reuses one scoped ToolExecutor session for collection and observation-driven indicator enrichment. Plan revisions stop at 2, tool attempts at 8 and shared planning/analysis model attempts at 6; retries consume the same budgets. Evidence authorization preserves session attempt and duplicate history. Investigation synchronizes aggregate mutation and snapshots; EventBus publishes progress without coupling the engine to a view.
+
+Successful grounded analysis ends COMPLETED. Truncation, tool/provider failure, exhausted budgets or cooperative cancellation preserve accepted evidence and deterministic results as PARTIAL; unexpected failures after starting a run enter FAILED. Cancellation and interruption stop after the current bounded operation and prevent further model requests. Cancellation during analysis retains a deterministic PARTIAL outcome. AgentController.run releases its monitor while work executes, allowing cancel to remain available. A rejected non-READY run preserves any prior planning budget.
+
+The isolated Step 16 publication snapshot passes 407 tests, including 15 focused orchestration checks. After building, run:
+
+```powershell
+& "$env:JAVA_HOME\bin\jshell.exe" --class-path target/sentinel-0.1.0-SNAPSHOT.jar demos/orchestration-demo.jsh
+```
+
+Expected: progress through RUNNING to COMPLETED, synthetic score 7 HIGH, six timeline events, seven evidence items, plan revision 1 and one fake model call. No real inference or case/dataset disk writes occur. Disk restoration/revalidation, follow-up questions and user-interface workflows remain later increments.

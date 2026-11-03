@@ -258,3 +258,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 15 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and added checks are attributed to Codex; no additional student review is claimed.
 
 **Outcome:** The isolated corrected Step 15 snapshot passed 392 tests, zero failures/errors/skips. Invalid or unavailable AI output preserves the deterministic timeline/severity; canonical citation checks do not prove interpretation quality. Steps 16–21, follow-up implementation and optional provider/setup changes remain excluded.
+
+
+## Step 16: bounded orchestration publication — November 3
+
+**Task and instruction:** Implement bounded investigation execution with preserved evidence, progress and failure/cancellation outcomes. Architectural context: AgentEngine coordinates independently validated Plan dependencies, one scoped ToolExecutor session, canonical evidence attachment and AnalysisService with a shared ModelBudget. Investigation synchronizes aggregate state; AgentController releases its monitor during run so cancel remains available. EventBus delivers immutable progress to later presentation subscribers.
+
+**AI contribution:** Implemented dependency-aware collection, observed-indicator plan revisions, shared attempt/duplicate accounting, deterministic partial outcomes, lifecycle transitions and cooperative cancellation. Added 15 focused integration checks and a synthetic gateway demo. Publication checks found interruption still requesting analysis, cancellation during analysis completing the case, and a rejected run clearing planning budgets; corrected these defects and reran verification. Corrected test fixtures to use cached case IDs during blocked operations and MODEL-origin strategy output. Kept persistence/revalidation, follow-up and interface helpers outside this snapshot.
+
+**My contribution:** I confirmed Step 16 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
+
+**Outcome:** The isolated corrected snapshot passed 407 tests, zero failures/errors/skips. Checks cover enrichment, dependencies, revision/attempt ceilings, shared planning/analysis budgets, cancellation/interruption, retained partial evidence, duplicate-run refusal, controller cancellation availability and fatal-state transitions. Steps 17–21 and optional provider/setup work remain excluded.
