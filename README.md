@@ -228,3 +228,18 @@ The initial Step 20 snapshot passes 453 tests, including four Swing integration 
 ### Latest-query display correction
 
 The Evidence tab now replaces its contents after each manual query, including empty/rejected results, while the case retains accumulated evidence for analysis/save/export. Case/scope/import/run changes reset this view-local selection. Missing-case and malformed-argument queries are rejected before background work; typed tool failures are shown in progress. The corrected snapshot passes 456 tests, including three additional query-display regressions. The recording-era JSON long conversion fix is already inherited from Step 17.
+
+## Step 21: synthetic scenarios and integration readiness
+
+The supplied data/scenarios/account-takeover.json contains five failed logins followed by success for demo-analyst and an IP matched by the synthetic threat feed: expected policy score 7 HIGH, or 8 with workstation-1 explicitly critical. data/scenarios/benign.json supplies a benign-user success expected at 0 LOW. Empty/sparse, unavailable-model, failed-tool, fabricated-citation and interrupted/restored workflows are covered by the integrated suite. Synthetic fixtures are educational examples, not detection-quality evaluation.
+
+After building, start a local Ollama service with qwen2.5:7b available. If using the already downloaded portable runtime in this checkout, demos/start-local-ollama.ps1 starts it with the existing model directory; it does not download or configure secrets. Native completion/planning checks use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File demos/test-real-qwen.ps1
+powershell -ExecutionPolicy Bypass -File demos/cli-scenario.ps1 -DatasetId demo-review
+```
+
+Use a fresh dataset ID for each replay. The initial PowerShell replay prints assessment status, asks a follow-up and exports a report; it can exit successfully with a PARTIAL assessment. The separate replay correction adds strict completeness/citation/persistence gates and a portable helper.
+
+The Step 21 Java snapshot passes 490 tests, including 32 CompletionWorkflowTest cases and two explicit supplied-scenario cases. Current real verification on November 4: after a cold-start timeout, completion succeeded in 25.97 seconds; model planning still timed out at the unchanged 60-second deadline. Ollama reported GPU discovery timeout and CPU fallback. A real replay retained PARTIAL / 7 HIGH after analysis TIMEOUT, accepted a five-citation follow-up and exported its report. This does not supersede earlier successful real runs or claim a fresh COMPLETE model run. Consolidated installer/provider additions and final submission artifacts remain separate unpublished work.

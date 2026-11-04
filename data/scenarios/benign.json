@@ -1,0 +1,11 @@
+[
+  {
+    "eventId": "benign-1",
+    "timestamp": "2026-10-22T12:00:00Z",
+    "eventType": "login",
+    "accountId": "benign-user",
+    "sourceIp": "192.0.2.200",
+    "hostId": "workstation-2",
+    "outcome": "success"
+  }
+]
