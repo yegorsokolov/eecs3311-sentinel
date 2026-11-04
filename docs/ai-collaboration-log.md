@@ -319,3 +319,10 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 20 was reviewed and tested and authorized publication on November 4.
 
 **Outcome:** The isolated initial snapshot passed 453 tests, zero failures/errors/skips on this Windows desktop. Swing tests verify shared dispatch, persistence, progress, EDT responsiveness and rendering with a deterministic planner. No new real inference, video recording or student review is claimed for the publication checks. Step 21 and optional provider/setup work remain excluded.
+
+
+## Step 20: latest-query Evidence display correction — November 4
+
+**Task and instruction:** Make manual query results visible independently of retained case evidence. Architectural context: SentinelGUI holds a view-local latest-query result and renders it on SwingWorker completion; Investigation and the repository continue retaining canonical accumulated evidence for analysis, persistence and reports. Query preflight checks active-case and JSON shape without starting service work; typed retrieval failures remain visible in progress.
+
+**AI contribution and outcome:** Restored the recording-era query display replacement, clearing results on query start, preserving empty/rejected results, resetting the view after case/scope/import/run changes and validating query input before the worker. Added three SwingQueryDisplayTest checks for six-then-two display replacement with all six case records retained/reopened, empty/rejected queries without old results reappearing, and missing-case/malformed-input preflight. The corrected isolated snapshot passed 456 tests, zero failures/errors/skips. These are automated Swing checks; no new recording or student review is claimed.

@@ -224,3 +224,7 @@ SentinelGUI uses the same ActionDispatcher as the CLI for case creation/import, 
 This initial implementation shows accumulated case evidence in the Evidence tab. A smaller subsequent manual query therefore does not replace the displayed history. The separate recording-era display/preflight fix follows in its own increment. Existing layout, cached cancellation ID, saved-case picker and paused-plan control are retained from the completed GUI.
 
 The initial Step 20 snapshot passes 453 tests, including four Swing integration checks: shared GUI/CLI dispatch and persistence, queued EDT progress, off-EDT construction refusal and responsive background planning with accepted-state rendering. GUI window tests require a desktop; on headless hosts those window-specific checks are skipped explicitly. Optional provider/setup work and Step 21 scenarios remain separate.
+
+### Latest-query display correction
+
+The Evidence tab now replaces its contents after each manual query, including empty/rejected results, while the case retains accumulated evidence for analysis/save/export. Case/scope/import/run changes reset this view-local selection. Missing-case and malformed-argument queries are rejected before background work; typed tool failures are shown in progress. The corrected snapshot passes 456 tests, including three additional query-display regressions. The recording-era JSON long conversion fix is already inherited from Step 17.
