@@ -243,3 +243,14 @@ powershell -ExecutionPolicy Bypass -File demos/cli-scenario.ps1 -DatasetId demo-
 Use a fresh dataset ID for each replay. The initial PowerShell replay prints assessment status, asks a follow-up and exports a report; it can exit successfully with a PARTIAL assessment. The separate replay correction adds strict completeness/citation/persistence gates and a portable helper.
 
 The Step 21 Java snapshot passes 490 tests, including 32 CompletionWorkflowTest cases and two explicit supplied-scenario cases. Current real verification on November 4: after a cold-start timeout, completion succeeded in 25.97 seconds; model planning still timed out at the unchanged 60-second deadline. Ollama reported GPU discovery timeout and CPU fallback. A real replay retained PARTIAL / 7 HIGH after analysis TIMEOUT, accepted a five-citation follow-up and exported its report. This does not supersede earlier successful real runs or claim a fresh COMPLETE model run. Consolidated installer/provider additions and final submission artifacts remain separate unpublished work.
+
+### Strict replay correction
+
+The corrected PowerShell helper now requires COMPLETE / 7 HIGH, at least one accepted hypothesis and follow-up citation, an exported file and a matching reopened case. Explicit array binding and scoped stderr handling preserve native progress/error behavior. The portable replay uses isolated synthetic storage and rejects incomplete output:
+
+```powershell
+python demos/cli-scenario.py
+python -m unittest discover -s demos -p test_cli_scenario.py -v
+```
+
+The real replay requires local Qwen; the four helper tests instead start a fake native HTTP server and test success/rejection deterministically. All four passed. A fresh COMPLETE real-model replay is still blocked by the current planning/analysis timeout condition; application limits have not been relaxed.

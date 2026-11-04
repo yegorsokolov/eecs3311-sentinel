@@ -136,3 +136,5 @@ Step 20 publishes SentinelGUI and Main.gui lifetime/EDT wiring. MVC view actions
 The separate Step 20 correction adds view-local latest-query evidence, preflight checks and typed tool progress while retaining aggregate evidence. Three display regressions pass; all 456 isolated tests passed.
 
 Step 21 adds data/scenarios/account-takeover.json and benign.json, integrated CompletionWorkflowTest and explicit ScenarioCoverageTest, native Qwen diagnostics/startup and CLI replay. Together they verify the F01–F12 service collaborations across source provenance, planning/collection, fixed severity, cited analysis/follow-up, persistence/recovery, shared presentation dispatch and export. The original replay accepts PARTIAL status; the separate correction introduces strict replay success gates. Current model-planning/analysis timeout limitations are recorded separately from passing deterministic tests.
+
+The separate Step 21 correction adds strict replay completeness/citation/persistence gates, explicit PowerShell array/stderr handling and portable isolated CLI replay. Four fake-server helper regressions passed; the Java 490-test tree is unchanged.

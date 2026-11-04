@@ -336,3 +336,10 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 21 was reviewed and tested and authorized publication on November 4. Additional publication checks are attributed to Codex; no new student review or recording is claimed.
 
 **Outcome:** All 490 Java tests passed with zero failures/errors/skips. Current real checks encountered GPU discovery timeout/CPU fallback: a cold request timed out, warm completion passed in 25.97 seconds, and planning timed out without a deadline increase. Real replay retained PARTIAL / 7 HIGH after analysis TIMEOUT, accepted five follow-up citations and exported a report. The original PowerShell helper exited successfully despite PARTIAL; explicit completeness checking follows as a separate correction. No fresh COMPLETE real-model run is claimed.
+
+
+## Step 21: strict and portable replay correction — November 4
+
+**Task and instruction:** Make automated replay distinguish complete model output from retained partial results. Architectural context: replay helpers invoke the packaged CLI, inspect accepted Assessment/Answer values and confirm persisted case/report output; they do not change engine policy, model deadlines or source authorization.
+
+**AI contribution and outcome:** Made PowerShell argument binding explicit and scoped native stderr handling so progress does not abort replay. Added COMPLETE/7 HIGH/hypothesis and citation gates plus explicit reopen/report checks, and supplied the portable Python replay with equivalent completeness/export checks and isolated run storage. Four fake-native-server tests passed: successful replay in both helpers, plus rejection of incomplete analysis in both. The unchanged Java source/test snapshot passes 490 tests. Real planning/analysis timeout remains an external performance limitation; replay now rejects it instead of treating partial output as successful demo completion. No additional student review, real COMPLETE model run or recording is claimed.
