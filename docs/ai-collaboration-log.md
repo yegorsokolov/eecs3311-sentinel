@@ -237,7 +237,6 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** Real Qwen planning returned MODEL/READY for the full requested 12:00–13:00 UTC interval without collecting evidence during planning. The rebuilt application passed 405 Java tests with zero failures, errors or skips. Supplied CLI output confirmed six-record SUCCESS, two-record PARTIAL/truncated, invalid-interval rejection and an EMPTY filter result. A separate isolated documentation check exercised case creation/import, six/two/empty searches, activity counts, indicator enrichment, rule planning, show/preview/save, export/overwrite and open/list against the packaged application. Model-dependent documentation examples were checked against source rather than rerun in that documentation check. The changed GUI was launched, but attempted desktop activation failed, so live six-then-two visual verification remains outstanding. No claim of completed visual verification, new commit or push is made.
 
-
 ## Step 14: deterministic severity publication — November 3
 
 **Task and instruction:** Implement the accepted fixed severity policy with supporting evidence and coverage limitations. Architectural context: RuleSeverityPolicy implements SeverityPolicy; derive resolves accepted events through CaseEvidence/DatasetStore and verifies selected-feed indicator evidence through canonical source resolution. Immutable Facts holds rule predicates, supporting source event IDs and limitations; Severity remains independent of model interpretations and later AnalysisService orchestration.
@@ -248,6 +247,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** The isolated Step 14 snapshot passed 368 tests, zero failures/errors/skips. Deterministic score thresholds and source-linked facts are verified without model inference. Steps 15–21 and optional provider/setup work remain outside this publication.
 
+Publication commit: [9e1abd8](https://github.com/yegorsokolov/eecs3311-sentinel/commit/9e1abd84a6b2bb7d5a9675686161293665d6de04), pushed to origin/main.
 
 ## Step 15: grounded model analysis publication — November 3
 
@@ -259,6 +259,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** The isolated corrected Step 15 snapshot passed 392 tests, zero failures/errors/skips. Invalid or unavailable AI output preserves the deterministic timeline/severity; canonical citation checks do not prove interpretation quality. Steps 16–21, follow-up implementation and optional provider/setup changes remain excluded.
 
+Publication commit: [addcca1](https://github.com/yegorsokolov/eecs3311-sentinel/commit/addcca1da2a6cace13580d3781077173e580c309), pushed to origin/main.
 
 ## Step 16: bounded orchestration publication — November 3
 
@@ -270,6 +271,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** The isolated corrected snapshot passed 407 tests, zero failures/errors/skips. Checks cover enrichment, dependencies, revision/attempt ceilings, shared planning/analysis budgets, cancellation/interruption, retained partial evidence, duplicate-run refusal, controller cancellation availability and fatal-state transitions. Steps 17–21 and optional provider/setup work remain excluded.
 
+Publication commit: [8c70cc6](https://github.com/yegorsokolov/eecs3311-sentinel/commit/8c70cc6d6e91a3984f4f6dd433cb767b0f895123), pushed to origin/main.
 
 ## Step 17: atomic JSON persistence publication — November 3
 
@@ -281,6 +283,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** The isolated snapshot passed 427 tests, zero failures/errors/skips, including 18 persistence checks and two codec regressions. The packaged demo round-tripped completed-case state, dataset history and canonical feed provenance; restored RUNNING state remained PAUSED until explicit revalidation. Dataset files assume one writer; there is no cross-file transaction. Steps 18–21 and optional provider/setup work remain excluded.
 
+Publication commit: [feb5dee](https://github.com/yegorsokolov/eecs3311-sentinel/commit/feb5deef3a809bc32f6dd612ac5b364d86c36143), pushed to origin/main.
 
 ## Step 18: grounded follow-up and Markdown export publication — November 3
 
@@ -292,6 +295,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **Outcome:** The corrected isolated snapshot passed 444 tests, zero failures/errors/skips. Answer citations and persistence, partial/unassessed reports and deterministic atomic export are verified without real model inference. Citation membership does not prove semantic correctness, and the scope phrase guard is not a complete language classifier. Steps 19–21 and optional provider/setup work remain excluded.
 
+Publication commit: [76f2200](https://github.com/yegorsokolov/eecs3311-sentinel/commit/76f22003bb716d11dc4a719fbfc6e4b0fd12b36f), pushed to origin/main.
 
 ## Step 19: shared-controller CLI publication — November 4
 
@@ -302,6 +306,8 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 19 was reviewed and tested and authorized its commit and push on November 4. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
 
 **Outcome:** The corrected isolated snapshot passed 449 tests, zero failures/errors/skips. Process tests use a deterministic native-HTTP fake model for planning, analysis and answer integration; no real inference is claimed. Steps 20–21 and optional provider/setup work remain excluded, with working recording-era GUI changes preserved.
+
+Publication commits: implementation [65abd84](https://github.com/yegorsokolov/eecs3311-sentinel/commit/65abd8467235c119f41cffaf942d82f3f1e822af) and query-validation fix [8a12f3e](https://github.com/yegorsokolov/eecs3311-sentinel/commit/8a12f3e2d0ba99d7310c9e4be413acd65feacda3), each pushed to origin/main.
 
 
 ## Step 19 query-input correction — November 4
@@ -327,6 +333,8 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 **AI contribution and outcome:** Restored the recording-era query display replacement, clearing results on query start, preserving empty/rejected results, resetting the view after case/scope/import/run changes and validating query input before the worker. Added three SwingQueryDisplayTest checks for six-then-two display replacement with all six case records retained/reopened, empty/rejected queries without old results reappearing, and missing-case/malformed-input preflight. The corrected isolated snapshot passed 456 tests, zero failures/errors/skips. These are automated Swing checks; no new recording or student review is claimed.
 
+Publication commits: implementation [81ad6fd](https://github.com/yegorsokolov/eecs3311-sentinel/commit/81ad6fde8ef4560cf0d119517f435698bca39d5b) and query-display fix [8cc0dea](https://github.com/yegorsokolov/eecs3311-sentinel/commit/8cc0deadd3a6bbed014ce0b87153df8921761be6), each pushed to origin/main.
+
 ## Step 21: synthetic scenarios and integration readiness — November 4
 
 **Task and instruction:** Complete reproducible synthetic scenarios and integrated demonstration coverage. Architectural context: the supplied takeover/benign inputs exercise import, scoped Command collection, observed-plan revision, fixed RuleSeverityPolicy, canonical model citations, controller lifecycle, JSON restoration and Markdown reporting. Native Qwen diagnostics stay behind LLMGateway/OllamaAdapter; demo scripts reuse the packaged CLI and accepted controller services.
@@ -343,3 +351,15 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **Task and instruction:** Make automated replay distinguish complete model output from retained partial results. Architectural context: replay helpers invoke the packaged CLI, inspect accepted Assessment/Answer values and confirm persisted case/report output; they do not change engine policy, model deadlines or source authorization.
 
 **AI contribution and outcome:** Made PowerShell argument binding explicit and scoped native stderr handling so progress does not abort replay. Added COMPLETE/7 HIGH/hypothesis and citation gates plus explicit reopen/report checks, and supplied the portable Python replay with equivalent completeness/export checks and isolated run storage. Four fake-native-server tests passed: successful replay in both helpers, plus rejection of incomplete analysis in both. The unchanged Java source/test snapshot passes 490 tests. Real planning/analysis timeout remains an external performance limitation; replay now rejects it instead of treating partial output as successful demo completion. No additional student review, real COMPLETE model run or recording is claimed.
+
+Publication commits: scenarios/integration [b886e58](https://github.com/yegorsokolov/eecs3311-sentinel/commit/b886e5802172a6490e1ded0097c976dcb16246ef) and replay correction [57985b8](https://github.com/yegorsokolov/eecs3311-sentinel/commit/57985b8ee4d13bf8f1a3be447afb51d861fd57d4), each pushed to origin/main.
+
+## Configurable providers and cross platform setup publication — November 4
+
+**Task and instruction:** Connect optional model protocols and reproducible local setup to the completed application. Architectural context: ModelSettings/ModelGatewayFactory select LLMGateway adapters at ApplicationSession composition, keeping provider payloads outside domain/planning logic. Shared bounded transport supports native Ollama and compatible chat completions. Python setup helpers validate/download/reuse runtime assets and invoke the same build/configuration/diagnostic boundary before optional GUI launch.
+
+**AI contribution:** Integrated provider-neutral settings, native/compatible adapter selection, redacted key handling and canonical/legacy configuration precedence; added Windows/Linux local and hosted configuration wrappers, requirements and native Linux verification entry point. Preserved recording-era fixes and published source contracts.
+
+**My contribution:** I authorized publication of the remaining changes on November 4. No additional manual review or test execution is inferred from that publication instruction.
+
+**Outcome:** All 516 Java tests and 18 setup-helper tests passed with zero failures/errors/skips. Prior real local/Linux results remain historical evidence; current real-model timeout limitations are recorded separately. No new paid hosted inference or infrastructure expenditure is claimed.

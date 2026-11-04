@@ -17,7 +17,7 @@ public final class ApplicationSession implements AutoCloseable {
         var store=new DatasetStore(datasetId);Path state=config.datasetDirectory().resolve(datasetId+".json");if(Files.exists(state))store.restore(state);store.durable(state);
         Path feed=Path.of("data/indicators/threat-feed.json");if(Files.exists(feed))store.loadIndicatorFeed(feed);
         tools=new ToolExecutor(java.util.Map.of("logSearch",new LogSearchCommand(store),"userActivity",new UserActivityCommand(store),"indicatorLookup",new IndicatorLookupCommand(store)),config.limits());
-        var llm=new OllamaAdapter(config.ollamaUrl(),config.ollamaModel());events=new EventBus();
+        var llm=ModelGatewayFactory.create(config);events=new EventBus();
         var engine=new AgentEngine(new LLMPlanningStrategy(llm,new PlanValidator(tools,store)),tools,new AnalysisService(llm,new TimelineBuilder(),new RuleSeverityPolicy(),store),events,store);
         controller=new AgentController(engine,new JsonCaseRepository(config.caseDirectory()),new LogImporter(store),new ReportService(),events);
     }

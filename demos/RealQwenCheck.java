@@ -10,7 +10,7 @@ import java.time.*;
 public class RealQwenCheck {
     public static void main(String[] args) {
         var config = AppConfig.load();
-        var adapter = new OllamaAdapter(config.ollamaUrl(), config.ollamaModel());
+        var adapter = ModelGatewayFactory.create(config);
         long started = System.nanoTime();
         String reply = adapter.complete(new Prompt("diagnostic-v1", "diagnostic",
                 "Return exactly one JSON object with a status field whose value is ok."));

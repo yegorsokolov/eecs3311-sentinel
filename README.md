@@ -11,7 +11,7 @@ Qwen proposes collection plans and evidence-grounded explanations. Sentinel vali
 - [Model setup](docs/model-setup.md): installation, configuration and provider options.
 - [Verification guide](docs/reviewer-verification.md): reproduction steps and verification scope.
 - [Implementation architecture](docs/implementation-architecture.md) and [design patterns](docs/design-patterns.md).
-- [Feature mapping](docs/feature-implementation-mapping.md) and [Stage 2 report](docs/stage2-report.pdf).
+- [Feature mapping](docs/feature-implementation-mapping.md) and [Stage 2 report](docs/stage2-report.docx).
 - [Verification results](docs/verification-log.md), [AI collaboration record](docs/ai-collaboration-log.md) and [AI tools and costs](docs/ai-tools-and-costs.md).
 
 ## Quick start on Windows
@@ -254,3 +254,9 @@ python -m unittest discover -s demos -p test_cli_scenario.py -v
 ```
 
 The real replay requires local Qwen; the four helper tests instead start a fake native HTTP server and test success/rejection deterministically. All four passed. A fresh COMPLETE real-model replay is still blocked by the current planning/analysis timeout condition; application limits have not been relaxed.
+
+## Configurable providers and reproducible setup
+
+The optional provider/setup implementation is now included: ModelSettings and ModelGatewayFactory select bounded native Ollama or OpenAI-compatible chat completions while preserving LLMGateway and the Stage 1 limits. Windows/Linux setup wrappers reuse checksum-verified runtime/model assets, preserve existing local configuration unless replacement is explicit, build/test Sentinel and check real completion/planning before optional GUI launch. Hosted configuration accepts a user-supplied key without sending a paid request during configuration. See docs/model-setup.md and requirements.txt.
+
+Combined verification on November 4: 516 Java tests and 18 deterministic setup-helper tests passed with zero failures/errors/skips. Four Step 21 fake-native replay checks also passed. Historical real Linux/model checkpoints remain distinct from today's GPU-discovery/CPU-fallback planning and analysis timeouts; no fresh COMPLETE real-model run or paid hosted inference is claimed.

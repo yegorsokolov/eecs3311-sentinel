@@ -13,7 +13,7 @@ import java.util.Properties;
 
 /** Immutable startup settings. Loading creates no directories and makes no network calls. */
 public record AppConfig(URI ollamaUrl, String ollamaModel, Path datasetDirectory,
-                        Path caseDirectory, Path exportDirectory, ExecutionLimits limits) {
+                        Path caseDirectory, Path exportDirectory, ExecutionLimits limits, ModelSettings modelSettings) {
     private static final Map<String, String> OVERRIDES = Map.of(
             "SENTINEL_OLLAMA_URL", "ollama.url",
             "SENTINEL_OLLAMA_MODEL", "ollama.model",
@@ -52,13 +52,14 @@ public record AppConfig(URI ollamaUrl, String ollamaModel, Path datasetDirectory
         if (!model.matches("[A-Za-z0-9][A-Za-z0-9._:/-]*")) {
             throw new ConfigurationException("SENTINEL_OLLAMA_MODEL must be a model name without whitespace.");
         }
+        ModelSettings modelSettings = ModelSettings.from(settings, endpoint, model);
         return new AppConfig(endpoint, model,
                 directory(root, settings, "paths.datasets"), directory(root, settings, "paths.cases"),
                 directory(root, settings, "paths.exports"),
                 new ExecutionLimits(number(settings, "limits.toolAttempts", 1),
                         number(settings, "limits.planRevisions", 0), number(settings, "limits.modelCalls", 1),
                         number(settings, "limits.toolTimeoutSeconds", 1), number(settings, "limits.modelTimeoutSeconds", 1),
-                        number(settings, "limits.transientRetries", 0)));
+                        number(settings, "limits.transientRetries", 0)), modelSettings);
     }
 
     private static Properties defaults() {
@@ -73,7 +74,18 @@ public record AppConfig(URI ollamaUrl, String ollamaModel, Path datasetDirectory
     }
 
     private static void apply(Properties settings, Map<String, String> values) {
-        OVERRIDES.forEach((variable, property) -> {
+        for (var alias : Map.of("SENTINEL_OLLAMA_URL", "llm.url", "SENTINEL_OLLAMA_MODEL", "llm.model").entrySet()) {
+            String value = values.get(alias.getKey());
+            if (value != null && !value.isBlank()) settings.setProperty(alias.getValue(), value.strip());
+        }
+        var mappings = new java.util.LinkedHashMap<>(OVERRIDES);
+        mappings.put("SENTINEL_LLM_PROVIDER", "llm.provider");
+        mappings.put("SENTINEL_LLM_BASE_URL", "llm.url");
+        mappings.put("SENTINEL_LLM_MODEL", "llm.model");
+        mappings.put("SENTINEL_LLM_API_KEY", "llm.apiKey");
+        mappings.put("SENTINEL_LLM_JSON_MODE", "llm.jsonMode");
+        mappings.put("SENTINEL_LLM_TOKEN_FIELD", "llm.tokenField");
+        mappings.forEach((variable, property) -> {
             String value = values.get(variable);
             if (value != null && !value.isBlank()) settings.setProperty(property, value.strip());
         });

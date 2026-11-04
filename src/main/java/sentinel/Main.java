@@ -41,8 +41,9 @@ public final class Main {
         try {
             AppConfig config = AppConfig.load();
             out.println("Configuration valid (model connectivity not checked).");
-            out.println("Model URL: " + config.ollamaUrl());
-            out.println("Model: " + config.ollamaModel());
+            out.println("Provider: " + config.modelSettings().provider());
+            out.println("Model URL: " + config.modelSettings().baseUrl());
+            out.println("Model: " + config.modelSettings().model());
             out.println("Datasets: " + config.datasetDirectory());
             out.println("Cases: " + config.caseDirectory());
             out.println("Exports: " + config.exportDirectory());

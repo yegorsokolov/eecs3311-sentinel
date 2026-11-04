@@ -1,0 +1,15 @@
+# Sentinel local Qwen setup requirements (Python helper uses standard library only).
+# No pip packages are required. `python -m pip install -r requirements.txt` is safe
+# but does not install native applications or start model servers.
+# Prerequisites: Python 3.10+, full JDK 17+, internet on first setup.
+# Linux also needs tar and zstd. Reserve at least 12 GB free disk space.
+# Qwen model: qwen2.5:7b (~4.7 GB); official portable Ollama: 0.40.13.
+#
+# Install/start Ollama, download/run Qwen, configure .env, build/test Sentinel,
+# and verify a real completion and validated plan through Sentinel:
+# Windows: powershell -ExecutionPolicy Bypass -File scripts/setup-qwen.ps1
+# Linux:   bash scripts/setup-qwen.sh
+# Any supported platform: python scripts/model_setup.py local
+# Add --launch to open Sentinel GUI after all checks pass.
+# Rerun the same command after reboot; runtime and model downloads are reused.
+# Details and configuration switches: docs/model-setup.md

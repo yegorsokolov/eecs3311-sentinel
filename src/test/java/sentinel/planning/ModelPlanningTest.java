@@ -83,13 +83,12 @@ class ModelPlanningTest {
         assertEquals(CaseStatus.DRAFT, context.snapshot().status());
     }
 
-    @Test void serializedArgsObjectIsRejectedThenRepairedWithoutExecutingTools() throws Exception {
+    @Test void serializedArgsObjectIsRejectedThenRepairedWithoutExecutingTools() {
         String valid = draft("alice");
         int start = valid.indexOf("\"args\":") + "\"args\":".length();
         int end = valid.indexOf(",\"dependsOn\":", start);
-        var encoded = new StringWriter();
-        try (var generator = new JsonFactory().createGenerator(encoded)) { generator.writeString(valid.substring(start, end)); }
-        String encodedObject = valid.substring(0, start) + encoded + valid.substring(end);
+        String encodedObject = valid.substring(0, start)
+                + JsonCodec.encode(valid.substring(start, end)) + valid.substring(end);
         fails(PlanningException.Code.INVALID_PLAN, () -> ModelPlanParser.parse(encodedObject, context));
         var budget = new ModelBudget();
         var plan = strategy(encodedObject, valid).createPlan(context, budget);

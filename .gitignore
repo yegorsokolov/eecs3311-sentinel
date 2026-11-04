@@ -26,3 +26,10 @@ Thumbs.db
 /demos/*.mkv
 # Private working notes
 /local-notes/
+
+# Python setup helper caches
+__pycache__/
+*.pyc
+
+# Raw recordings are published through the demonstration index, not Git.
+/videos/
