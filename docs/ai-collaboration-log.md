@@ -309,3 +309,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **Task and instruction:** Classify malformed query input correctly at the shared dispatch boundary. Architectural context: ActionDispatcher validates the JSON object and string-valued arguments before invoking AgentController; the same validation applies to CLI and subsequent Swing actions.
 
 **AI contribution and outcome:** Added explicit object/key/value validation so non-object query input returns invalid-input code 2. Added four SharedCliProcessTest cases for persisted CLI workflows, fake native-HTTP planning/analysis/answers, malformed input and named-option parsing. Java launcher argument files and file output capture keep Windows fixture quoting/output reliable without changing application timeouts. The corrected source/test tree matches the previously verified 449-test implementation; no additional student review or real inference is claimed.
+
+## Step 20: shared-controller Swing implementation — November 4
+
+**Task and instruction:** Implement the desktop workflow over the shared application/controller services. Architectural context: SentinelGUI is the MVC view and ProgressListener; ActionDispatcher routes the same immutable actions used by SentinelCLI. SwingWorker owns background service calls, while the EDT owns rendering/progress. Main retains ApplicationSession until the window closes, and cached case identity keeps Stop available without requesting a locked snapshot.
+
+**AI contribution:** Connected case/scope controls, import/query/planning, run/stop, explicit paused-plan revalidation, saved-case selection, follow-up and export with result tabs. Added four Swing integration checks and a reusable fixture. The initial Evidence view retains accumulated case evidence; recording-era replacement/preflight behavior follows separately. A test-source import ambiguity was corrected before verification; no application behavior changed for that fixture correction.
+
+**My contribution:** I confirmed Step 20 was reviewed and tested and authorized publication on November 4.
+
+**Outcome:** The isolated initial snapshot passed 453 tests, zero failures/errors/skips on this Windows desktop. Swing tests verify shared dispatch, persistence, progress, EDT responsiveness and rendering with a deterministic planner. No new real inference, video recording or student review is claimed for the publication checks. Step 21 and optional provider/setup work remain excluded.

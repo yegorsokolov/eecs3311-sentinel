@@ -210,3 +210,17 @@ python demos/cli-workflow.py
 Python 3.10+ is needed only for this demonstration helper. It creates a fresh runtime/cli-workflow/take-* directory, isolates configuration, creates/imports/queries/replans a case and verifies preview/export/open/list plus no silent overwrite. It requests no model inference and preserves the user's configuration.
 
 The isolated Step 19 snapshot passes 449 tests, including five CLI/process/parser checks across MainCliTest and SharedCliProcessTest. Actual Java CLI processes exercise full persisted new/import/query/rule/run/ask/open/show/list/preview/export workflows with a deterministic native-HTTP fake model, model planning without retrieval, malformed input codes and operational errors. These fixtures do not establish real inference. Swing launch and optional provider/setup additions remain later increments.
+
+## Step 20: Swing interface
+
+Launch the shared-controller desktop interface after building:
+
+```powershell
+java -jar target/sentinel-0.1.0-SNAPSHOT.jar gui --dataset demo
+```
+
+SentinelGUI uses the same ActionDispatcher as the CLI for case creation/import, model/rule planning, clarification/revision, scoped queries, run/stop, paused-plan revalidation, save/open, follow-up and Markdown export. SwingWorker runs service operations away from the EDT; completion and immutable progress events update the view on the EDT. Controls, scope fields and result tabs show accepted case state, while explicit export overwrite confirmation protects existing files. Closing the window closes the owned application session.
+
+This initial implementation shows accumulated case evidence in the Evidence tab. A smaller subsequent manual query therefore does not replace the displayed history. The separate recording-era display/preflight fix follows in its own increment. Existing layout, cached cancellation ID, saved-case picker and paused-plan control are retained from the completed GUI.
+
+The initial Step 20 snapshot passes 453 tests, including four Swing integration checks: shared GUI/CLI dispatch and persistence, queued EDT progress, off-EDT construction refusal and responsive background planning with accepted-state rendering. GUI window tests require a desktop; on headless hosts those window-specific checks are skipped explicitly. Optional provider/setup work and Step 21 scenarios remain separate.
