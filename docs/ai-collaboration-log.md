@@ -291,3 +291,14 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **My contribution:** I confirmed Step 18 was reviewed and tested and authorized its commit and push. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
 
 **Outcome:** The corrected isolated snapshot passed 444 tests, zero failures/errors/skips. Answer citations and persistence, partial/unassessed reports and deterministic atomic export are verified without real model inference. Citation membership does not prove semantic correctness, and the scope phrase guard is not a complete language classifier. Steps 19–21 and optional provider/setup work remain excluded.
+
+
+## Step 19: shared-controller CLI implementation — November 4
+
+**Task and instruction:** Implement reproducible CLI workflows over the shared application/controller architecture. Architectural context: Main and ApplicationSession compose native LLMGateway, DatasetStore, ToolExecutor, AgentEngine, repository and controller services. SentinelCLI adapts named commands; ActionDispatcher routes immutable Action/Result values to AgentController and saves accepted mutations/history for subsequent CLI processes.
+
+**AI contribution:** Connected named CLI commands, persisted case/dataset selection, explicit rule approval, controller helpers, shared dispatch, JSON envelopes and stderr progress. Included MainCliTest and a model-free packaged walkthrough. Optional provider setup and Swing launch remain separate increments.
+
+**My contribution:** I confirmed Step 19 was reviewed and tested and authorized publication on November 4.
+
+**Outcome:** The isolated initial implementation passed 445 tests, zero failures/errors/skips, and the packaged CLI walkthrough passed. Known limitation: non-object query JSON may produce operational code 3 instead of invalid-input code 2. The validation correction and expanded process regression tests follow separately; no real inference is claimed.

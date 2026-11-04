@@ -194,3 +194,19 @@ The isolated Step 18 snapshot passes 444 tests, including 17 focused follow-up/r
 ```
 
 The fake-gateway demo accepts a cited answer, saves/reopens its conversation, writes Markdown under a fresh runtime/persistence-demo/take-* directory and refuses silent overwrite. Steps 19–21 and optional provider/setup changes remain separate.
+
+## Step 19: shared-controller CLI workflows
+
+Main connects named CLI commands to ApplicationSession, which restores the selected dataset, configures durable storage and composes one controller, executor, repository and native Ollama gateway. SentinelCLI parses named arguments and submits the same Action vocabulary through ActionDispatcher. Successful mutations save through AgentController; failure handling attempts to preserve accepted history. Case IDs select persisted scope/dataset across separate CLI processes.
+
+Commands include new, import, query, rule, plan, clarify, revise, run, ask, resume, save, open, show, list, preview, export and inventory. Critical-host inventory must be supplied again in each CLI process that needs it. Explicit --rule bypasses model planning; model plans remain independently validated. Query --args must be a JSON object with string values. Progress goes to stderr; stdout contains a JSON Result envelope whose message is the serialized command payload (or report text for preview). Exit codes are 0 for successful actions (including partial assessments), 2 for invalid/rejected input and 3 for operational failures. Quoted JSON arguments must reach the application intact; follow the CLI user guide for your shell.
+
+After building, inspect java -jar target/sentinel-0.1.0-SNAPSHOT.jar --help. For a reproducible synthetic packaged walkthrough without a running model:
+
+```powershell
+python demos/cli-workflow.py
+```
+
+Python 3.10+ is needed only for this demonstration helper. It creates a fresh runtime/cli-workflow/take-* directory, isolates configuration, creates/imports/queries/replans a case and verifies preview/export/open/list plus no silent overwrite. It requests no model inference and preserves the user's configuration.
+
+The initial Step 19 snapshot passes 445 tests, including MainCliTest for actual CLI processes and JSON/progress/input/operational exit behavior. The packaged model-free walkthrough verifies create/import/query/rule/show/preview/export/open/list. Known limitation: non-object query JSON may return operational code 3 rather than input code 2; the focused validation fix and expanded process regression suite follow separately. Swing launch and optional provider/setup additions remain later increments.

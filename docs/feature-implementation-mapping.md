@@ -127,3 +127,6 @@ Step 17 publishes JSON persistence/restoration through JsonCaseRepository.save/l
 
 
 Step 18 publishes AnalysisService.answer, AgentEngine.ask and Investigation.recordConversation with accepted canonical citations, a bounded repair, same-scope optional refresh and persisted answer/failure history. ReportService.preview/export renders accepted case state deterministically through AtomicFiles, including provenance, completeness and audit history, with explicit overwrite. Seventeen focused checks and demos/followup-report-demo.jsh verify these components independently of later CLI/Swing integration. Runtime Markdown reports are distinct from the assignment Word report.
+
+
+Step 19 publishes Main CLI routing, ApplicationSession composition, ActionDispatcher shared actions, SentinelCLI.parse/submit/update, immutable Action/Result and AgentController helpers for explicit rule approval, listing/current/replan/revise/open progress. Existing F01–F12 services are exposed through shared controller operations with durable case/dataset selection, mutation saving, JSON envelopes, stderr progress and 0/2/3 exits. MainCliTest and demos/cli-workflow.py verify the initial increment; query JSON type classification and expanded process regressions follow separately. Swing launch and optional provider/setup changes remain separate.

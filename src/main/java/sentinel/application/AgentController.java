@@ -28,7 +28,9 @@ public class AgentController {
 
     public synchronized Investigation start(Request request) { return start(request, TargetType.ACCOUNT, null); }
 
-    public synchronized Investigation start(Request request, TargetType targetType, String feedVersion) {
+    public synchronized Investigation start(Request request, TargetType targetType, String feedVersion) { return start(request,targetType,feedVersion,false); }
+
+    public synchronized Investigation start(Request request, TargetType targetType, String feedVersion, boolean ruleApproved) {
         Objects.requireNonNull(request, "request");
         if (active != null && active.snapshot().status() == CaseStatus.RUNNING) {
             throw new IllegalStateException("Finish the active run before starting another case.");
@@ -37,7 +39,7 @@ public class AgentController {
         var candidate = new Investigation(request, targetType, feedVersion);
         if (active != null) engine.invalidateSessions(active.snapshot().id());
         active = candidate;
-        engine.plan(request, active);
+        if(ruleApproved)engine.acceptRulePlan(active);else engine.plan(request, active);
         return active;
     }
 
@@ -48,9 +50,10 @@ public class AgentController {
         return engine.plan(new Request(investigation.snapshot().goal(), scope), investigation);
     }
 
-    /** Explicit analyst approval of the labeled rule fallback on the same case. */
+    /** Explicit approval keeps rule fallback on the same case instead of silently starting another case. */
     public synchronized Plan acceptRulePlan(UUID id) { return engine.acceptRulePlan(requireActive(id)); }
 
+    public synchronized void revise(UUID id, CaseScope scope) { ensureDataset(scope); requireActive(id).reviseScope(scope); engine.invalidateSessions(id); }
     public synchronized Path export(UUID id,Path path,boolean overwrite) { return reporter.export(requireActive(id),path,overwrite); }
 
     public synchronized CaseSnapshot snapshot(UUID id) { return requireActive(id).snapshot(); }
@@ -73,6 +76,9 @@ public class AgentController {
     public synchronized Plan resume(UUID id) { return engine.revalidate(requireActive(id)); }
     public void cancel(UUID id) { engine.cancel(id); }
     public synchronized void inventory(Set<String> hosts) { engine.inventory(hosts); }
+    public synchronized List<CaseSummary> listCases() { return repository.list(); }
+    public synchronized CaseSnapshot current() { if(active==null)throw new IllegalStateException("No active case."); return active.snapshot(); }
+    public synchronized Plan replan(UUID id) { var i=requireActive(id);return engine.plan(new Request(i.snapshot().goal(),i.snapshot().scope()),i); }
     public synchronized Answer ask(UUID id, String question) { return engine.ask(requireActive(id), question); }
 
     public synchronized int save(UUID id) {
@@ -84,6 +90,7 @@ public class AgentController {
         if (candidate == null || !candidate.snapshot().id().equals(id)) throw new IllegalArgumentException("Repository returned another case.");
         if (active != null) engine.invalidateSessions(active.snapshot().id());
         active = candidate;
+        events.publish(new ProgressEvent("CASE", "OPENED", List.of()));
         return active;
     }
 
