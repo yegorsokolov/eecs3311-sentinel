@@ -293,12 +293,19 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 **Outcome:** The corrected isolated snapshot passed 444 tests, zero failures/errors/skips. Answer citations and persistence, partial/unassessed reports and deterministic atomic export are verified without real model inference. Citation membership does not prove semantic correctness, and the scope phrase guard is not a complete language classifier. Steps 19–21 and optional provider/setup work remain excluded.
 
 
-## Step 19: shared-controller CLI implementation — November 4
+## Step 19: shared-controller CLI publication — November 4
 
-**Task and instruction:** Implement reproducible CLI workflows over the shared application/controller architecture. Architectural context: Main and ApplicationSession compose native LLMGateway, DatasetStore, ToolExecutor, AgentEngine, repository and controller services. SentinelCLI adapts named commands; ActionDispatcher routes immutable Action/Result values to AgentController and saves accepted mutations/history for subsequent CLI processes.
+**Task and instruction:** Implement reproducible CLI workflows over the shared application/controller architecture. Architectural context: Main and ApplicationSession compose native LLMGateway, DatasetStore, ToolExecutor, AgentEngine, repository and controller services. SentinelCLI is the presentation adapter; ActionDispatcher routes immutable Action/Result values to AgentController and saves accepted mutations/history. The same dispatcher remains available to the subsequent Swing view.
 
-**AI contribution:** Connected named CLI commands, persisted case/dataset selection, explicit rule approval, controller helpers, shared dispatch, JSON envelopes and stderr progress. Included MainCliTest and a model-free packaged walkthrough. Optional provider setup and Swing launch remain separate increments.
+**AI contribution:** Connected named CLI commands, case/dataset restoration between processes, explicit approved rule creation, controller helpers, shared dispatch, JSON result envelopes, stderr progress and input/operational exit codes. Preserved native Ollama integration while excluding optional provider setup and Swing launch. Added four CLI process/parser checks alongside the existing MainCliTest and a packaged model-free Python walkthrough. Verification corrected non-object query JSON classification; Windows JSON argument quoting in the process fixture was resolved with Java launcher argument files. The process harness captures output to files to prevent large saved-case JSON from filling a Windows pipe; application deadlines were unchanged.
 
-**My contribution:** I confirmed Step 19 was reviewed and tested and authorized publication on November 4.
+**My contribution:** I confirmed Step 19 was reviewed and tested and authorized its commit and push on November 4. Subsequent verification fixes and tests are attributed to Codex; no additional student review is claimed.
 
-**Outcome:** The isolated initial implementation passed 445 tests, zero failures/errors/skips, and the packaged CLI walkthrough passed. Known limitation: non-object query JSON may produce operational code 3 instead of invalid-input code 2. The validation correction and expanded process regression tests follow separately; no real inference is claimed.
+**Outcome:** The corrected isolated snapshot passed 449 tests, zero failures/errors/skips. Process tests use a deterministic native-HTTP fake model for planning, analysis and answer integration; no real inference is claimed. Steps 20–21 and optional provider/setup work remain excluded, with working recording-era GUI changes preserved.
+
+
+## Step 19 query-input correction — November 4
+
+**Task and instruction:** Classify malformed query input correctly at the shared dispatch boundary. Architectural context: ActionDispatcher validates the JSON object and string-valued arguments before invoking AgentController; the same validation applies to CLI and subsequent Swing actions.
+
+**AI contribution and outcome:** Added explicit object/key/value validation so non-object query input returns invalid-input code 2. Added four SharedCliProcessTest cases for persisted CLI workflows, fake native-HTTP planning/analysis/answers, malformed input and named-option parsing. Java launcher argument files and file output capture keep Windows fixture quoting/output reliable without changing application timeouts. The corrected source/test tree matches the previously verified 449-test implementation; no additional student review or real inference is claimed.

@@ -28,7 +28,7 @@ public final class ActionDispatcher {
                 UUID id=a.containsKey("case")?UUID.fromString(a.get("case")):c.current().id();
                 switch(action.name()){
                     case "import" -> result=c.importLogs(id,Path.of(required(a,"file")));
-                    case "query" -> {Object tree=JsonCodec.tree(required(a,"args"));var args=new HashMap<String,String>();for(var entry:((Map<String,Object>)tree).entrySet()){if(!(entry.getValue() instanceof String))throw new IllegalArgumentException("Tool arguments must be strings.");args.put(entry.getKey(),(String)entry.getValue());}result=c.execute(id,new ToolCall(UUID.randomUUID(),required(a,"tool"),args));}
+                    case "query" -> {Object tree=JsonCodec.tree(required(a,"args"));var args=new HashMap<String,String>();if(!(tree instanceof Map<?,?> values))throw new IllegalArgumentException("Tool arguments must be one JSON object.");for(var entry:values.entrySet()){if(!(entry.getKey() instanceof String key)||!(entry.getValue() instanceof String value))throw new IllegalArgumentException("Tool arguments must be strings.");args.put(key,value);}result=c.execute(id,new ToolCall(UUID.randomUUID(),required(a,"tool"),args));}
                     case "resume" -> result=c.resume(id);
                     case "run" -> {if(a.containsKey("criticalHosts"))c.inventory(new HashSet<>(List.of(a.get("criticalHosts").split(","))));result=c.run(id);}
                     case "ask" -> result=c.ask(id,required(a,"question"));
