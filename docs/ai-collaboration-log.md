@@ -363,3 +363,13 @@ Publication commits: scenarios/integration [b886e58](https://github.com/yegorsok
 **My contribution:** I authorized publication of the remaining changes on November 4. No additional manual review or test execution is inferred from that publication instruction.
 
 **Outcome:** All 516 Java tests and 18 setup-helper tests passed with zero failures/errors/skips. Prior real local/Linux results remain historical evidence; current real-model timeout limitations are recorded separately. No new paid hosted inference or infrastructure expenditure is claimed.
+
+## Submission report and recording references — November 4
+
+**Task and instruction:** Synchronize the assignment report and feature/demonstration references with the published implementation. Architectural context: the feature mapping traces shared GUI/CLI actions through controller/engine services, the five accepted patterns and source-linked persistence/reporting. The assignment Word report remains distinct from runtime Markdown case exports.
+
+**AI contribution:** Corrected stale review/publication states, verification totals, weekly commit links and current model limitations; retained feature/class/method/pattern mappings and 27 existing recording links. Rendered and inspected all 17 report pages, repairing pagination. Published document links in place of obsolete placeholders and preserved local raw media.
+
+**My contribution:** I authorized publication of the remaining changes. No additional manual review, test execution or recording is inferred from that instruction.
+
+**Outcome:** The submission records match published code and actual checks: 516 Java tests, 18 setup-helper checks and four earlier replay-helper regressions. Weekly code/test counts are 5, 8 and 12; documentation-only work is excluded. Current real-model CPU-fallback timeout limitations remain explicit.
