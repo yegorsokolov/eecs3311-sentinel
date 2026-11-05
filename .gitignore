@@ -31,5 +31,8 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-# Raw recordings are published through the demonstration index, not Git.
+# Recordings are distributed as a GitHub release asset and through the demonstration index.
 /videos/
+
+# Superseded local setup checkpoint
+/docs/qwen-setup-checkpoint.md

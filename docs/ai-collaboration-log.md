@@ -62,11 +62,11 @@ I used the accepted Stage 1 design to guide development. For the increments I re
 
 **My contribution:** I reviewed the submission requirements, organized the documentation, and checked the commit summary. I also clarified how I use my subscription for development and the local model for Sentinel.
 
-**Outcome:** Required collaboration, tool/cost, verification, feature/pattern and demonstration records remain available. Internal planning and detailed review notes are kept under an ignored local-notes directory. Documentation-only edits are excluded from the meaningful-code commit count.
+**Outcome:** Required collaboration, tool/cost, verification, feature/pattern and demonstration records remain available. Documentation-only edits are excluded from the meaningful-code commit count.
 
 ## 7. Planning substantive increments and implementing log search — October 22
 
-**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Plan the remaining work around feature dependencies and the course schedule. Route LogSearchCommand through LocalQueryCommand to DatasetStore.search, with strict query parsing and stable source-linked Evidence. Leave registry dispatch and case-scope enforcement for the later ToolExecutor increment.
+**Task and instruction:** Implement filtered log search as the next testable increment and provide a copy-ready environment template. Route LogSearchCommand through LocalQueryCommand to DatasetStore.search, with strict query parsing and stable source-linked Evidence. Leave registry dispatch and case-scope enforcement for the later ToolExecutor increment.
 
 **AI contribution:** Prepared an internal milestone plan, implemented versioned filtered log search with typed errors and immutable evidence, added 20 tests and a component demo, and clarified all five supported environment variables and defaults.
 
@@ -168,15 +168,13 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 - Compare DigitalOcean and OVH hosting costs, then continue locally once the CUDA configuration resolves the issue.
 - Add complete Windows and Linux Qwen setup scripts. Use local Ollama without an API key by default, and support a user-supplied hosted-provider key through ignored configuration.
 - Keep the AI integration replaceable behind LLMGateway so planning and application services do not depend on a particular model provider. Support configurable endpoints/models and an adapter for compatible hosted APIs.
-- Stop at a checkpoint and defer completion until 13:30 Toronto time on October 29.
 
-**Additional direction:** Resume the scheduled work now; the 13:30 continuation did not trigger. Complete the saved setup/connector scope and preserve the existing uncommitted implementation.
 
 **AI contribution:** Added Windows and Linux entry scripts with a shared standard-library setup helper for checksum-verified portable Ollama installation, model download/reuse, loopback startup, real inference checks and safe .env configuration. Added optional hosted-key helpers with hidden input and restricted file permissions. Extracted ModelHttpTransport, added OpenAICompatibleAdapter, ModelSettings and ModelGatewayFactory, and connected the live check through LLMGateway. Documented provider compatibility, requirements and limitations without coupling planning/domain code to provider payloads.
 
-**My contribution:** I chose local Qwen by default with optional hosted credentials and requested interchangeable model APIs. I manually resumed after the scheduled continuation failed to appear. Review/publication remains pending.
+**My contribution:** I chose local Qwen by default with optional hosted credentials and requested interchangeable model APIs. Review/publication remains pending.
 
-**Outcome:** All 371 Java tests and 11 setup-helper tests passed. Windows setup and a repeat run succeeded. Real native planning passed in 22.00 seconds with one request; the OpenAI-compatible local path passed in 37.47 seconds with one repair. Linux installation logic and shell syntax were checked, but native Linux execution remains unverified. No hosted key was created and no paid inference was called. The old automation was paused; its missed-trigger cause was not established. Existing work was preserved and no commit or push was made.
+**Outcome:** All 371 Java tests and 11 setup-helper tests passed. Windows setup and a repeat run succeeded. Real native planning passed in 22.00 seconds with one request; the OpenAI-compatible local path passed in 37.47 seconds with one repair. Linux installation logic and shell syntax were checked, but native Linux execution remains unverified. No hosted key was created and no paid inference was called. Existing work was preserved and no commit or push was made.
 
 ## 17. Timeline correlation and fixed severity — October 29
 

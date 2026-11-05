@@ -19,4 +19,4 @@ Separate recordings cover every feature in both the GUI and CLI. For F01, F02 an
 
 The filenames identify each feature/interface; links open individual recordings. Video link permissions were checked through Drive metadata.
 
-Each link is a dedicated feature/interface clip; use 00:00 through the end of that recording. The Word report preserves the same 27 Drive recording links. Raw recording files remain local and are excluded from Git.
+Each link is a dedicated feature/interface clip; use 00:00 through the end of that recording. The Word report preserves the same 27 Drive recording links. The complete [recording ZIP](https://github.com/yegorsokolov/eecs3311-sentinel/releases/download/stage2-demonstrations/sentinel-demonstrations.zip) is also available from the public [Stage 2 GitHub release](https://github.com/yegorsokolov/eecs3311-sentinel/releases/tag/stage2-demonstrations).
