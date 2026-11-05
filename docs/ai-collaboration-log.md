@@ -239,7 +239,7 @@ See [AI tools and costs](ai-tools-and-costs.md), [verification summary](verifica
 
 ## Step 14: deterministic severity publication — November 3
 
-**Task and instruction:** Implement the accepted fixed severity policy with supporting evidence and coverage limitations. Architectural context: RuleSeverityPolicy implements SeverityPolicy; derive resolves accepted events through CaseEvidence/DatasetStore and verifies selected-feed indicator evidence through canonical source resolution. Immutable Facts holds rule predicates, supporting source event IDs and limitations; Severity remains independent of model interpretations and later AnalysisService orchestration.
+**Task and instruction:** Implement the accepted fixed severity policy with supporting evidence and coverage limitations. RuleSeverityPolicy implements SeverityPolicy; derive resolves accepted events through CaseEvidence/DatasetStore and verifies selected-feed indicator evidence through canonical source resolution. Immutable Facts holds rule predicates, supporting source event IDs and limitations; Severity remains independent of model interpretations and later AnalysisService orchestration.
 
 **AI contribution:** Implemented one-time R1–R4 contributions, authentication timing/account checks, trusted malicious-feed matching, critical-host facts and explicit unknown/partial-coverage outcomes. Added 12 focused checks covering all rule combinations, timing boundaries, trusted sources, scope, limitations and immutable Facts, plus a synthetic packaged demo. Isolated this increment from later model analysis, disk persistence and interfaces.
 
@@ -251,7 +251,7 @@ Publication commit: [9e1abd8](https://github.com/yegorsokolov/eecs3311-sentinel/
 
 ## Step 15: grounded model analysis publication — November 3
 
-**Task and instruction:** Implement grounded hypotheses and analyst-reviewed recommendations with citation validation and bounded repair. Architectural context: AnalysisService combines TimelineBuilder, RuleSeverityPolicy and canonical CaseEvidence/DatasetStore resolution before invoking LLMGateway. JsonCodec parses versioned synthesis contracts; prompt-local references map to immutable Evidence UUIDs. ModelBudget bounds retry/repair attempts, while fixed Severity and proposal-only recommendations preserve the domain/application boundary.
+**Task and instruction:** Implement grounded hypotheses and analyst-reviewed recommendations with citation validation and bounded repair. AnalysisService combines TimelineBuilder, RuleSeverityPolicy and canonical CaseEvidence/DatasetStore resolution before invoking LLMGateway. JsonCodec parses versioned synthesis contracts; prompt-local references map to immutable Evidence UUIDs. ModelBudget bounds retry/repair attempts, while fixed Severity and proposal-only recommendations preserve the domain/application boundary.
 
 **AI contribution:** Implemented compact/full synthesis parsing, canonical source-context selection, supporting/contradicting citations, qualitative confidence, constrained recommendations and deterministic PARTIAL fallback. Added 24 focused checks and a synthetic gateway demo. During publication verification, malformed top-level/null response fields escaped validation and successful context capping omitted its explicit limitation; repaired those defects, including rejecting non-string references, and reran verification. Preserved later follow-up methods in the working checkout while excluding their implementation from this snapshot.
 
@@ -263,7 +263,7 @@ Publication commit: [addcca1](https://github.com/yegorsokolov/eecs3311-sentinel/
 
 ## Step 16: bounded orchestration publication — November 3
 
-**Task and instruction:** Implement bounded investigation execution with preserved evidence, progress and failure/cancellation outcomes. Architectural context: AgentEngine coordinates independently validated Plan dependencies, one scoped ToolExecutor session, canonical evidence attachment and AnalysisService with a shared ModelBudget. Investigation synchronizes aggregate state; AgentController releases its monitor during run so cancel remains available. EventBus delivers immutable progress to later presentation subscribers.
+**Task and instruction:** Implement bounded investigation execution with preserved evidence, progress and failure/cancellation outcomes. AgentEngine coordinates independently validated Plan dependencies, one scoped ToolExecutor session, canonical evidence attachment and AnalysisService with a shared ModelBudget. Investigation synchronizes aggregate state; AgentController releases its monitor during run so cancel remains available. EventBus delivers immutable progress to later presentation subscribers.
 
 **AI contribution:** Implemented dependency-aware collection, observed-indicator plan revisions, shared attempt/duplicate accounting, deterministic partial outcomes, lifecycle transitions and cooperative cancellation. Added 15 focused integration checks and a synthetic gateway demo. Publication checks found interruption still requesting analysis, cancellation during analysis completing the case, and a rejected run clearing planning budgets; corrected these defects and reran verification. Corrected test fixtures to use cached case IDs during blocked operations and MODEL-origin strategy output. Kept persistence/revalidation, follow-up and interface helpers outside this snapshot.
 
@@ -275,7 +275,7 @@ Publication commit: [8c70cc6](https://github.com/yegorsokolov/eecs3311-sentinel/
 
 ## Step 17: atomic JSON persistence publication — November 3
 
-**Task and instruction:** Implement validated atomic JSON case/dataset persistence and safe restoration. Architectural context: JsonCaseRepository implements CaseRepository using strict JsonCodec contracts, monotonic case revisions, file identity and per-case writer locks. AtomicFiles supplies bounded UTF-8 atomic file replacement. DatasetStore validates immutable version/feed history before publishing restored state and persists durable candidates before memory updates. AgentEngine/AgentController explicitly revalidate a restored PAUSED case without changing its plan revision.
+**Task and instruction:** Implement validated atomic JSON case/dataset persistence and safe restoration. JsonCaseRepository implements CaseRepository using strict JsonCodec contracts, monotonic case revisions, file identity and per-case writer locks. AtomicFiles supplies bounded UTF-8 atomic file replacement. DatasetStore validates immutable version/feed history before publishing restored state and persists durable candidates before memory updates. AgentEngine/AgentController explicitly revalidate a restored PAUSED case without changing its plan revision.
 
 **AI contribution:** Implemented case save/load/list, dataset/feed provenance restoration, candidate-first durable writes and explicit paused-plan revalidation. Included the recording-era JSON long conversion fix and its ToolResult regression in this increment. Added 18 focused persistence integration checks and a packaged synthetic persistence demo, keeping later follow-up/export/interface and optional provider setup changes separate.
 
@@ -287,7 +287,7 @@ Publication commit: [feb5dee](https://github.com/yegorsokolov/eecs3311-sentinel/
 
 ## Step 18: grounded follow-up and Markdown export publication — November 3
 
-**Task and instruction:** Implement evidence-grounded follow-up answers and deterministic runtime report export. Architectural context: AgentEngine coordinates AnalysisService with current CaseSnapshot scope, canonical source evidence and a bounded ModelBudget; Investigation validates and stores conversation entries. Optional approved refresh reuses scoped Command execution. ReportService renders accepted aggregate values through AtomicFiles without inference, keeping runtime Markdown separate from the assignment Word artifact.
+**Task and instruction:** Implement evidence-grounded follow-up answers and deterministic runtime report export. AgentEngine coordinates AnalysisService with current CaseSnapshot scope, canonical source evidence and a bounded ModelBudget; Investigation validates and stores conversation entries. Optional approved refresh reuses scoped Command execution. ReportService renders accepted aggregate values through AtomicFiles without inference, keeping runtime Markdown separate from the assignment Word artifact.
 
 **AI contribution:** Implemented bounded cited answers, one repair, explicit no-evidence outcomes, scope/state checks, sanitized failure history, conversation persistence and optional scoped refresh. Implemented accepted-state report preview/export with provenance, assessment/completeness, proposals, conversation and audit history, including explicit overwrite behavior. Added 17 focused checks and a packaged fake-gateway walkthrough. Publication verification found a JSON null answer bypassing repair; added a null guard and reran verification.
 
@@ -299,7 +299,7 @@ Publication commit: [76f2200](https://github.com/yegorsokolov/eecs3311-sentinel/
 
 ## Step 19: shared-controller CLI publication — November 4
 
-**Task and instruction:** Implement reproducible CLI workflows over the shared application/controller architecture. Architectural context: Main and ApplicationSession compose native LLMGateway, DatasetStore, ToolExecutor, AgentEngine, repository and controller services. SentinelCLI is the presentation adapter; ActionDispatcher routes immutable Action/Result values to AgentController and saves accepted mutations/history. The same dispatcher remains available to the subsequent Swing view.
+**Task and instruction:** Implement reproducible CLI workflows over the shared application/controller architecture. Main and ApplicationSession compose native LLMGateway, DatasetStore, ToolExecutor, AgentEngine, repository and controller services. SentinelCLI is the presentation adapter; ActionDispatcher routes immutable Action/Result values to AgentController and saves accepted mutations/history. The same dispatcher remains available to the subsequent Swing view.
 
 **AI contribution:** Connected named CLI commands, case/dataset restoration between processes, explicit approved rule creation, controller helpers, shared dispatch, JSON result envelopes, stderr progress and input/operational exit codes. Preserved native Ollama integration while excluding optional provider setup and Swing launch. Added four CLI process/parser checks alongside the existing MainCliTest and a packaged model-free Python walkthrough. Verification corrected non-object query JSON classification; Windows JSON argument quoting in the process fixture was resolved with Java launcher argument files. The process harness captures output to files to prevent large saved-case JSON from filling a Windows pipe; application deadlines were unchanged.
 
@@ -312,13 +312,13 @@ Publication commits: implementation [65abd84](https://github.com/yegorsokolov/ee
 
 ## Step 19 query-input correction — November 4
 
-**Task and instruction:** Classify malformed query input correctly at the shared dispatch boundary. Architectural context: ActionDispatcher validates the JSON object and string-valued arguments before invoking AgentController; the same validation applies to CLI and subsequent Swing actions.
+**Task and instruction:** Classify malformed query input correctly at the shared dispatch boundary. ActionDispatcher validates the JSON object and string-valued arguments before invoking AgentController; the same validation applies to CLI and subsequent Swing actions.
 
 **AI contribution and outcome:** Added explicit object/key/value validation so non-object query input returns invalid-input code 2. Added four SharedCliProcessTest cases for persisted CLI workflows, fake native-HTTP planning/analysis/answers, malformed input and named-option parsing. Java launcher argument files and file output capture keep Windows fixture quoting/output reliable without changing application timeouts. The corrected source/test tree matches the previously verified 449-test implementation; no additional student review or real inference is claimed.
 
 ## Step 20: shared-controller Swing implementation — November 4
 
-**Task and instruction:** Implement the desktop workflow over the shared application/controller services. Architectural context: SentinelGUI is the MVC view and ProgressListener; ActionDispatcher routes the same immutable actions used by SentinelCLI. SwingWorker owns background service calls, while the EDT owns rendering/progress. Main retains ApplicationSession until the window closes, and cached case identity keeps Stop available without requesting a locked snapshot.
+**Task and instruction:** Implement the desktop workflow over the shared application/controller services. SentinelGUI is the MVC view and ProgressListener; ActionDispatcher routes the same immutable actions used by SentinelCLI. SwingWorker owns background service calls, while the EDT owns rendering/progress. Main retains ApplicationSession until the window closes, and cached case identity keeps Stop available without requesting a locked snapshot.
 
 **AI contribution:** Connected case/scope controls, import/query/planning, run/stop, explicit paused-plan revalidation, saved-case selection, follow-up and export with result tabs. Added four Swing integration checks and a reusable fixture. The initial Evidence view retains accumulated case evidence; recording-era replacement/preflight behavior follows separately. A test-source import ambiguity was corrected before verification; no application behavior changed for that fixture correction.
 
@@ -329,7 +329,7 @@ Publication commits: implementation [65abd84](https://github.com/yegorsokolov/ee
 
 ## Step 20: latest-query Evidence display correction — November 4
 
-**Task and instruction:** Make manual query results visible independently of retained case evidence. Architectural context: SentinelGUI holds a view-local latest-query result and renders it on SwingWorker completion; Investigation and the repository continue retaining canonical accumulated evidence for analysis, persistence and reports. Query preflight checks active-case and JSON shape without starting service work; typed retrieval failures remain visible in progress.
+**Task and instruction:** Make manual query results visible independently of retained case evidence. SentinelGUI holds a view-local latest-query result and renders it on SwingWorker completion; Investigation and the repository continue retaining canonical accumulated evidence for analysis, persistence and reports. Query preflight checks active-case and JSON shape without starting service work; typed retrieval failures remain visible in progress.
 
 **AI contribution and outcome:** Restored the recording-era query display replacement, clearing results on query start, preserving empty/rejected results, resetting the view after case/scope/import/run changes and validating query input before the worker. Added three SwingQueryDisplayTest checks for six-then-two display replacement with all six case records retained/reopened, empty/rejected queries without old results reappearing, and missing-case/malformed-input preflight. The corrected isolated snapshot passed 456 tests, zero failures/errors/skips. These are automated Swing checks; no new recording or student review is claimed.
 
@@ -337,7 +337,7 @@ Publication commits: implementation [81ad6fd](https://github.com/yegorsokolov/ee
 
 ## Step 21: synthetic scenarios and integration readiness — November 4
 
-**Task and instruction:** Complete reproducible synthetic scenarios and integrated demonstration coverage. Architectural context: the supplied takeover/benign inputs exercise import, scoped Command collection, observed-plan revision, fixed RuleSeverityPolicy, canonical model citations, controller lifecycle, JSON restoration and Markdown reporting. Native Qwen diagnostics stay behind LLMGateway/OllamaAdapter; demo scripts reuse the packaged CLI and accepted controller services.
+**Task and instruction:** Complete reproducible synthetic scenarios and integrated demonstration coverage. The supplied takeover/benign inputs exercise import, scoped Command collection, observed-plan revision, fixed RuleSeverityPolicy, canonical model citations, controller lifecycle, JSON restoration and Markdown reporting. Native Qwen diagnostics stay behind LLMGateway/OllamaAdapter; demo scripts reuse the packaged CLI and accepted controller services.
 
 **AI contribution:** Added supplied scenarios, the existing 32-case integrated workflow suite, two explicit supplied-scenario checks, local-runtime startup and native completion/planning diagnostics, and the original PowerShell replay. Deterministic fixtures cover complete/partial/failure, citations, budgets, persistence, recovery, CLI sharing and report safety. Optional provider/consolidated installer changes remain separate.
 
@@ -348,7 +348,7 @@ Publication commits: implementation [81ad6fd](https://github.com/yegorsokolov/ee
 
 ## Step 21: strict and portable replay correction — November 4
 
-**Task and instruction:** Make automated replay distinguish complete model output from retained partial results. Architectural context: replay helpers invoke the packaged CLI, inspect accepted Assessment/Answer values and confirm persisted case/report output; they do not change engine policy, model deadlines or source authorization.
+**Task and instruction:** Make automated replay distinguish complete model output from retained partial results. Replay helpers invoke the packaged CLI, inspect accepted Assessment/Answer values and confirm persisted case/report output; they do not change engine policy, model deadlines or source authorization.
 
 **AI contribution and outcome:** Made PowerShell argument binding explicit and scoped native stderr handling so progress does not abort replay. Added COMPLETE/7 HIGH/hypothesis and citation gates plus explicit reopen/report checks, and supplied the portable Python replay with equivalent completeness/export checks and isolated run storage. Four fake-native-server tests passed: successful replay in both helpers, plus rejection of incomplete analysis in both. The unchanged Java source/test snapshot passes 490 tests. Real planning/analysis timeout remains an external performance limitation; replay now rejects it instead of treating partial output as successful demo completion. No additional student review, real COMPLETE model run or recording is claimed.
 
@@ -356,7 +356,7 @@ Publication commits: scenarios/integration [b886e58](https://github.com/yegorsok
 
 ## Configurable providers and cross platform setup publication — November 4
 
-**Task and instruction:** Connect optional model protocols and reproducible local setup to the completed application. Architectural context: ModelSettings/ModelGatewayFactory select LLMGateway adapters at ApplicationSession composition, keeping provider payloads outside domain/planning logic. Shared bounded transport supports native Ollama and compatible chat completions. Python setup helpers validate/download/reuse runtime assets and invoke the same build/configuration/diagnostic boundary before optional GUI launch.
+**Task and instruction:** Connect optional model protocols and reproducible local setup to the completed application. ModelSettings/ModelGatewayFactory select LLMGateway adapters at ApplicationSession composition, keeping provider payloads outside domain/planning logic. Shared bounded transport supports native Ollama and compatible chat completions. Python setup helpers validate/download/reuse runtime assets and invoke the same build/configuration/diagnostic boundary before optional GUI launch.
 
 **AI contribution:** Integrated provider-neutral settings, native/compatible adapter selection, redacted key handling and canonical/legacy configuration precedence; added Windows/Linux local and hosted configuration wrappers, requirements and native Linux verification entry point. Preserved recording-era fixes and published source contracts.
 
@@ -366,7 +366,7 @@ Publication commits: scenarios/integration [b886e58](https://github.com/yegorsok
 
 ## Submission report and recording references — November 4
 
-**Task and instruction:** Synchronize the assignment report and feature/demonstration references with the published implementation. Architectural context: the feature mapping traces shared GUI/CLI actions through controller/engine services, the five accepted patterns and source-linked persistence/reporting. The assignment Word report remains distinct from runtime Markdown case exports.
+**Task and instruction:** Synchronize the assignment report and feature/demonstration references with the published implementation. The feature mapping traces shared GUI/CLI actions through controller/engine services, the five accepted patterns and source-linked persistence/reporting. The assignment Word report remains distinct from runtime Markdown case exports.
 
 **AI contribution:** Corrected stale review/publication states, verification totals, weekly commit links and current model limitations; retained feature/class/method/pattern mappings and 27 existing recording links. Rendered and inspected all 17 report pages, repairing pagination. Published document links in place of obsolete placeholders and preserved local raw media.
 
